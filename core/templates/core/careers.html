@@ -20,7 +20,7 @@
             <div class="alert error">Please fix the highlighted fields and submit again.</div>
         {% endif %}
 
-        <form method="post" class="application-form">
+        <form method="post" enctype="multipart/form-data" class="application-form">
             {% csrf_token %}
 
             <label for="id_name">Name</label>
@@ -38,6 +38,10 @@
             <label for="id_github_or_experience">{{ form.github_or_experience.label }}</label>
             {{ form.github_or_experience }}
             {{ form.github_or_experience.errors }}
+
+            <label for="id_resume">{{ form.resume.label }}</label>
+            {{ form.resume }}
+            {{ form.resume.errors }}
 
             <label for="id_motivation">Motivation</label>
             {{ form.motivation }}

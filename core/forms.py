@@ -6,7 +6,14 @@ from .models import Application
 class ApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ["name", "email", "role", "github_or_experience", "motivation"]
+        fields = [
+            "name",
+            "email",
+            "role",
+            "github_or_experience",
+            "resume",
+            "motivation",
+        ]
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Ada Lovelace"}),
             "email": forms.EmailInput(attrs={"placeholder": "you@domain.com"}),
@@ -14,6 +21,9 @@ class ApplicationForm(forms.ModelForm):
                 attrs={
                     "placeholder": "GitHub profile, publications, or equivalent experience",
                 }
+            ),
+            "resume": forms.ClearableFileInput(
+                attrs={"accept": ".pdf,.doc,.docx"}
             ),
             "motivation": forms.Textarea(
                 attrs={
@@ -24,4 +34,5 @@ class ApplicationForm(forms.ModelForm):
         }
         labels = {
             "github_or_experience": "GitHub / research links / experience (optional)",
+            "resume": "Resume (optional)",
         }

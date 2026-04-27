@@ -12,7 +12,7 @@
             StableMind is developing an explicit two-timescale architecture that separates short-term adaptation from long-term personality persistence.
         </p>
         <div class="cta-row">
-            <a class="btn btn-primary" href="/careers/">Join Team</a>
+            <a class="btn btn-primary" href="{% url 'careers' %}">Join Team</a>
             <a class="btn" href="#approach">Read research approach</a>
         </div>
     </div>
@@ -64,6 +64,9 @@
         <p class="lead small">
             The objective is not static behavior. The objective is coherent evolution: agents that can learn without losing identity.
         </p>
+        <p class="research-paper-link">
+            <a href="" target="_blank" rel="noopener noreferrer">Read research paper</a>
+        </p>
     </div>
 </section>
 
@@ -78,7 +81,7 @@
             We are recruiting students, researchers and engineers interested in agent memory, behavioral consistency,
             cognitive modeling, and alignment-adjacent systems design.
         </p>
-        <a class="btn btn-primary" href="/careers/">Join Team</a>
+        <a class="btn btn-primary" href="{% url 'careers' %}">Join Team</a>
     </div>
 </section>
 {% endblock %}
