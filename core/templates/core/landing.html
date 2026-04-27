@@ -1,29 +1,84 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>StableMind</title>
-</head>
-<body>
+{% extends 'core/base.html' %}
 
-    <h1>We build AI that stays consistent over time</h1>
+{% block title %}StableMind | Persistent Personality for AI{% endblock %}
 
-    <p>
-        StableMind is developing a new layer for AI systems that allows them to maintain a stable personality across long-term interactions.
-    </p>
+{% block content %}
+<section class="hero section">
+    <div class="container narrow">
+        <p class="eyebrow">Early-stage AI research initiative</p>
+        <h1>Building the personality layer for language model agents.</h1>
+        <p class="lead">
+            Today’s AI systems are highly capable but behaviorally unstable: they shift identity with prompt context and fail to preserve coherent character over time.
+            StableMind is developing an explicit two-timescale architecture that separates short-term adaptation from long-term personality persistence.
+        </p>
+        <div class="cta-row">
+            <a class="btn btn-primary" href="/careers/">Join Research Team</a>
+            <a class="btn" href="#approach">Read research approach</a>
+        </div>
+    </div>
+</section>
 
-    <p>
-        Today’s AI can respond intelligently, but it often lacks a persistent identity — it changes behavior depending on context and loses consistency over time.
-    </p>
+<section class="section muted" id="problem">
+    <div class="container grid-2">
+        <div>
+            <h2>Problem: AI systems lack persistent identity</h2>
+            <p>
+                Most LLM agents are reactive. They adapt to local context, but the adaptation dominates the model’s behavior,
+                producing drift across sessions and inconsistent decisions under slight framing changes.
+            </p>
+            <p>
+                This limits their reliability for collaborative research, knowledge work, and long-lived user relationships.
+            </p>
+        </div>
+        <div class="card">
+            <h3>Observed failure modes</h3>
+            <ul>
+                <li>Session-to-session personality drift</li>
+                <li>Overfitting to local prompt style</li>
+                <li>No principled identity memory model</li>
+                <li>Weak continuity in long-horizon tasks</li>
+            </ul>
+        </div>
+    </div>
+</section>
 
-    <p>
-        We are working on an architecture that separates short-term adaptation from long-term personality evolution, enabling AI systems to behave like stable, coherent entities rather than reactive tools.
-    </p>
+<section class="section" id="approach">
+    <div class="container">
+        <h2>Solution: Two-timescale architecture</h2>
+        <div class="timescale-grid">
+            <article class="card">
+                <h3>Short-term memory</h3>
+                <p>
+                    Fast adaptation layer for immediate user context, goals, and conversational state.
+                    Optimized for responsiveness and local relevance.
+                </p>
+            </article>
+            <article class="card">
+                <h3>Long-term personality</h3>
+                <p>
+                    Slow-moving identity layer that encodes stable traits, preferences, behavioral constraints,
+                    and policy consistency across interactions.
+                </p>
+            </article>
+        </div>
+        <p class="lead small">
+            The objective is not static behavior. The objective is coherent evolution: agents that can learn without losing identity.
+        </p>
+    </div>
+</section>
 
-    <p>
-        Our work is grounded in ongoing research in memory systems, agent behavior, and cognitive modeling.
-    </p>
-
-    <a href="/careers/">Join the team →</a>
-
-</body>
-</html>
+<section class="section muted">
+    <div class="container narrow">
+        <h2>Mission</h2>
+        <p>
+            Build foundational methods for persistent AI personality systems and deploy them as infrastructure
+            for next-generation agents. We prioritize technical rigor, empirical evaluation, and research transparency.
+        </p>
+        <p>
+            We are recruiting researchers and engineers interested in agent memory, behavioral consistency,
+            cognitive modeling, and alignment-adjacent systems design.
+        </p>
+        <a class="btn btn-primary" href="/careers/">Join Research Team</a>
+    </div>
+</section>
+{% endblock %}

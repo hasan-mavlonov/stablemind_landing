@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="StableMind is an AI research initiative building persistent personality systems for language model agents.">
+    <title>{% block title %}StableMind{% endblock %}</title>
+    <link rel="icon" href="{% static 'core/img/favicon.svg' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{% static 'core/css/site.css' %}" rel="stylesheet">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a class="brand" href="/">StableMind</a>
+            <nav>
+                <a href="/">Research</a>
+                <a href="/careers/">Careers</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-wrap">
+            <p>StableMind · Persistent Personality Systems for AI Agents</p>
+            <p>Built for researchers, engineers, and long-horizon AI infrastructure investors.</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'core/js/site.js' %}"></script>
+</body>
+</html>
