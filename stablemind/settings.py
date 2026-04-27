@@ -24,6 +24,8 @@ SECRET_KEY = 'django-insecure-9pm!z^(=t_&fihs$u%)3doe@a&o0d6mbu77ti=_w-yy7#n(6q%
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+from dotenv import load_dotenv
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -47,16 +49,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
-
 ROOT_URLCONF = 'stablemind.urls'
 
 TEMPLATES = [
@@ -77,16 +77,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'stablemind.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+import os
+import dj_database_url
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    # Railway (production)
+    DATABASES = {
+        "default": dj_database_url.parse(DATABASE_URL)
     }
-}
-
+else:
+    # Local (safe fallback)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
