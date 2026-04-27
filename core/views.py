@@ -1,23 +1,27 @@
-from django.shortcuts import render, redirect
-from .models import Application
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
+from .forms import ApplicationForm
+
 
 def landing_page(request):
-    return render(request, 'core/landing.html')
+    return render(request, "core/landing.html")
+
 
 def careers_page(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        role = request.POST.get('role')
-        motivation = request.POST.get('motivation')
+    if request.method == "POST":
+        form = ApplicationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('careers')}?submitted=1")
+    else:
+        form = ApplicationForm()
 
-        Application.objects.create(
-            name=name,
-            email=email,
-            role=role,
-            motivation=motivation
-        )
-
-        return redirect('/careers/')
-
-    return render(request, 'core/careers.html', {'success': True})
+    return render(
+        request,
+        "core/careers.html",
+        {
+            "form": form,
+            "success": request.method == "GET" and request.GET.get("submitted") == "1",
+        },
+    )
