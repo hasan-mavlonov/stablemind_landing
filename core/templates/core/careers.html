@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Careers - StableMind</title>
+</head>
+<body>
+
+<h1>We’re building the personality layer for AI</h1>
+
+<p>
+Current AI forgets who it is. It changes behavior too quickly and loses consistency.
+</p>
+
+<p>
+We are building a system that allows AI to evolve while keeping a stable identity.
+</p>
+
+<h2>Join Us</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <p>
+        <label>Name</label><br>
+        <input type="text" name="name" required>
+    </p>
+
+    <p>
+        <label>Email</label><br>
+        <input type="email" name="email" required>
+    </p>
+
+    <p>
+        <label>Role</label><br>
+        <select name="role">
+            <option>AI / ML</option>
+            <option>Backend (Python/Django)</option>
+            <option>Research</option>
+            <option>Other</option>
+        </select>
+    </p>
+    <p>
+    <label>GitHub / Portfolio (optional but recommended)</label><br>
+    <input type="text" name="github">
+</p>
+    <p>
+        <label>Why do you want to join?</label><br>
+        <textarea name="motivation" rows="5" required></textarea>
+    </p>
+
+    <button type="submit">Apply</button>
+</form>
+
+{% if success %}
+<p style="color:green;">Application submitted!</p>
+{% endif %}
+</body>
+</html>
