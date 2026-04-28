@@ -140,7 +140,10 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # -----------------------
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+import os
 
+if not os.path.exists(MEDIA_ROOT):
+    os.makedirs(MEDIA_ROOT)
 # -----------------------
 # Production security
 # -----------------------
