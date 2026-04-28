@@ -23,22 +23,34 @@ def upload_resume_to_supabase(file):
     Upload file to Supabase Storage and return public URL
     """
 
-    file_ext = file.name.split(".")[-1]
-    file_name = f"resumes/{uuid.uuid4()}.{file_ext}"
+    try:
+        file_ext = file.name.split(".")[-1]
+        file_name = f"resumes/{uuid.uuid4()}.{file_ext}"
 
-    # Upload to bucket "resumes"
-    supabase.storage.from_("resumes").upload(
-        file_name,
-        file.read(),
-        {
-            "content-type": file.content_type
-        }
-    )
+        # IMPORTANT: reset file pointer
+        file.file.seek(0)
+        file_content = file.file.read()
 
-    # Get public URL
-    public_url = supabase.storage.from_("resumes").get_public_url(file_name)
+        # Upload file
+        response = supabase.storage.from_("resumes").upload(
+            file_name,
+            file_content,
+            {
+                "content-type": file.content_type,
+                "upsert": "true"
+            }
+        )
 
-    return public_url
+        print("SUPABASE UPLOAD RESPONSE:", response)
+
+        # Generate public URL
+        public_url = supabase.storage.from_("resumes").get_public_url(file_name)
+
+        return public_url
+
+    except Exception as e:
+        print("SUPABASE UPLOAD ERROR:", str(e))
+        return ""
 
 
 def careers_page(request):
@@ -51,7 +63,12 @@ def careers_page(request):
             resume_file = request.FILES.get("resume")
 
             if resume_file:
-                obj.resume = upload_resume_to_supabase(resume_file)
+                uploaded_url = upload_resume_to_supabase(resume_file)
+
+                if uploaded_url:
+                    obj.resume = uploaded_url
+                else:
+                    obj.resume = ""
             else:
                 obj.resume = ""
 
@@ -67,6 +84,6 @@ def careers_page(request):
         "core/careers.html",
         {
             "form": form,
-            "success": request.method == "GET" and request.GET.get("submitted") == "1",
+            "success": request.GET.get("submitted") == "1",
         },
     )
