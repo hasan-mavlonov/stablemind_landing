@@ -35,23 +35,28 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 # -----------------------
 # Database (Neon / Supabase Postgres)
 # -----------------------
-import os
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
 
-DATABASES = {
-    "default": dj_database_url.parse(
-        DATABASE_URL,
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
+    DATABASES["default"]["OPTIONS"] = {
+        "sslmode": "require"
+    }
 
-# FORCE IPv4 (important for Render + Supabase)
-import socket
-socket.getaddrinfo = lambda *args, **kwargs: [
-    (socket.AF_INET, socket.SOCK_STREAM, 6, "", (args[0], args[1]))
-] if args else []
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # -----------------------
 # Installed apps
