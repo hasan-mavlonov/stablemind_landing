@@ -1,5 +1,8 @@
 from django.shortcuts import redirect, render
 from django.urls import reverse
+import os
+from django.http import FileResponse, Http404
+from django.conf import settings
 
 from .forms import ApplicationForm
 
@@ -27,3 +30,11 @@ def careers_page(request):
             "success": request.GET.get("submitted") == "1",
         },
     )
+
+def serve_resume(request, filename):
+    file_path = os.path.join(settings.MEDIA_ROOT, "resumes", filename)
+
+    if not os.path.exists(file_path):
+        raise Http404("File not found")
+
+    return FileResponse(open(file_path, "rb"))
