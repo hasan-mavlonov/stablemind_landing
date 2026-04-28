@@ -15,7 +15,7 @@ class Application(models.Model):
     role = models.CharField(max_length=50, choices=ROLE_CHOICES)
     motivation = models.TextField()
     github_or_experience = models.CharField(max_length=500, blank=True)
-    resume = models.TextField()
+    resume = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
