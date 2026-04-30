@@ -38,3 +38,7 @@ def serve_resume(request, filename):
         raise Http404("File not found")
 
     return FileResponse(open(file_path, "rb"))
+
+
+def research_paper_page(request):
+    return render(request, "core/research_paper.html")
