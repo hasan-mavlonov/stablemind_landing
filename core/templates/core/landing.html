@@ -6,10 +6,13 @@
 <section class="hero section">
     <div class="container narrow">
         <p class="eyebrow">Early-stage AI startup</p>
-        <h1>Building the personality layer for language model agents.</h1>
+        <h1>Building the personality layer for AI agents.</h1>
         <p class="lead">
-            Today’s AI systems are highly capable but behaviorally unstable: they shift identity with prompt context and fail to preserve coherent character over time.
-            Mind Form is developing an explicit two-timescale architecture that separates short-term adaptation from long-term personality persistence.
+            Today’s AI systems are powerful, but unstable. Their behavior shifts with prompts, sessions, and context, making them unreliable over time.
+            <br><br>
+            Mind Form is building a persistent personality architecture that allows AI systems to adapt in the moment while maintaining a consistent identity across interactions.
+            <br><br>
+            A personality layer for language models, agents, and autonomous systems.
         </p>
         <div class="cta-row">
             <a class="btn btn-primary" href="{% url 'careers' %}">Join Team</a>
@@ -23,19 +26,19 @@
         <div>
             <h2>Problem: AI systems lack persistent identity</h2>
             <p>
-                Most LLM agents are reactive. They adapt to local context, but the adaptation dominates the model’s behavior,
-                producing drift across sessions and inconsistent decisions under slight framing changes.
+                Most AI agents are reactive. They adapt to immediate context, but this adaptation dominates their behavior,
+                leading to drift across sessions and inconsistent decisions under small changes in input.
             </p>
             <p>
-                This limits their reliability for collaborative research, knowledge work, and long-lived user relationships.
+                Without a stable identity layer, these systems struggle with long-term tasks, collaboration, and maintaining coherent behavior over time.
             </p>
         </div>
         <div class="card">
             <h3>Observed failure modes</h3>
             <ul>
-                <li>Session-to-session personality drift</li>
-                <li>Overfitting to local prompt style</li>
-                <li>No principled identity memory model</li>
+                <li>Personality drift between sessions</li>
+                <li>Overfitting to prompt style and phrasing</li>
+                <li>No structured model of identity or memory</li>
                 <li>Weak continuity in long-horizon tasks</li>
             </ul>
         </div>
@@ -44,28 +47,28 @@
 
 <section class="section" id="approach">
     <div class="container">
-        <h2>Solution: Two-timescale architecture</h2>
+        <h2>Solution: Persistent personality architecture</h2>
         <div class="timescale-grid">
             <article class="card">
-                <h3>Short-term memory</h3>
+                <h3>Short-term adaptation</h3>
                 <p>
-                    Fast adaptation layer for immediate user context, goals, and conversational state.
-                    Optimized for responsiveness and local relevance.
+                    A fast layer that responds to immediate context, user intent, and conversational state.
+                    Optimized for flexibility and responsiveness.
                 </p>
             </article>
             <article class="card">
                 <h3>Long-term personality</h3>
                 <p>
-                    Slow-moving identity layer that encodes stable traits, preferences, behavioral constraints,
-                    and policy consistency across interactions.
+                    A stable layer that encodes identity, preferences, and behavioral consistency,
+                    ensuring coherent behavior across sessions and time.
                 </p>
             </article>
         </div>
         <p class="lead small">
-            The objective is not static behavior. The objective is coherent evolution: agents that can learn without losing identity.
+            The goal is not static behavior, but coherent evolution: systems that learn and adapt without losing who they are.
         </p>
         <p class="research-paper-link">
-            <a href="{% url 'research_paper' %}">Read research paper endorsement</a>
+            <a href="{% url 'research_paper' %}">Read research paper</a>
         </p>
     </div>
 </section>
@@ -74,12 +77,12 @@
     <div class="container narrow">
         <h2>Mission</h2>
         <p>
-            Build foundational methods for persistent AI personality systems and deploy them as infrastructure
-            for next-generation agents. We prioritize technical rigor, empirical evaluation, and research transparency.
+            We are building foundational infrastructure for persistent AI personality systems.
+            Our focus is on technical rigor, empirical validation, and transparent research.
         </p>
         <p>
-            We are recruiting students, researchers and engineers interested in agent memory, behavioral consistency,
-            cognitive modeling, and alignment-adjacent systems design.
+            We are recruiting students, researchers, and engineers interested in agent memory,
+            behavioral consistency, cognitive modeling, and alignment-oriented system design.
         </p>
         <a class="btn btn-primary" href="{% url 'careers' %}">Join Team</a>
     </div>
