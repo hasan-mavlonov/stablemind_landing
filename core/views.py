@@ -3,8 +3,11 @@ from django.urls import reverse
 import os
 from django.http import FileResponse, Http404
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 
-from .forms import ApplicationForm
+from .forms import ApplicationForm, AuthForm
 
 
 def landing_page(request):
@@ -42,3 +45,40 @@ def serve_resume(request, filename):
 
 def research_paper_page(request):
     return render(request, "core/research_paper.html")
+
+
+def auth_page(request):
+    if request.user.is_authenticated:
+        return render(request, "core/login.html", {"logged_in": True})
+
+    form = AuthForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+        confirm_password = form.cleaned_data["confirm_password"]
+
+        if User.objects.filter(username=username).exists():
+            user = authenticate(request, username=username, password=password)
+            if user is None:
+                form.add_error("username", "Username exists. Please use the correct password to log in.")
+            else:
+                login(request, user)
+                messages.success(request, "Logged in.")
+                return render(request, "core/login.html", {"logged_in": True})
+        else:
+            if password != confirm_password:
+                form.add_error("confirm_password", "Passwords do not match.")
+            else:
+                user = User.objects.create_user(username=username, password=password)
+                login(request, user)
+                messages.success(request, "Logged in.")
+                return render(request, "core/login.html", {"logged_in": True})
+
+    return render(request, "core/login.html", {"form": form, "logged_in": False})
+
+
+def logout_page(request):
+    logout(request)
+    messages.success(request, "Logged out.")
+    return redirect("login")
