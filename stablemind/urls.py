@@ -1,7 +1,14 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 
-from core.views import landing_page, careers_page, serve_resume, research_paper_page
+from core.views import (
+    landing_page,
+    careers_page,
+    serve_resume,
+    research_paper_page,
+    auth_page,
+    logout_page,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -12,6 +19,6 @@ urlpatterns = [
 
     path('media/resumes/<str:filename>/', serve_resume),
 
-    # AUTH (safe)
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/login/', auth_page, name='login'),
+    path('accounts/logout/', logout_page, name='logout'),
 ]
