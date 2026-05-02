@@ -8,6 +8,7 @@ from core.views import (
     research_paper_page,
     auth_page,
     logout_page,
+    profile_page,
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
 
     path('accounts/login/', auth_page, name='login'),
     path('accounts/logout/', logout_page, name='logout'),
+    path('accounts/profile/', profile_page, name='profile'),
 ]

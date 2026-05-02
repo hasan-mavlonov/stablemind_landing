@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Profile | Mind Form{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container narrow">
+        <h2>Your Profile</h2>
+        <div class="card">
+            <p><strong>Username:</strong> {{ request.user.username }}</p>
+            <p><strong>Referral code:</strong> <code>{{ profile.referral_code }}</code></p>
+        </div>
+    </div>
+</section>
+{% endblock %}
