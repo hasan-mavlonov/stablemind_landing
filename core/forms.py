@@ -11,6 +11,7 @@ class ApplicationForm(forms.ModelForm):
             "email",
             "role",
             "github_or_experience",
+            "referral_code",
             "resume",
             "motivation",
         ]
@@ -20,6 +21,7 @@ class ApplicationForm(forms.ModelForm):
             "github_or_experience": forms.TextInput(
                 attrs={"placeholder": "GitHub profile or experience"},
             ),
+            "referral_code": forms.TextInput(attrs={"placeholder": "Optional referral code (e.g. 6FDO9G)", "maxlength": "6"}),
             "resume": forms.ClearableFileInput(attrs={"accept": ".pdf,.doc,.docx"}),
             "motivation": forms.Textarea(attrs={"rows": 6}),
         }

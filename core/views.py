@@ -6,8 +6,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 from .forms import ApplicationForm, AuthForm
+from .models import UserProfile
 
 
 def landing_page(request):
@@ -49,7 +51,8 @@ def research_paper_page(request):
 
 def auth_page(request):
     if request.user.is_authenticated:
-        return render(request, "core/login.html", {"logged_in": True})
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        return render(request, "core/login.html", {"logged_in": True, "referral_code": profile.referral_code})
 
     form = AuthForm(request.POST or None)
 
@@ -64,16 +67,18 @@ def auth_page(request):
                 form.add_error("username", "Username exists. Please use the correct password to log in.")
             else:
                 login(request, user)
+                profile, _ = UserProfile.objects.get_or_create(user=user)
                 messages.success(request, "Logged in.")
-                return render(request, "core/login.html", {"logged_in": True})
+                return render(request, "core/login.html", {"logged_in": True, "referral_code": profile.referral_code})
         else:
             if password != confirm_password:
                 form.add_error("confirm_password", "Passwords do not match.")
             else:
                 user = User.objects.create_user(username=username, password=password)
                 login(request, user)
+                profile, _ = UserProfile.objects.get_or_create(user=user)
                 messages.success(request, "Logged in.")
-                return render(request, "core/login.html", {"logged_in": True})
+                return render(request, "core/login.html", {"logged_in": True, "referral_code": profile.referral_code})
 
     return render(request, "core/login.html", {"form": form, "logged_in": False})
 
@@ -82,3 +87,9 @@ def logout_page(request):
     logout(request)
     messages.success(request, "Logged out.")
     return redirect("login")
+
+
+@login_required
+def profile_page(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    return render(request, "core/profile.html", {"profile": profile})

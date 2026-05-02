@@ -15,7 +15,8 @@
 
         {% if logged_in %}
             <p>You are logged in.</p>
-            <a class="btn btn-primary" href="{% url 'landing' %}">Go to homepage</a>
+            <p><strong>Your referral code:</strong> <code>{{ referral_code }}</code></p>
+            <a class="btn btn-primary" href="{% url 'profile' %}">Go to profile</a>
             <a class="btn" href="{% url 'logout' %}">Logout</a>
         {% else %}
             <p>Enter your username and password twice.</p>

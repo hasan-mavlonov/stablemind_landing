@@ -39,6 +39,10 @@
             {{ form.github_or_experience }}
             {{ form.github_or_experience.errors }}
 
+            <label for="id_referral_code">Referral code (optional)</label>
+            {{ form.referral_code }}
+            {{ form.referral_code.errors }}
+
             <label for="id_resume">{{ form.resume.label }}</label>
             {{ form.resume }}
             {{ form.resume.errors }}
