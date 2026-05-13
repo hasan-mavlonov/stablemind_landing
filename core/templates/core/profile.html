@@ -3,13 +3,38 @@
 {% block title %}Profile | Mindform{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container narrow">
-        <h2>Your Profile</h2>
-        <div class="card">
-            <p><strong>Username:</strong> {{ request.user.username }}</p>
-            <p><strong>Referral code:</strong> <code>{{ profile.referral_code }}</code></p>
-        </div>
+<div class="page-hero">
+  <div class="container">
+    <div class="narrow">
+      <p class="eyebrow">Account</p>
+      <h1 class="display"><em>{{ request.user.username }}</em></h1>
     </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="narrow">
+
+      <div class="card">
+        <div class="profile-stat">
+          <div class="profile-stat-label">Username</div>
+          <div class="profile-stat-value">{{ request.user.username }}</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-label">Your referral code</div>
+          <div style="margin-top: 10px;">
+            <span class="referral-code">{{ profile.referral_code }}</span>
+          </div>
+          <p style="margin-top: 14px; font-size: 15px; color: var(--muted-2); font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;">Share this code with people you refer to Mindform.</p>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <a href="{% url 'logout' %}" class="btn">Log out</a>
+      </div>
+
+    </div>
+  </div>
 </section>
 {% endblock %}

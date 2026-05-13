@@ -3,56 +3,63 @@
 {% block title %}Careers | Mindform{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container narrow">
-        <p class="eyebrow">Careers</p>
-        <h1>Join Mind Form.</h1>
-        <p class="lead">
-            We are building persistent personality systems for LLM agents.
-            We look for people with depth in machine learning, agent systems, and cognitive modeling.
-        </p>
-
-        {% if success %}
-            <div class="alert success">Application submitted. Thank you — we will review and follow up by email.</div>
-        {% endif %}
-
-        {% if form.errors %}
-            <div class="alert error">Please fix the highlighted fields and submit again.</div>
-        {% endif %}
-
-        <form method="post" enctype="multipart/form-data" class="application-form">
-            {% csrf_token %}
-
-            <label for="id_name">Name</label>
-            {{ form.name }}
-            {{ form.name.errors }}
-
-            <label for="id_email">Email</label>
-            {{ form.email }}
-            {{ form.email.errors }}
-
-            <label for="id_role">Role interest</label>
-            {{ form.role }}
-            {{ form.role.errors }}
-
-            <label for="id_github_or_experience">{{ form.github_or_experience.label }}</label>
-            {{ form.github_or_experience }}
-            {{ form.github_or_experience.errors }}
-
-            <label for="id_referral_code">Referral code (optional)</label>
-            {{ form.referral_code }}
-            {{ form.referral_code.errors }}
-
-            <label for="id_resume">{{ form.resume.label }}</label>
-            {{ form.resume }}
-            {{ form.resume.errors }}
-
-            <label for="id_motivation">Motivation</label>
-            {{ form.motivation }}
-            {{ form.motivation.errors }}
-
-            <button type="submit" class="btn btn-primary">Submit application</button>
-        </form>
+<div class="page-hero">
+  <div class="container">
+    <div class="narrow">
+      <p class="eyebrow">[ 07 ] — Careers</p>
+      <h1 class="display">Join the team<br /><em>building someone.</em></h1>
+      <p class="lead">We're building persistent personality systems for LLM agents. We look for people with depth in machine learning, agent systems, and cognitive modeling — people who care about the long-horizon problem.</p>
     </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="narrow">
+
+      {% if success %}
+        <div class="alert success">Application submitted — we'll review and follow up by email.</div>
+      {% endif %}
+
+      {% if form.errors %}
+        <div class="alert error">Please fix the highlighted fields and try again.</div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data" class="application-form">
+        {% csrf_token %}
+
+        <label for="id_name">Full name</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+
+        <label for="id_email">Email address</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+
+        <label for="id_role">Role interest</label>
+        {{ form.role }}
+        {{ form.role.errors }}
+
+        <label for="id_github_or_experience">{{ form.github_or_experience.label }}</label>
+        {{ form.github_or_experience }}
+        {{ form.github_or_experience.errors }}
+
+        <label for="id_referral_code">Referral code (optional)</label>
+        {{ form.referral_code }}
+        {{ form.referral_code.errors }}
+
+        <label for="id_resume">{{ form.resume.label }}</label>
+        {{ form.resume }}
+        {{ form.resume.errors }}
+
+        <label for="id_motivation">Why Mindform?</label>
+        {{ form.motivation }}
+        {{ form.motivation.errors }}
+
+        <button type="submit" class="btn btn-primary">Submit application →</button>
+      </form>
+
+    </div>
+  </div>
 </section>
 {% endblock %}

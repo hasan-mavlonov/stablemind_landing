@@ -1,31 +1,54 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Account | Mindform{% endblock %}
+{% block title %}Log in | Mindform{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container narrow">
-        <h2>Login or Create Account</h2>
-
-        {% if messages %}
-            {% for message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-
-        {% if logged_in %}
-            <p>You are logged in.</p>
-            <p><strong>Your referral code:</strong> <code>{{ referral_code }}</code></p>
-            <a class="btn btn-primary" href="{% url 'profile' %}">Go to profile</a>
-            <a class="btn" href="{% url 'logout' %}">Logout</a>
-        {% else %}
-            <p>Enter your username and password twice.</p>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button class="btn btn-primary" type="submit">Continue</button>
-            </form>
-        {% endif %}
+<div class="page-hero">
+  <div class="container">
+    <div class="narrow">
+      <p class="eyebrow">Account</p>
+      <h1 class="display">Log in or<br /><em>create account.</em></h1>
+      <p class="lead">Use your username and password. Entering a new username creates an account automatically.</p>
     </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="narrow">
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert success">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" class="auth-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label" for="id_username">Username</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_password">Password</label>
+          {{ form.password }}
+          {{ form.password.errors }}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_confirm_password">Confirm password</label>
+          {{ form.confirm_password }}
+          {{ form.confirm_password.errors }}
+          <p class="auth-hint">Required when creating a new account. Leave blank or repeat your password when logging in.</p>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Continue →</button>
+      </form>
+
+    </div>
+  </div>
 </section>
 {% endblock %}
