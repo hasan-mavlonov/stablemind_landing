@@ -51,8 +51,7 @@ def research_paper_page(request):
 
 def auth_page(request):
     if request.user.is_authenticated:
-        profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        return render(request, "core/login.html", {"logged_in": True, "referral_code": profile.referral_code})
+        return redirect("profile")
 
     form = AuthForm(request.POST or None)
 
@@ -67,18 +66,18 @@ def auth_page(request):
                 form.add_error("username", "Username exists. Please use the correct password to log in.")
             else:
                 login(request, user)
-                profile, _ = UserProfile.objects.get_or_create(user=user)
+                UserProfile.objects.get_or_create(user=user)
                 messages.success(request, "Logged in.")
-                return render(request, "core/login.html", {"logged_in": True, "referral_code": profile.referral_code})
+                return redirect("profile")
         else:
             if password != confirm_password:
                 form.add_error("confirm_password", "Passwords do not match.")
             else:
                 user = User.objects.create_user(username=username, password=password)
                 login(request, user)
-                profile, _ = UserProfile.objects.get_or_create(user=user)
-                messages.success(request, "Logged in.")
-                return render(request, "core/login.html", {"logged_in": True, "referral_code": profile.referral_code})
+                UserProfile.objects.get_or_create(user=user)
+                messages.success(request, "Account created.")
+                return redirect("profile")
 
     return render(request, "core/login.html", {"form": form, "logged_in": False})
 
