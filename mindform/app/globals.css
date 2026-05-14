@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FBF7EE;
+  --color-tomato: #E84A3C;
+  --color-mustard: #E8B53C;
+  --color-leaf: #4A8B3C;
+  --color-sky: #3C7AE8;
+  --color-plum: #7A3CE8;
+  --color-bone: #F8F4E8;
+  --color-charcoal: #1A1A1A;
+  --color-offblack: #0A0A0A;
+  --color-offwhite: #F8F8F8;
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-hand: var(--font-caveat), cursive;
+}
+
+:root {
+  /* Marketing palette tokens (light / paper) */
+  --bg-marketing: #FBF7EE;
+  --fg-marketing: #1A1A1A;
+  --bg-system: #0A0A0A;
+  --fg-system: #F8F8F8;
+  --accent: #E84A3C;
+  --rule: rgba(26, 26, 26, 0.12);
+}
+
+:root[data-theme="dark"] {
+  --bg-marketing: #141210;
+  --fg-marketing: #F8F4E8;
+  --bg-system: #0A0A0A;
+  --fg-system: #F8F8F8;
+  --rule: rgba(248, 244, 232, 0.16);
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  background: var(--bg-marketing);
+  color: var(--fg-marketing);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--accent);
+  color: #FBF7EE;
+}
+
+/* Floating animation for hero cast */
+@keyframes float-y {
+  0%, 100% { transform: translateY(-8px); }
+  50% { transform: translateY(8px); }
+}
+
+.float-anim {
+  animation: float-y 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Hover wobble for cast illustrations */
+@keyframes wobble {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(-2deg); }
+  75%  { transform: rotate(2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.wobble-target {
+  transition: transform 600ms ease;
+}
+
+.wobble-target:hover,
+.wobble-target:focus-visible {
+  animation: wobble 600ms ease;
+}
+
+/* Custom cursor for system surfaces */
+.system-surface {
+  background: var(--bg-system);
+  color: var(--fg-system);
+  font-family: var(--font-mono);
+}
+
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: var(--accent);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transform: translate3d(-50px, -50px, 0);
+  z-index: 60;
+  transition: transform 80ms linear, opacity 200ms ease;
+  opacity: 0;
+}
+
+.cursor-dot.is-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .cursor-dot { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float-anim,
+  .wobble-target:hover { animation: none; }
+}
+
+/* No-em-dash safety: this CSS comment is the only place the word
+   appears. Authors: use periods, commas, or colons. */
+
+/* Mobile typography scaling */
+@media (max-width: 640px) {
+  .scale-headline { font-size: 0.7em; }
+}
