@@ -12,11 +12,35 @@
   --belief-tint: rgba(240, 56, 107, 0.08);
   --trait: #5B3FE0;
   --trait-soft: #9A7FFF;
+  --surface-card: #ffffff;
+  --surface-inverted: #1A0E2E;
+  --on-inverted: #FAF7F1;
+  --nav-fade: rgba(250, 247, 241, 0);
   --serif-display: "Instrument Serif", "Newsreader", Georgia, serif;
   --serif-body: "Newsreader", Georgia, "Times New Roman", serif;
   --sans: "Bricolage Grotesque", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
 }
+
+[data-theme="dark"] {
+  --bone: #0E0820;
+  --bone-2: #161029;
+  --bone-3: #221638;
+  --ink: #F2EAD6;
+  --ink-2: #C9C0AA;
+  --muted: #9B8DB0;
+  --muted-2: #B5A8C7;
+  --hairline: rgba(242, 234, 214, 0.12);
+  --belief-tint: rgba(240, 56, 107, 0.16);
+  --surface-card: #16102B;
+  --surface-inverted: #06010E;
+  --on-inverted: #F2EAD6;
+  --nav-fade: rgba(14, 8, 32, 0);
+  color-scheme: dark;
+}
+
+html { transition: background-color 0.25s ease, color 0.25s ease; }
 
 * { box-sizing: border-box; }
 html, body {
@@ -104,7 +128,7 @@ code {
 .site-nav-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--bone) 40%, rgba(250,247,241,0));
+  background: linear-gradient(to bottom, var(--bone) 40%, var(--nav-fade));
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
@@ -156,7 +180,7 @@ code {
 
 /* ── Cards ── */
 .card {
-  background: #fff;
+  background: var(--surface-card);
   border: 1px solid var(--hairline);
   border-radius: 6px;
   padding: 36px 32px;
@@ -215,14 +239,14 @@ code {
 .application-form select {
   width: 100%;
   border: 1px solid var(--bone-3);
-  background: #fff;
+  background: var(--surface-card);
   color: var(--ink);
   border-radius: 4px;
   padding: 13px 16px;
   font-family: var(--serif-body);
   font-size: 17px;
   line-height: 1.4;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
   appearance: none;
   -webkit-appearance: none;
 }
@@ -270,13 +294,13 @@ code {
 .auth-form input {
   width: 100%;
   border: 1px solid var(--bone-3);
-  background: #fff;
+  background: var(--surface-card);
   color: var(--ink);
   border-radius: 4px;
   padding: 13px 16px;
   font-family: var(--serif-body);
   font-size: 17px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
 .auth-form input:focus { outline: none; border-color: var(--ink); }
 .auth-hint {
@@ -319,7 +343,7 @@ code {
 
 /* ── Research paper card ── */
 .paper-card {
-  background: #fff;
+  background: var(--surface-card);
   border: 1px solid var(--hairline);
   border-radius: 4px;
   padding: 40px 36px;
@@ -370,8 +394,8 @@ code {
 
 /* ── Footer ── */
 .site-footer {
-  background: var(--ink);
-  color: var(--bone);
+  background: var(--surface-inverted);
+  color: var(--on-inverted);
   padding: 64px 0;
 }
 .footer-inner {
@@ -414,12 +438,163 @@ code {
   gap: 8px;
 }
 
+/* ── Skip link (a11y) ── */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  background: var(--ink);
+  color: var(--bone);
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  z-index: 200;
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 12px; outline: 2px solid var(--belief); outline-offset: 2px; }
+
+/* ── Theme toggle ── */
+.theme-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.theme-toggle:hover { border-color: var(--ink); background: var(--bone-2); }
+.theme-toggle:focus-visible { outline: 2px solid var(--belief); outline-offset: 3px; }
+.theme-toggle .theme-icon {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 16px;
+  height: 16px;
+  transition: opacity 0.25s ease, transform 0.35s ease;
+}
+[data-theme="light"] .theme-icon-moon { opacity: 1; transform: rotate(0); }
+[data-theme="light"] .theme-icon-sun  { opacity: 0; transform: rotate(90deg) scale(0.6); }
+[data-theme="dark"]  .theme-icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+[data-theme="dark"]  .theme-icon-sun  { opacity: 1; transform: rotate(0); }
+
+/* ── Mobile menu trigger ── */
+.nav-menu-btn {
+  display: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.nav-menu-btn:focus-visible { outline: 2px solid var(--belief); outline-offset: 3px; }
+.nav-menu-btn span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: currentColor;
+  position: relative;
+}
+.nav-menu-btn span::before,
+.nav-menu-btn span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 16px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 0.2s;
+}
+.nav-menu-btn span::before { top: -5px; }
+.nav-menu-btn span::after  { top:  5px; }
+
+/* ── Focus states (a11y) ── */
+.btn:focus-visible,
+.nav-links a:focus-visible,
+.footer-links a:focus-visible {
+  outline: 2px solid var(--belief);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.application-form input:focus-visible,
+.application-form textarea:focus-visible,
+.application-form select:focus-visible,
+.auth-form input:focus-visible {
+  outline: 2px solid var(--belief);
+  outline-offset: 2px;
+}
+
+/* ── Inverted-section dark-mode overrides ── */
+[data-theme="dark"] .site-footer { background: var(--surface-inverted); color: var(--on-inverted); }
+
+/* Cards in dark mode get a softer shadow */
+[data-theme="dark"] .card,
+[data-theme="dark"] .paper-card {
+  box-shadow: 0 20px 40px -20px rgba(0,0,0,0.5);
+}
+
+/* Selection */
+[data-theme="dark"] ::selection { background: var(--ink); color: var(--bone); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .container { padding: 0 24px; }
   .section { padding: 80px 0; }
   .page-hero { padding: 120px 0 60px; }
   .site-nav { padding: 16px 24px; }
-  .nav-links { display: none; }
+  .site-nav .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--bone);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    padding: 8px 24px 16px;
+    display: none;
+  }
+  .site-nav .nav-links.is-open { display: flex; }
+  .site-nav .nav-links a {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .site-nav .nav-links a:last-child { border-bottom: none; }
+  .nav-menu-btn { display: inline-flex; }
+  .nav-actions { gap: 8px; }
+  .site-nav .btn-primary { display: none; }
   .footer-inner { flex-direction: column; align-items: flex-start; }
+}
+
+.nav-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
 }

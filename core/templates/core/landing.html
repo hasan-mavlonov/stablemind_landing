@@ -8,6 +8,19 @@
 <title>Mindform — The personality layer for AI</title>
 
 <link rel="icon" href="{% static 'core/img/favicon.svg' %}">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t !== 'dark' && t !== 'light') {
+        t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&family=JetBrains+Mono:wght@300;400;500&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500&display=swap" rel="stylesheet" />
@@ -21,11 +34,31 @@
   --belief: #F0386B; --belief-soft: #FF6F94; --belief-tint: rgba(240, 56, 107, 0.10);
   --trait: #5B3FE0; --trait-soft: #9A7FFF; --trait-tint: rgba(91, 63, 224, 0.08);
   --honey: #F5B341;
+  --surface-card: #ffffff;
+  --surface-inverted: #1A0E2E;
+  --on-inverted: #FAF7F1;
+  --nav-fade: rgba(244,236,222,0);
+  --hero-cap-bg: rgba(250,247,241,0.85);
   --serif-display: "Instrument Serif", "Newsreader", Georgia, serif;
   --serif-body: "Newsreader", Georgia, "Times New Roman", serif;
   --sans-display: "Bricolage Grotesque", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
 }
+[data-theme="dark"] {
+  --bone: #0E0820; --bone-2: #161029; --bone-3: #221638;
+  --ink: #F2EAD6; --ink-2: #C9C0AA;
+  --muted: #9B8DB0; --muted-2: #B5A8C7;
+  --hairline: rgba(242,234,214,0.12);
+  --belief-tint: rgba(240, 56, 107, 0.18);
+  --surface-card: #16102B;
+  --surface-inverted: #06010E;
+  --on-inverted: #F2EAD6;
+  --nav-fade: rgba(14,8,32,0);
+  --hero-cap-bg: rgba(14,8,32,0.85);
+  color-scheme: dark;
+}
+html { transition: background-color 0.25s ease, color 0.25s ease; }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; background: var(--bone); color: var(--ink); font-family: var(--serif-body); font-weight: 400; font-size: 18px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
 body { overflow-x: hidden; }
@@ -50,7 +83,7 @@ p { margin: 0; }
 /* Nav */
 .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; pointer-events: none; }
 .nav > * { pointer-events: auto; }
-.nav-bg { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--bone) 30%, rgba(244,236,222,0)); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: -1; }
+.nav-bg { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--bone) 30%, var(--nav-fade)); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: -1; }
 .nav.is-scrolled .nav-bg { opacity: 1; }
 .wordmark { font-family: var(--serif-display); font-size: 26px; letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 10px; }
 .wordmark-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--belief); display: inline-block; margin-bottom: 2px; }
@@ -75,7 +108,7 @@ p { margin: 0; }
 .hero-mind { position: relative; width: 100%; height: 100%; min-height: 620px; }
 .hero-mind-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .hero-mind-canvas canvas { display: block; width: 100% !important; height: 100% !important; }
-.hero-mind-caption { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 22px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-2); white-space: nowrap; z-index: 2; background: rgba(250,247,241,0.85); backdrop-filter: blur(6px); padding: 8px 16px; border: 1px solid var(--hairline); border-radius: 999px; }
+.hero-mind-caption { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 22px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-2); white-space: nowrap; z-index: 2; background: var(--hero-cap-bg); backdrop-filter: blur(6px); padding: 8px 16px; border: 1px solid var(--hairline); border-radius: 999px; }
 .hero-mind-caption .dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; display: inline-block; vertical-align: middle; }
 .hero-mind-caption .dot-belief { background: var(--belief); box-shadow: 0 0 8px var(--belief); }
 .hero-mind-caption .dot-trait  { background: var(--trait-soft); box-shadow: 0 0 6px var(--trait-soft); }
@@ -83,15 +116,15 @@ p { margin: 0; }
 .hero-meta .k { color: var(--belief); margin-right: 12px; text-transform: uppercase; letter-spacing: 0.16em; }
 
 /* Problem */
-.problem { background: var(--ink); color: var(--bone); padding: 160px 0; }
-.problem .container { color: var(--bone); }
+.problem { background: var(--surface-inverted); color: var(--on-inverted); padding: 160px 0; }
+.problem .container { color: var(--on-inverted); }
 .problem .eyebrow { color: rgba(244,236,222,0.5); }
 .problem-title { font-size: clamp(48px, 7vw, 110px); line-height: 0.95; letter-spacing: -0.02em; margin-bottom: 80px; max-width: 1100px; }
 .problem-title .drift { color: var(--belief-soft); font-style: italic; }
 .drift-demo { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; margin-bottom: 80px; }
 .drift-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 28px; }
 .drift-card-time { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,236,222,0.4); margin-bottom: 18px; }
-.drift-quote { font-family: var(--serif-display); font-size: 28px; line-height: 1.15; letter-spacing: -0.01em; color: var(--bone); }
+.drift-quote { font-family: var(--serif-display); font-size: 28px; line-height: 1.15; letter-spacing: -0.01em; color: var(--on-inverted); }
 .drift-card-3 .drift-quote { color: var(--belief-soft); font-style: italic; }
 .drift-arrow { display: flex; justify-content: center; align-items: center; font-family: var(--mono); font-size: 11px; color: rgba(244,236,222,0.4); letter-spacing: 0.18em; margin: -20px 0 28px; }
 .failure-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; border-top: 1px solid rgba(255,255,255,0.14); padding-top: 60px; }
@@ -117,7 +150,7 @@ p { margin: 0; }
 .diagram-canvas { position: relative; width: 100%; height: 100%; max-width: 760px; max-height: 600px; }
 
 /* Demo */
-.demo-section { background: var(--ink); color: var(--bone); padding: 160px 0; position: relative; overflow: hidden; }
+.demo-section { background: var(--surface-inverted); color: var(--on-inverted); padding: 160px 0; position: relative; overflow: hidden; }
 .demo-section .eyebrow { color: rgba(244,236,222,0.5); }
 .demo-title { font-size: clamp(44px, 6vw, 88px); line-height: 0.95; letter-spacing: -0.02em; margin-bottom: 24px; max-width: 900px; }
 .demo-title em { color: var(--belief-soft); font-style: italic; }
@@ -161,7 +194,7 @@ p { margin: 0; }
 .reflection-banner { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(240,56,107,0.14); border: 1px solid rgba(240,56,107,0.5); border-radius: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--belief-soft); opacity: 0; transition: opacity 0.3s; }
 .reflection-banner.is-on { opacity: 1; }
 .demo-controls { display: flex; align-items: center; gap: 16px; margin-top: 28px; font-family: var(--mono); font-size: 12px; color: rgba(244,236,222,0.5); letter-spacing: 0.12em; }
-.demo-btn { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; padding: 10px 18px; border: 1px solid rgba(244,236,222,0.25); border-radius: 999px; background: transparent; color: var(--bone); cursor: pointer; }
+.demo-btn { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; padding: 10px 18px; border: 1px solid rgba(244,236,222,0.25); border-radius: 999px; background: transparent; color: var(--on-inverted); cursor: pointer; transition: background 0.2s, border-color 0.2s; }
 .demo-btn:hover { background: rgba(255,255,255,0.06); }
 
 /* Use Cases */
@@ -197,7 +230,7 @@ p { margin: 0; }
 .research-title em { color: var(--belief); font-style: italic; }
 .research-lead { font-size: 19px; line-height: 1.55; color: var(--ink-2); max-width: 540px; margin-bottom: 36px; }
 .paper-card { background: #fff; border: 1px solid var(--hairline); border-radius: 4px; padding: 36px 32px; box-shadow: 0 30px 60px -30px rgba(26,14,46,0.18); position: relative; }
-.paper-stamp { position: absolute; top: -14px; right: 28px; background: var(--belief); color: var(--bone); font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; padding: 6px 10px; border-radius: 2px; }
+.paper-stamp { position: absolute; top: -14px; right: 28px; background: var(--belief); color: #FAF7F1; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; padding: 6px 10px; border-radius: 2px; }
 .paper-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 14px; }
 .paper-title { font-family: var(--serif-display); font-size: 30px; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 6px; }
 .paper-authors { font-style: italic; color: var(--muted-2); font-size: 14px; margin-bottom: 24px; }
@@ -213,24 +246,51 @@ p { margin: 0; }
 .cite-body em { font-style: italic; }
 
 /* Careers CTA */
-.careers-cta { background: var(--ink); padding: 140px 0; text-align: center; }
-.careers-cta h2 { font-family: var(--serif-display); font-size: clamp(44px, 6vw, 88px); line-height: 0.95; letter-spacing: -0.02em; color: var(--bone); margin-bottom: 28px; }
+.careers-cta { background: var(--surface-inverted); padding: 140px 0; text-align: center; }
+.careers-cta h2 { font-family: var(--serif-display); font-size: clamp(44px, 6vw, 88px); line-height: 0.95; letter-spacing: -0.02em; color: var(--on-inverted); margin-bottom: 28px; }
 .careers-cta h2 em { color: var(--belief-soft); font-style: italic; }
 .careers-cta p { font-size: 20px; color: rgba(244,236,222,0.65); max-width: 560px; margin: 0 auto 48px; line-height: 1.5; }
 .careers-cta .btn { background: var(--belief); border-color: var(--belief); color: #fff; font-size: 14px; padding: 16px 32px; }
 .careers-cta .btn:hover { background: var(--belief-soft); border-color: var(--belief-soft); }
 
 /* Footer */
-.footer { background: var(--ink); color: var(--bone); padding: 120px 0 60px; position: relative; overflow: hidden; }
+.footer { background: var(--surface-inverted); color: var(--on-inverted); padding: 120px 0 60px; position: relative; overflow: hidden; }
 .footer-tagline { font-family: var(--serif-display); font-size: clamp(60px, 11vw, 180px); line-height: 0.9; letter-spacing: -0.03em; margin-bottom: 80px; }
 .footer-tagline em { color: var(--belief-soft); font-style: italic; }
 .footer-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 40px; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.12); border-bottom: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px; }
 .footer-col h5 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(244,236,222,0.5); margin: 0 0 18px; font-weight: 400; }
 .footer-col ul { list-style: none; margin: 0; padding: 0; }
-.footer-col li { font-family: var(--serif-body); font-size: 17px; padding: 6px 0; color: var(--bone); }
+.footer-col li { font-family: var(--serif-body); font-size: 17px; padding: 6px 0; color: var(--on-inverted); }
 .footer-col li a { opacity: 0.85; }
 .footer-col li a:hover { opacity: 1; color: var(--belief-soft); }
 .footer-meta { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(244,236,222,0.45); }
+
+/* Theme toggle + mobile menu (landing) */
+.skip-link { position: absolute; top: -40px; left: 12px; background: var(--ink); color: var(--bone); padding: 8px 14px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 4px; z-index: 200; transition: top 0.2s; }
+.skip-link:focus { top: 12px; outline: 2px solid var(--belief); outline-offset: 2px; }
+.nav-actions { display: inline-flex; align-items: center; gap: 12px; }
+.theme-toggle { width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--hairline); background: transparent; color: var(--ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative; flex-shrink: 0; transition: border-color 0.2s, background 0.2s; }
+.theme-toggle:hover { border-color: var(--ink); background: var(--bone-2); }
+.theme-toggle:focus-visible { outline: 2px solid var(--belief); outline-offset: 3px; }
+.theme-toggle svg { position: absolute; inset: 0; margin: auto; width: 16px; height: 16px; transition: opacity 0.25s, transform 0.35s; }
+[data-theme="light"] .theme-icon-moon { opacity: 1; transform: rotate(0); }
+[data-theme="light"] .theme-icon-sun  { opacity: 0; transform: rotate(90deg) scale(0.6); }
+[data-theme="dark"]  .theme-icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+[data-theme="dark"]  .theme-icon-sun  { opacity: 1; transform: rotate(0); }
+.nav-menu-btn { display: none; width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--hairline); background: transparent; color: var(--ink); cursor: pointer; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; }
+.nav-menu-btn:focus-visible { outline: 2px solid var(--belief); outline-offset: 3px; }
+.nav-menu-btn span { position: relative; display: block; width: 16px; height: 1.5px; background: currentColor; }
+.nav-menu-btn span::before, .nav-menu-btn span::after { content: ""; position: absolute; left: 0; width: 16px; height: 1.5px; background: currentColor; }
+.nav-menu-btn span::before { top: -5px; }
+.nav-menu-btn span::after  { top:  5px; }
+.btn:focus-visible, .nav-links a:focus-visible, .demo-btn:focus-visible, .footer-col li a:focus-visible { outline: 2px solid var(--belief); outline-offset: 3px; border-radius: 4px; }
+[data-theme="dark"] .paper-card { box-shadow: 0 30px 60px -30px rgba(0,0,0,0.55); }
+[data-theme="dark"] .drift-card { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
+[data-theme="dark"] .demo-stage { background: rgba(255,255,255,0.015); border-color: rgba(255,255,255,0.08); }
+[data-theme="dark"] ::selection { background: var(--ink); color: var(--bone); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 
 @media (max-width: 1000px) { .hero-grid { grid-template-columns: 1fr; } .hero-visual { min-height: 440px; order: -1; } .hero-mind { min-height: 440px; } }
 @media (max-width: 900px) {
@@ -239,7 +299,13 @@ p { margin: 0; }
   .usecases-grid { grid-template-columns: 1fr; } .diff-row { grid-template-columns: 1fr; gap: 16px; }
   .research-grid { grid-template-columns: 1fr; gap: 60px; } .demo-stage { grid-template-columns: 1fr; }
   .diagram-sticky { grid-template-columns: 1fr; height: auto; position: relative; } .diagram-stage { height: auto; }
-  .footer-row { grid-template-columns: 1fr 1fr; } .nav { padding: 16px 24px; } .nav-links { display: none; }
+  .footer-row { grid-template-columns: 1fr 1fr; } .nav { padding: 16px 24px; }
+  .nav .nav-links { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: var(--bone); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 8px 24px 16px; display: none; }
+  .nav .nav-links.is-open { display: flex; }
+  .nav .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--hairline); }
+  .nav .nav-links a:last-child { border-bottom: none; }
+  .nav-menu-btn { display: inline-flex; }
+  .nav .nav-cta-desktop { display: none; }
 }
 </style>
 
@@ -266,27 +332,87 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
 
 {% verbatim %}<script type="text/babel">
 
-const Nav = () => {
+const useTheme = () => {
+  const get = () => document.documentElement.getAttribute('data-theme') || 'light';
+  const [theme, setTheme] = React.useState(get);
+  React.useEffect(() => {
+    const obs = new MutationObserver(() => setTheme(get()));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    let mq = null, listener = null;
+    if (window.matchMedia) {
+      mq = window.matchMedia('(prefers-color-scheme: dark)');
+      listener = (e) => {
+        try { if (localStorage.getItem('theme')) return; } catch (err) {}
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      };
+      if (mq.addEventListener) mq.addEventListener('change', listener);
+      else if (mq.addListener) mq.addListener(listener);
+    }
+    return () => {
+      obs.disconnect();
+      if (mq && listener) {
+        if (mq.removeEventListener) mq.removeEventListener('change', listener);
+        else if (mq.removeListener) mq.removeListener(listener);
+      }
+    };
+  }, []);
+  const toggle = React.useCallback(() => {
+    const next = get() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  }, []);
+  return [theme, toggle];
+};
+
+const ThemeToggle = ({ theme, onToggle }) => (
+  <button type="button" className="theme-toggle" aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'} aria-pressed={theme === 'dark'} onClick={onToggle}>
+    <svg className="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+    </svg>
+    <svg className="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+);
+
+const Nav = ({ theme, onToggleTheme }) => {
   const [scrolled, setScrolled] = React.useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   const urls = window.SITE_URLS;
+  const closeMenu = () => setMenuOpen(false);
   return (
     <nav className={"nav " + (scrolled ? "is-scrolled" : "")}>
       <div className="nav-bg"></div>
       <a href={urls.home} className="wordmark"><span className="wordmark-dot"></span>Mindform</a>
-      <div className="nav-links">
-        <a href="#problem">Problem</a>
-        <a href="#demo">Demo</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#usecases">Use cases</a>
-        <a href={urls.researchPaper}>Research</a>
-        <a href={urls.careers}>Careers</a>
+      <div className={"nav-links " + (menuOpen ? "is-open" : "")}>
+        <a href="#problem" onClick={closeMenu}>Problem</a>
+        <a href="#demo" onClick={closeMenu}>Demo</a>
+        <a href="#architecture" onClick={closeMenu}>Architecture</a>
+        <a href="#usecases" onClick={closeMenu}>Use cases</a>
+        <a href={urls.researchPaper} onClick={closeMenu}>Research</a>
+        <a href={urls.careers} onClick={closeMenu}>Careers</a>
+        {window.IS_AUTHENTICATED
+          ? <a href={urls.profile} onClick={closeMenu}>Profile</a>
+          : <a href={urls.login} onClick={closeMenu}>Log in</a>}
       </div>
-      <a href={urls.careers} className="btn btn-primary" style={{padding: "10px 18px", whiteSpace: "nowrap"}}>Join the team →</a>
+      <div className="nav-actions">
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        <a href={urls.careers} className="btn btn-primary nav-cta-desktop" style={{padding: "10px 18px", whiteSpace: "nowrap"}}>Join the team →</a>
+        <button
+          type="button"
+          className="nav-menu-btn"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(o => !o)}>
+          <span></span>
+        </button>
+      </div>
     </nav>
   );
 };
@@ -499,52 +625,58 @@ const STEPS=[
 ];
 const ease=(t)=>t<0?0:t>1?1:t*t*(3-2*t);
 
-const DiagramCanvas=({step,sub})=>{
+const DiagramCanvas=({step,sub,theme})=>{
   const reveal=(n)=>step>n?1:step===n?ease(sub):0;
   const r0=reveal(0),r1=reveal(1),r2=reveal(2),r3=reveal(3),r4=reveal(4),r5=reveal(5);
   const belief=(i)=>{const d=[0.32,-0.45,0.28,-0.18,0.40][i]||0;return{baseline:0,current:d*Math.min(1,r2*1.2)};};
   const ts=(i)=>([0.06,-0.07,0.05,-0.03,0.07][i]||0)*r5;
+  const dark = theme === 'dark';
+  const INK     = dark ? '#F2EAD6' : '#1A0E2E';
+  const MUTED   = dark ? '#B5A8C7' : '#8B7BA0';
+  const MUTED2  = dark ? '#A89AC0' : '#6A597F';
+  const PERC_BG = dark ? '#2A1B4E' : '#1A0E2E';
+  const PERC_TX = '#F4ECDE';
   return(
     <svg viewBox="0 0 760 600" width="100%" height="100%" style={{display:'block'}}>
       <defs>
-        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1A0E2E"/></marker>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill={INK}/></marker>
         <marker id="arrow-ember" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#F0386B"/></marker>
       </defs>
       <g opacity={Math.max(0.18,r0)}>
-        <rect x="40" y="24" width="280" height="56" rx="4" fill="none" stroke="#1A0E2E" strokeWidth="1.2"/>
-        <text x="56" y="48" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill="#8B7BA0">INTERACTION · t</text>
-        <text x="56" y="68" fontFamily="Newsreader" fontSize="14" fill="#1A0E2E" fontStyle="italic">"Your music taste is incredible."</text>
+        <rect x="40" y="24" width="280" height="56" rx="4" fill="none" stroke={INK} strokeWidth="1.2"/>
+        <text x="56" y="48" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill={MUTED}>INTERACTION · t</text>
+        <text x="56" y="68" fontFamily="Newsreader" fontSize="14" fill={INK} fontStyle="italic">"Your music taste is incredible."</text>
         <circle cx="180" cy="105" r={3+r0*2} fill="#F0386B" opacity={r0}/>
       </g>
-      <g opacity={r1}><path d="M180,110 C180,130 180,140 180,155" stroke="#1A0E2E" strokeWidth="1.2" fill="none" markerEnd="url(#arrow)"/></g>
-      <g opacity={r1}><rect x="40" y="160" width="280" height="60" rx="30" fill="#1A0E2E"/><text x="60" y="184" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill="#FF6F94">PERCEPTION  x_e,d</text><text x="60" y="206" fontFamily="JetBrains Mono" fontSize="11" fill="#F4ECDE">[music: +0.45, confidence: 0.72]</text></g>
+      <g opacity={r1}><path d="M180,110 C180,130 180,140 180,155" stroke={INK} strokeWidth="1.2" fill="none" markerEnd="url(#arrow)"/></g>
+      <g opacity={r1}><rect x="40" y="160" width="280" height="60" rx="30" fill={PERC_BG}/><text x="60" y="184" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill="#FF6F94">PERCEPTION  x_e,d</text><text x="60" y="206" fontFamily="JetBrains Mono" fontSize="11" fill={PERC_TX}>[music: +0.45, confidence: 0.72]</text></g>
       <g opacity={Math.max(r1,r2)}><path d="M180,225 C180,245 180,255 180,270" stroke="#F0386B" strokeWidth="1.4" fill="none" markerEnd="url(#arrow-ember)"/></g>
       <g transform="translate(40,270)" opacity={Math.max(0.2,Math.min(1,r1*1.2))}>
-        <text x="0" y="-8" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill="#8B7BA0">BELIEF LAYER  μ_e,d  ·  fast loop</text>
-        <rect x="-4" y="-4" width="288" height="170" fill="none" stroke="#1A0E2E" strokeOpacity="0.18" strokeWidth="1" rx="3"/>
-        {["music","humor","warmth","patience","wit"].map((label,i)=>{const y=18+i*28,cx=140,b=belief(i),curX=cx+b.current*100,baseX=cx+b.baseline*100,dl=Math.min(curX,baseX),dw=Math.abs(curX-baseX);return(<g key={i}><text x="0" y={y+4} fontFamily="JetBrains Mono" fontSize="10" fill="#6A597F">{label}</text><line x1="44" y1={y} x2="244" y2={y} stroke="#1A0E2E" strokeOpacity="0.12" strokeWidth="1"/><line x1={cx} y1={y-5} x2={cx} y2={y+5} stroke="#1A0E2E" strokeOpacity="0.25" strokeWidth="1"/><rect x={dl} y={y-3} width={dw} height="6" fill="#F0386B" opacity={r3*0.25}/><line x1={baseX} y1={y-6} x2={baseX} y2={y+6} stroke="#1A0E2E" strokeWidth={r2>0?"1.5":"0"} opacity={r2>0?1:0}/><circle cx={curX} cy={y} r="4" fill="#F0386B" opacity={r2}/></g>);})}
+        <text x="0" y="-8" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill={MUTED}>BELIEF LAYER  μ_e,d  ·  fast loop</text>
+        <rect x="-4" y="-4" width="288" height="170" fill="none" stroke={INK} strokeOpacity="0.18" strokeWidth="1" rx="3"/>
+        {["music","humor","warmth","patience","wit"].map((label,i)=>{const y=18+i*28,cx=140,b=belief(i),curX=cx+b.current*100,baseX=cx+b.baseline*100,dl=Math.min(curX,baseX),dw=Math.abs(curX-baseX);return(<g key={i}><text x="0" y={y+4} fontFamily="JetBrains Mono" fontSize="10" fill={MUTED2}>{label}</text><line x1="44" y1={y} x2="244" y2={y} stroke={INK} strokeOpacity="0.12" strokeWidth="1"/><line x1={cx} y1={y-5} x2={cx} y2={y+5} stroke={INK} strokeOpacity="0.25" strokeWidth="1"/><rect x={dl} y={y-3} width={dw} height="6" fill="#F0386B" opacity={r3*0.25}/><line x1={baseX} y1={y-6} x2={baseX} y2={y+6} stroke={INK} strokeWidth={r2>0?"1.5":"0"} opacity={r2>0?1:0}/><circle cx={curX} cy={y} r="4" fill="#F0386B" opacity={r2}/></g>);})}
       </g>
       <g transform="translate(380,60)" opacity={r4}>
-        <text x="0" y="-12" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill="#8B7BA0">RULE B · gate conditions</text>
+        <text x="0" y="-12" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill={MUTED}>RULE B · gate conditions</text>
         {[{label:"Magnitude",req:"≥ 0.25",state:"PASS"},{label:"Confidence",req:"≥ 0.70",state:"PASS"},{label:"Observations",req:"≥ 10",state:r4>0.7?"PASS":"..."}].map((g,i)=>(
-          <g key={i} transform={`translate(0,${i*56})`}><rect x="0" y="0" width="340" height="44" rx="3" fill="none" stroke={g.state==="PASS"?"#F0386B":"#1A0E2E"} strokeOpacity={g.state==="PASS"?"0.7":"0.2"} strokeWidth="1"/><text x="14" y="18" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="1" fill="#1A0E2E" opacity="0.6">{g.label.toUpperCase()}</text><text x="14" y="34" fontFamily="Newsreader" fontStyle="italic" fontSize="15" fill="#1A0E2E">{g.req}</text><text x="326" y="28" textAnchor="end" fontFamily="JetBrains Mono" fontSize="11" fill={g.state==="PASS"?"#F0386B":"#8B7BA0"} fontWeight={g.state==="PASS"?"500":"400"}>{g.state}</text></g>
+          <g key={i} transform={`translate(0,${i*56})`}><rect x="0" y="0" width="340" height="44" rx="3" fill="none" stroke={g.state==="PASS"?"#F0386B":INK} strokeOpacity={g.state==="PASS"?"0.7":"0.2"} strokeWidth="1"/><text x="14" y="18" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="1" fill={INK} opacity="0.6">{g.label.toUpperCase()}</text><text x="14" y="34" fontFamily="Newsreader" fontStyle="italic" fontSize="15" fill={INK}>{g.req}</text><text x="326" y="28" textAnchor="end" fontFamily="JetBrains Mono" fontSize="11" fill={g.state==="PASS"?"#F0386B":MUTED} fontWeight={g.state==="PASS"?"500":"400"}>{g.state}</text></g>
         ))}
         <g opacity={r5} transform="translate(0,178)"><rect x="0" y="0" width="340" height="40" rx="3" fill="#F0386B"/><text x="170" y="25" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="11" letterSpacing="3" fill="#F4ECDE">REFLECTION TRIGGERED · t = 20</text></g>
       </g>
       <g transform="translate(380,320)" opacity={Math.max(0.2,r5*0.6+r4*0.4)}>
-        <text x="0" y="-12" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill="#8B7BA0">TRAIT VECTOR  τ_k  ·  slow loop</text>
-        <rect x="-4" y="-4" width="348" height="170" rx="3" fill="#5B3FE0" fillOpacity="0.04" stroke="#5B3FE0" strokeOpacity="0.3" strokeWidth="1"/>
-        {["openness","candor","warmth","patience","wit"].map((label,i)=>{const y=18+i*28,cx=200,tx=cx+ts(i)*400;return(<g key={i}><text x="0" y={y+4} fontFamily="JetBrains Mono" fontSize="10" fill="#9A7FFF">{label}</text><line x1="80" y1={y} x2="320" y2={y} stroke="#5B3FE0" strokeOpacity="0.15" strokeWidth="1"/><line x1={cx} y1={y-5} x2={cx} y2={y+5} stroke="#5B3FE0" strokeOpacity="0.3" strokeWidth="1"/><circle cx={cx} cy={y} r="3.5" fill="#5B3FE0" opacity={0.25}/><circle cx={tx} cy={y} r="4" fill="#5B3FE0" opacity={r5}/><line x1={cx} y1={y} x2={tx} y2={y} stroke="#5B3FE0" strokeWidth="1.5" strokeDasharray="2 2" opacity={r5*0.6}/></g>);})}
+        <text x="0" y="-12" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill={MUTED}>TRAIT VECTOR  τ_k  ·  slow loop</text>
+        <rect x="-4" y="-4" width="348" height="170" rx="3" fill="#5B3FE0" fillOpacity={dark?"0.10":"0.04"} stroke="#5B3FE0" strokeOpacity="0.3" strokeWidth="1"/>
+        {["openness","candor","warmth","patience","wit"].map((label,i)=>{const y=18+i*28,cx=200,tx=cx+ts(i)*400;return(<g key={i}><text x="0" y={y+4} fontFamily="JetBrains Mono" fontSize="10" fill="#9A7FFF">{label}</text><line x1="80" y1={y} x2="320" y2={y} stroke="#5B3FE0" strokeOpacity={dark?"0.30":"0.15"} strokeWidth="1"/><line x1={cx} y1={y-5} x2={cx} y2={y+5} stroke="#5B3FE0" strokeOpacity="0.45" strokeWidth="1"/><circle cx={cx} cy={y} r="3.5" fill="#9A7FFF" opacity={0.35}/><circle cx={tx} cy={y} r="4" fill="#9A7FFF" opacity={r5}/><line x1={cx} y1={y} x2={tx} y2={y} stroke="#9A7FFF" strokeWidth="1.5" strokeDasharray="2 2" opacity={r5*0.7}/></g>);})}
         <text x="170" y="160" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" letterSpacing="2" fill="#9A7FFF" opacity={r5}>∆ ≤ 0.08 — bounded step</text>
       </g>
-      <g opacity={r4}><path d="M334,355 C360,355 360,200 380,200" fill="none" stroke="#1A0E2E" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3"/></g>
+      <g opacity={r4}><path d="M334,355 C360,355 360,200 380,200" fill="none" stroke={INK} strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3"/></g>
       <g opacity={r5}><path d="M550,260 C550,290 550,300 550,318" stroke="#F0386B" strokeWidth="1.5" fill="none" markerEnd="url(#arrow-ember)"/><text x="558" y="295" fontFamily="JetBrains Mono" fontSize="9" letterSpacing="2" fill="#F0386B">aggregate</text></g>
       <g opacity={Math.max(0,r5-0.5)*2}><path d="M40,500 L334,500" stroke="#F0386B" strokeWidth="1" strokeDasharray="4 4" opacity="0.6"/><text x="40" y="520" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill="#F0386B">↻ BASELINE RESET · new epoch begins</text></g>
     </svg>
   );
 };
 
-const Diagram=()=>{
+const Diagram=({theme})=>{
   const stageRef=React.useRef(null);const[progress,setProgress]=React.useState(0);
   React.useEffect(()=>{const onScroll=()=>{const el=stageRef.current;if(!el)return;const rect=el.getBoundingClientRect(),vh=window.innerHeight,p=Math.max(0,Math.min(1,-rect.top/(rect.height-vh)));setProgress(p);};onScroll();window.addEventListener('scroll',onScroll,{passive:true});return()=>window.removeEventListener('scroll',onScroll);},[]);
   const scaled=progress*STEPS.length,step=Math.min(STEPS.length-1,Math.floor(scaled)),sub=scaled-step;
@@ -554,7 +686,7 @@ const Diagram=()=>{
       <div className="diagram-stage" ref={stageRef}>
         <div className="diagram-sticky">
           <div className="diagram-steps">{STEPS.map((s,i)=><div key={s.n} className={"diagram-step "+(i===step?"is-active":"")}><div className="diagram-step-n">Step {s.n}</div><div className="diagram-step-title">{s.title}</div><div className="diagram-step-desc">{s.desc}</div></div>)}</div>
-          <div className="diagram-canvas-wrap"><div className="diagram-canvas"><DiagramCanvas step={step} sub={sub}/></div></div>
+          <div className="diagram-canvas-wrap"><div className="diagram-canvas"><DiagramCanvas step={step} sub={sub} theme={theme}/></div></div>
         </div>
       </div>
     </section>
@@ -668,13 +800,17 @@ const Footer=()=>{
   );
 };
 
-const App=()=>(
-  <React.Fragment>
-    <Nav/>
-    <main><Hero/><Problem/><Demo/><Diagram/><UseCases/><Differentiation/><Research/><CareersCTA/></main>
-    <Footer/>
-  </React.Fragment>
-);
+const App=()=>{
+  const [theme, toggleTheme] = useTheme();
+  return (
+    <React.Fragment>
+      <a href="#main" className="skip-link">Skip to content</a>
+      <Nav theme={theme} onToggleTheme={toggleTheme} />
+      <main id="main"><Hero/><Problem/><Demo/><Diagram theme={theme} /><UseCases/><Differentiation/><Research/><CareersCTA/></main>
+      <Footer/>
+    </React.Fragment>
+  );
+};
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 

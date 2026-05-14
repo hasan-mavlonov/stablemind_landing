@@ -7,12 +7,27 @@
   <meta name="description" content="Mindform — persistent personality systems for AI agents.">
   <title>{% block title %}Mindform{% endblock %}</title>
   <link rel="icon" href="{% static 'core/img/favicon.svg' %}">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'dark' && t !== 'light') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=JetBrains+Mono:wght@300;400;500&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500&display=swap" rel="stylesheet">
   <link href="{% static 'core/css/site.css' %}" rel="stylesheet">
 </head>
 <body>
+
+  <a href="#main" class="skip-link">Skip to content</a>
 
   <nav class="site-nav" id="site-nav">
     <div class="site-nav-bg"></div>
@@ -27,10 +42,24 @@
         <a href="{% url 'login' %}">Log in</a>
       {% endif %}
     </div>
-    <a href="{% url 'careers' %}" class="btn btn-primary">Join the team →</a>
+    <div class="nav-actions">
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" aria-pressed="false">
+        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+        </svg>
+        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+      <a href="{% url 'careers' %}" class="btn btn-primary">Join the team →</a>
+      <button type="button" id="nav-menu-btn" class="nav-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">
+        <span></span>
+      </button>
+    </div>
   </nav>
 
-  <main>
+  <main id="main">
     {% block content %}{% endblock %}
   </main>
 
