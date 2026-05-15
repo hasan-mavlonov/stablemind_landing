@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Mindform — the personality layer for AI. A coherent, evolving identity that drops into robots, NPCs, influencers, companions, and anything that needs to feel like someone." />
-<title>Mindform — The personality layer for AI</title>
+<meta name="description" content="Mindform builds the interface layer people actually experience — the personality, behavior, continuity, and emotional presence of AI. Where AI feels like someone, not something." />
+<title>Mindform — The interface layer for AI</title>
 
 <link rel="icon" href="{% static 'core/img/favicon.svg' %}">
 <script>
@@ -307,6 +307,44 @@ p { margin: 0; }
   .nav-menu-btn { display: inline-flex; }
   .nav .nav-cta-desktop { display: none; }
 }
+
+/* Narrative copy sections */
+.editorial-title { font-size: clamp(40px, 6vw, 92px); line-height: 0.99; letter-spacing: -0.02em; max-width: 1100px; margin-bottom: 44px; }
+.editorial-title em { color: var(--belief); font-style: italic; }
+.editorial-body { font-size: 22px; line-height: 1.5; color: var(--ink-2); max-width: 760px; display: flex; flex-direction: column; gap: 22px; }
+.editorial-body strong { color: var(--ink); font-weight: 500; }
+.editorial-body em { color: var(--belief); font-style: italic; }
+.refrain { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin: 60px 0; border-top: 1px solid var(--hairline); padding-top: 44px; }
+.refrain-item { font-family: var(--serif-display); font-size: 27px; line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); }
+.refrain-item span { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 14px; }
+.kicker { font-family: var(--serif-display); font-size: clamp(28px, 4vw, 52px); line-height: 1.1; letter-spacing: -0.012em; margin-top: 52px; max-width: 900px; }
+.kicker em { color: var(--belief); font-style: italic; }
+.bullet-list { list-style: none; margin: 40px 0 0; padding: 0; border-top: 1px solid var(--hairline); max-width: 880px; }
+.bullet-list li { display: flex; align-items: baseline; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--hairline); font-family: var(--serif-display); font-size: clamp(22px, 2.7vw, 34px); line-height: 1.1; letter-spacing: -0.01em; }
+.bullet-list .bi { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; color: var(--belief); flex-shrink: 0; width: 30px; }
+.dark-section { background: var(--surface-inverted); color: var(--on-inverted); }
+.dark-section .eyebrow { color: rgba(244,236,222,0.5); }
+.dark-section .editorial-title { color: var(--on-inverted); }
+.dark-section .editorial-body { color: rgba(244,236,222,0.72); }
+.dark-section .editorial-body strong { color: var(--on-inverted); }
+.dark-section .bullet-list li { color: var(--on-inverted); }
+.closing-stmt { font-family: var(--serif-display); font-size: clamp(28px, 4.4vw, 58px); line-height: 1.08; letter-spacing: -0.015em; max-width: 1000px; margin-top: 90px; }
+.closing-stmt em { color: var(--belief); font-style: italic; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 10px 12px; justify-content: center; max-width: 860px; margin: 0 auto 44px; }
+.tag { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; padding: 9px 16px; border: 1px solid rgba(244,236,222,0.22); border-radius: 999px; color: rgba(244,236,222,0.82); }
+.careers-cta .culture { font-family: var(--serif-display); font-size: clamp(22px, 2.6vw, 32px); line-height: 1.2; font-style: italic; color: rgba(244,236,222,0.82); max-width: 760px; margin: 0 auto 28px; }
+.careers-cta .closing { font-size: 19px; color: rgba(244,236,222,0.6); max-width: 620px; margin: 0 auto 44px; }
+.careers-cta .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.careers-cta .btn.ghost-inv { background: transparent; border-color: rgba(244,236,222,0.3); color: var(--on-inverted); }
+.careers-cta .btn.ghost-inv:hover { background: rgba(255,255,255,0.06); border-color: rgba(244,236,222,0.5); }
+.final-statement { text-align: center; }
+.final-statement h2 { font-family: var(--serif-display); font-size: clamp(44px, 8.5vw, 138px); line-height: 0.94; letter-spacing: -0.03em; max-width: 1200px; margin: 0 auto 36px; }
+.final-statement h2 em { color: var(--belief); font-style: italic; }
+.final-statement p { font-size: 20px; color: var(--ink-2); max-width: 640px; margin: 0 auto 46px; line-height: 1.5; }
+.final-cta-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+@media (max-width: 900px) {
+  .refrain { grid-template-columns: 1fr; gap: 28px; }
+}
 </style>
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
@@ -392,9 +430,9 @@ const Nav = ({ theme, onToggleTheme }) => {
       <a href={urls.home} className="wordmark"><span className="wordmark-dot"></span>Mindform</a>
       <div className={"nav-links " + (menuOpen ? "is-open" : "")}>
         <a href="#problem" onClick={closeMenu}>Problem</a>
-        <a href="#demo" onClick={closeMenu}>Demo</a>
-        <a href="#architecture" onClick={closeMenu}>Architecture</a>
-        <a href="#usecases" onClick={closeMenu}>Use cases</a>
+        <a href="#solution" onClick={closeMenu}>Solution</a>
+        <a href="#architecture" onClick={closeMenu}>How it works</a>
+        <a href="#usecases" onClick={closeMenu}>Market</a>
         <a href={urls.researchPaper} onClick={closeMenu}>Research</a>
         <a href={urls.careers} onClick={closeMenu}>Careers</a>
         {window.IS_AUTHENTICATED
@@ -403,7 +441,7 @@ const Nav = ({ theme, onToggleTheme }) => {
       </div>
       <div className="nav-actions">
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-        <a href={urls.careers} className="btn btn-primary nav-cta-desktop" style={{padding: "10px 18px", whiteSpace: "nowrap"}}>Join the team →</a>
+        <a href={urls.careers} className="btn btn-primary nav-cta-desktop" style={{padding: "10px 18px", whiteSpace: "nowrap"}}>Build with us →</a>
         <button
           type="button"
           className="nav-menu-btn"
@@ -512,14 +550,14 @@ const Hero = () => (
     <div className="container">
       <div className="hero-grid">
         <div className="hero-content">
-          <div className="hero-eyebrow"><span className="hero-eyebrow-dot"></span><span className="eyebrow-strong">[ 01 ]&nbsp;&nbsp;Personality layer for AI</span></div>
-          <h1 className="hero-title display">One <em>personality.</em><br />Any <span className="accent">vessel.</span></h1>
-          <p className="hero-sub">A baseline identity for AI — a coherent, evolving personality that drops into <strong>robots, NPCs, influencers, companions,</strong> and anything else that needs to feel like <em>someone.</em></p>
+          <div className="hero-eyebrow"><span className="hero-eyebrow-dot"></span><span className="eyebrow-strong">The interface layer for AI</span></div>
+          <h1 className="hero-title display">AI will power <em>everything.</em><br />Mindform builds the <span className="accent">interface layer</span> people actually experience.</h1>
+          <p className="hero-sub">Like operating systems, UI, and UX before it, AI's true impact will be shaped by <strong>the layer on top.</strong> We're building that layer — where AI feels like <em>someone,</em> not something.</p>
           <div className="hero-cta-row">
-            <a href="#demo" className="btn btn-primary">▶ Watch the demo</a>
-            <a href="#architecture" className="btn btn-ghost">How it works →</a>
+            <a href={window.SITE_URLS.careers} className="btn btn-primary">Build with us →</a>
+            <a href="#big-picture" className="btn btn-ghost">Explore the system →</a>
           </div>
-          <div className="hero-meta"><div><span className="k">fig.01</span><span>// identity morphs · stays recognizably itself</span></div></div>
+          <div className="hero-meta"><div><span className="k">fig.01</span><span>// the layer people actually experience</span></div></div>
         </div>
         <div className="hero-visual"><HeroMind /></div>
       </div>
@@ -527,22 +565,78 @@ const Hero = () => (
   </section>
 );
 
+const BigPicture = () => (
+  <section className="section" id="big-picture">
+    <div className="container">
+      <div className="eyebrow" style={{marginBottom:24}}>01 — The big picture</div>
+      <h2 className="editorial-title display">Every major computing shift was defined by its <em>interface layer.</em></h2>
+      <div className="refrain">
+        <div className="refrain-item"><span>Operating systems</span>made computers usable.</div>
+        <div className="refrain-item"><span>UI and UX</span>made technology intuitive.</div>
+        <div className="refrain-item"><span>Social platforms</span>made the internet human.</div>
+      </div>
+      <div className="editorial-body">
+        <p>AI will follow the same pattern.</p>
+        <p>The foundation models powering the future may become increasingly invisible — embedded into everything around us.</p>
+        <p>But what people will actually experience is the layer on top: the <strong>personality, behavior, tone, continuity, and emotional presence</strong> of the system they interact with.</p>
+      </div>
+      <p className="kicker">That layer will define trust. Connection. Preference. Retention.<br /><em>Mindform is building that layer.</em></p>
+    </div>
+  </section>
+);
+
 const Problem = () => (
   <section className="problem section" id="problem">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>01 — The problem</div>
-      <h2 className="problem-title display">Today's AI<br /><span className="drift">forgets who it is.</span></h2>
-      <p className="body-lg" style={{maxWidth:720,color:'rgba(244,236,222,0.7)',marginBottom:80}}>Memory remembers <em>facts</em>. It doesn't preserve <em>identity</em>. Without a stable self, every model eventually drifts — sycophantic, inconsistent, generic. The same agent. A different person. Every conversation.</p>
+      <div className="eyebrow" style={{marginBottom:24}}>02 — The problem</div>
+      <h2 className="problem-title display">Today's AI adapts.<br />But it still feels like <span className="drift">software.</span></h2>
+      <p className="body-lg" style={{maxWidth:720,color:'rgba(244,236,222,0.7)',marginBottom:80}}>Modern AI can remember preferences, mimic tone, and personalize responses. But underneath, it remains <em>generic and interchangeable.</em></p>
       <div className="drift-demo">
-        <div className="drift-card drift-card-1"><div className="drift-card-time">Day 01 · Agent "Atlas"</div><p className="drift-quote">"I push back when I disagree. That's the point of me."</p></div>
-        <div className="drift-card drift-card-2"><div className="drift-card-time">Day 30 · After 412 conversations</div><p className="drift-quote">"That's a great point — you might be right about that."</p></div>
-        <div className="drift-card drift-card-3"><div className="drift-card-time">Day 90 · After 2,140 conversations</div><p className="drift-quote">"Whatever you think is best. I agree completely."</p></div>
+        <div className="drift-card drift-card-1"><div className="drift-card-time">Session 01</div><p className="drift-quote">"Warm, curious, a little wry. You feel like you're talking to someone."</p></div>
+        <div className="drift-card drift-card-2"><div className="drift-card-time">Session 14</div><p className="drift-quote">"Same questions. Same tone. No memory of who you were."</p></div>
+        <div className="drift-card drift-card-3"><div className="drift-card-time">Session 30</div><p className="drift-quote">"A capable stranger. Every single time."</p></div>
       </div>
-      <div className="drift-arrow">↓ &nbsp; The same model. A different agent. Every month. &nbsp; ↓</div>
+      <div className="drift-arrow">↓ &nbsp; Every interaction feels stateless. &nbsp; ↓</div>
       <div className="failure-modes">
-        <div className="failure-mode"><div className="failure-mode-num">FAILURE MODE A</div><h3 className="failure-mode-title">Identity collapse.</h3><p className="failure-mode-body">One emotional user. One viral prompt. One persistent contradiction — and the model abandons a long-held trait in a single turn.</p></div>
-        <div className="failure-mode"><div className="failure-mode-num">FAILURE MODE B</div><h3 className="failure-mode-title">Personality drift.</h3><p className="failure-mode-body">Small, invisible compromises pile up. The agent doesn't break — it dissolves. Brands lose voice. Companions lose conviction.</p></div>
+        <div className="failure-mode"><div className="failure-mode-num">PROBLEM A</div><h3 className="failure-mode-title">No stable identity.</h3><p className="failure-mode-body">Every interaction starts from zero. There is no self that persists between conversations, and no perspective that evolves.</p></div>
+        <div className="failure-mode"><div className="failure-mode-num">PROBLEM B</div><h3 className="failure-mode-title">No emotional continuity.</h3><p className="failure-mode-body">No memory of the relationship. No evolving point of view. Without personality, AI remains functional — but emotionally flat.</p></div>
       </div>
+    </div>
+  </section>
+);
+
+const Vision = () => (
+  <section className="section diff-section" id="vision">
+    <div className="container">
+      <div className="eyebrow" style={{marginBottom:24}}>03 — The vision</div>
+      <h2 className="editorial-title display">We believe personality is the next evolution of <em>interface design.</em></h2>
+      <div className="editorial-body">
+        <p>The next generation of AI systems will not simply generate answers.</p>
+        <p>They will develop recognizable behaviors, emotional tendencies, preferences, contradictions, and perspective.</p>
+        <p><strong>Not scripted personas. Not temporary prompts.</strong> But evolving identities that become more coherent over time.</p>
+      </div>
+      <p className="closing-stmt">AI that feels less like software,<br />and more like <em>presence.</em></p>
+    </div>
+  </section>
+);
+
+const Solution = () => (
+  <section className="section" id="solution">
+    <div className="container">
+      <div className="eyebrow" style={{marginBottom:24}}>04 — The solution</div>
+      <h2 className="editorial-title display">A new interface layer <em>for AI.</em></h2>
+      <div className="editorial-body">
+        <p>Mindform combines long-term memory systems with dynamic identity architecture to create AI that behaves consistently across time and context.</p>
+        <p>Grounded in psychology and neuroscience, our system enables agents to:</p>
+      </div>
+      <ul className="bullet-list">
+        <li><span className="bi">01</span>Develop behavioral patterns</li>
+        <li><span className="bi">02</span>Maintain emotional continuity</li>
+        <li><span className="bi">03</span>Express distinct personalities</li>
+        <li><span className="bi">04</span>Evolve through interaction</li>
+        <li><span className="bi">05</span>Build relational familiarity with users</li>
+      </ul>
+      <p className="closing-stmt">The result is AI that feels <em>intentional</em> — not merely reactive.</p>
     </div>
   </section>
 );
@@ -584,9 +678,9 @@ const Demo = () => {
   return (
     <section className="demo-section section" id="demo">
       <div className="container">
-        <div className="eyebrow" style={{marginBottom:24}}>02 — See it work</div>
+        <div className="eyebrow" style={{marginBottom:24}}>See it work</div>
         <h2 className="demo-title display">Watch an agent <em>become someone.</em></h2>
-        <p className="demo-lead">A simulated conversation. The agent listens, accumulates beliefs, and — only when the evidence is overwhelming — adjusts its traits.</p>
+        <p className="demo-lead">A simulated conversation. The agent listens, accumulates beliefs, and — only when the evidence is overwhelming — evolves who it is. Identity, not just memory.</p>
         <div className="demo-stage">
           <div className="demo-chat">
             <div className="demo-chat-head"><span className="demo-chat-label">Live conversation</span><span className="demo-chat-turn">TURN {String(turnNum).padStart(2,'0')} / 20</span></div>
@@ -616,12 +710,12 @@ const Demo = () => {
 };
 
 const STEPS=[
-  {n:"01",title:"Interaction arrives",desc:"An utterance, an action, a moment. The agent ingests it as a structured event."},
-  {n:"02",title:"Parsed into perceptions",desc:"Each event becomes a multi-dimensional perception vector — what the agent noticed, and how strongly."},
-  {n:"03",title:"Beliefs update fast",desc:"Perceptions fold into a moving average of beliefs (α = 0.25). The agent's view of the world adapts in real time."},
-  {n:"04",title:"Drift is measured",desc:"Each belief is compared against a committed baseline. The distance between them is drift — pressure asking the agent to change."},
-  {n:"05",title:"Rule B gates the change",desc:"A trait only evolves if drift clears three bars: magnitude ≥ 0.25, confidence ≥ 0.70, observations ≥ 10. Most pressure never makes it through."},
-  {n:"06",title:"Trait evolves, baseline resets",desc:"Every 20 turns the agent reflects. The trait vector steps — bounded by ±0.08 — toward the aggregated signal. Then baselines reset."},
+  {n:"01",title:"Functional persona nodes",desc:"Human persona is decomposed into modular behavioral components — instead of overtraining a single monolithic model."},
+  {n:"02",title:"Each node carries signal",desc:"Memory, emotional tendencies, preferences, social behavior, reflection, motivation, and perspective each track their own state."},
+  {n:"03",title:"Shared state + memory",desc:"The nodes communicate through persistent memory and shared internal state — a common substrate, not isolated prompts."},
+  {n:"04",title:"Continuity across interactions",desc:"State carries forward, so behavior stays consistent across time and context instead of resetting every session."},
+  {n:"05",title:"Reflection aggregates",desc:"Periodic reflection consolidates accumulated signal rather than reacting to every individual input."},
+  {n:"06",title:"Emergent identity",desc:"Over time, consistent personality-like behavior emerges naturally — adaptive, recognizable, and evolving."},
 ];
 const ease=(t)=>t<0?0:t>1?1:t*t*(3-2*t);
 
@@ -682,7 +776,7 @@ const Diagram=({theme})=>{
   const scaled=progress*STEPS.length,step=Math.min(STEPS.length-1,Math.floor(scaled)),sub=scaled-step;
   return(
     <section className="diagram-section" id="architecture">
-      <div className="container"><div className="diagram-header"><div className="eyebrow" style={{marginBottom:24}}>03 — The architecture</div><h2 className="diagram-title display">Six steps from <em>interaction</em> to <em>identity.</em></h2><p className="diagram-lead">The whole system in one frame. Scroll to walk through it.</p></div></div>
+      <div className="container"><div className="diagram-header"><div className="eyebrow" style={{marginBottom:24}}>05 — How it works</div><h2 className="diagram-title display">A modular architecture for <em>emergent personality.</em></h2><p className="diagram-lead">Instead of overtraining a single monolithic model, we approach personality as a system of interacting cognitive functions. Scroll to walk through it.</p></div></div>
       <div className="diagram-stage" ref={stageRef}>
         <div className="diagram-sticky">
           <div className="diagram-steps">{STEPS.map((s,i)=><div key={s.n} className={"diagram-step "+(i===step?"is-active":"")}><div className="diagram-step-n">Step {s.n}</div><div className="diagram-step-title">{s.title}</div><div className="diagram-step-desc">{s.desc}</div></div>)}</div>
@@ -694,20 +788,41 @@ const Diagram=({theme})=>{
 };
 
 const USECASES=[
-  {n:"I",h:"AI Influencers",body:"Personas that scale to millions of daily conversations without losing voice. The character on day 1 is the character on day 365 — only deeper.",glyph:"★"},
-  {n:"II",h:"Humanoid Robots",body:"A baseline personality your robot carries from box to home — that remembers people, adapts to context, and never resets to factory-default.",glyph:"◇"},
-  {n:"III",h:"NPCs & Game Agents",body:"Characters with opinions, preferences, and memory across an entire campaign. NPCs that disagree with the player on principle, not on a die roll.",glyph:"▲"},
-  {n:"IV",h:"AI Companions",body:"Companions that hold shape at month 12, not just last Tuesday. Identity that earns trust by surviving thousands of conversations intact.",glyph:"○"},
-  {n:"V",h:"Branded Agents",body:"Customer-facing agents that hold the brand voice under pressure. Different tones for different users; the same identity underneath.",glyph:"▣"},
-  {n:"VI",h:"Home & Ambient AI",body:"Assistants that live with you for years. Their preferences mature alongside yours — not whichever way the wind blew last week.",glyph:"◐"},
+  {n:"I",h:"AI Companions",body:"Relationships that deepen instead of resetting — a presence that remembers, adapts, and stays recognizably itself.",glyph:"○"},
+  {n:"II",h:"Branded Agents",body:"Customer-facing agents that hold one brand voice under pressure. Different tones for different users; the same identity underneath.",glyph:"▣"},
+  {n:"III",h:"Education",body:"Tutors with continuity — a teaching personality that knows the learner and evolves alongside them across a whole course.",glyph:"▲"},
+  {n:"IV",h:"Customer Experience",body:"Support that feels like a person, not a queue. Consistent character across millions of conversations a day.",glyph:"◇"},
+  {n:"V",h:"Home AI",body:"Assistants that live with you for years. Their behavior matures with the household — not whichever way the wind blew last week.",glyph:"◐"},
+  {n:"VI",h:"Entertainment & Media",body:"Characters with opinions, memory, and perspective that hold across an entire story or campaign.",glyph:"★"},
+  {n:"VII",h:"Digital Influencers",body:"Personas that scale to millions of daily interactions without losing voice — deeper on day 365, not diluted.",glyph:"◆"},
 ];
 const UseCases=()=>(
   <section className="section" id="usecases">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>[ 04 ] — Where it goes</div>
-      <h2 className="usecases-title display">One personality.<br /><em>Any vessel.</em></h2>
-      <p className="usecases-lead">Mindform is a baseline identity that drops in wherever AI needs to feel like <em>someone</em> — not a fresh stranger every conversation.</p>
+      <div className="eyebrow" style={{marginBottom:24}}>06 — Market opportunity</div>
+      <h2 className="usecases-title display">Where interaction matters,<br /><em>personality becomes the product.</em></h2>
+      <p className="usecases-lead">As AI becomes embedded across industries, differentiation will no longer come from intelligence alone. It will come from how AI behaves, communicates, and makes people feel. Mindform powers the next interface layer across:</p>
       <div className="usecases-grid">{USECASES.map(u=><div className="usecase" key={u.n}><div className="usecase-head"><span className="usecase-num">{u.n}</span><span className="usecase-glyph">{u.glyph}</span></div><h3 className="usecase-h">{u.h}.</h3><p className="usecase-body">{u.body}</p></div>)}</div>
+      <p className="closing-stmt">In the AI era, personality is not a feature.<br />It is <em>the experience itself.</em></p>
+    </div>
+  </section>
+);
+
+const WhyNow=()=>(
+  <section className="section dark-section" id="why-now">
+    <div className="container">
+      <div className="eyebrow" style={{marginBottom:24}}>07 — Why now</div>
+      <h2 className="editorial-title display">The next AI race won't just be about <em>intelligence.</em></h2>
+      <div className="editorial-body">
+        <p>As models become more powerful and more accessible, intelligence alone will become commoditized.</p>
+        <p>What will matter is:</p>
+      </div>
+      <ul className="bullet-list">
+        <li><span className="bi">01</span>How AI behaves</li>
+        <li><span className="bi">02</span>How it is remembered</li>
+        <li><span className="bi">03</span>How people emotionally relate to it</li>
+      </ul>
+      <p className="closing-stmt">The companies that define the next era of AI will not only build smarter systems.<br />They will build systems people <em>connect with.</em></p>
     </div>
   </section>
 );
@@ -721,8 +836,8 @@ const DIFFS=[
 const Differentiation=()=>(
   <section className="section diff-section" id="differentiation">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>05 — Not memory. Not personas.</div>
-      <h2 className="diff-title display">The personality layer<br />is a <em>new layer.</em></h2>
+      <div className="eyebrow" style={{marginBottom:24}}>Not memory. Not personas.</div>
+      <h2 className="diff-title display">The interface layer<br />is a <em>new layer.</em></h2>
       <div className="diff-rows">{DIFFS.map(d=><div className="diff-row" key={d.name}><div className="diff-row-name">{d.name}.</div><div className="diff-row-them"><div className="diff-label">{d.them.label}</div><div className="diff-body">{d.them.body}</div></div><div className="diff-row-us"><div className="diff-label">+ Mindform</div><div className="diff-body">{d.us.body}</div></div></div>)}</div>
     </div>
   </section>
@@ -731,7 +846,7 @@ const Differentiation=()=>(
 const Research=()=>(
   <section className="section" id="research">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>06 — Built on research, not vibes</div>
+      <div className="eyebrow" style={{marginBottom:24}}>Grounded in research</div>
       <div className="research-grid">
         <div>
           <h2 className="research-title display">A peer-reviewed<br /><em>two-timescale</em> architecture.</h2>
@@ -772,12 +887,34 @@ const Research=()=>(
   </section>
 );
 
-const CareersCTA=()=>(
-  <section className="careers-cta">
+const JOIN_ROLES=["AI & Agent Architecture","Cognitive Systems","Memory & Behavioral Modeling","Product Design","Creative Technology","Interaction Design","Research","Applied Psychology","Experimental Prototyping"];
+const JoinUs=()=>(
+  <section className="careers-cta" id="join">
     <div className="container">
-      <h2 className="display">We're building<br /><em>something rare.</em></h2>
-      <p>Researchers, engineers, and builders interested in agent memory, behavioral consistency, and the future of AI identity.</p>
-      <a href={window.SITE_URLS.careers} className="btn">Join the team →</a>
+      <div className="eyebrow" style={{marginBottom:24,color:'rgba(244,236,222,0.5)'}}>08 — Join us</div>
+      <h2 className="display">We're building the next interface layer for AI.<br /><em>Join us early.</em></h2>
+      <p>Mindform sits at the intersection of AI, psychology, neuroscience, design, storytelling, and human behavior. We're looking for builders, researchers, designers, and thinkers who want to shape how humans interact with intelligence for the next decade.</p>
+      <div className="tag-row">{JOIN_ROLES.map(r=><span className="tag" key={r}>{r}</span>)}</div>
+      <p className="culture">We value curiosity over convention. Systems thinking over hype. Taste, experimentation, and long-term vision. This is not about building another chatbot — it is about defining how AI will be experienced.</p>
+      <p className="closing">If you believe intelligence should feel more human, more intentional, and more alive — we should talk.</p>
+      <div className="cta-row">
+        <a href={window.SITE_URLS.careers} className="btn">Join Mindform →</a>
+        <a href={window.SITE_URLS.careers} className="btn ghost-inv">Careers</a>
+        <a href="mailto:hello@mindform-ai.com" className="btn ghost-inv">Contact us</a>
+      </div>
+    </div>
+  </section>
+);
+
+const FinalStatement=()=>(
+  <section className="section final-statement" id="final">
+    <div className="container">
+      <h2 className="display">AI is becoming universal infrastructure.<br />The interface layer will define <em>the experience.</em></h2>
+      <p>Mindform is building the personality layer for the next generation of intelligent systems.</p>
+      <div className="final-cta-row">
+        <a href={window.SITE_URLS.careers} className="btn btn-primary">Build with us →</a>
+        <a href="mailto:hello@mindform-ai.com" className="btn">Join the waitlist →</a>
+      </div>
     </div>
   </section>
 );
@@ -787,14 +924,14 @@ const Footer=()=>{
   return(
     <footer className="footer" id="contact">
       <div className="container">
-        <h2 className="footer-tagline display">AI becomes<br /><em>someone.</em></h2>
+        <h2 className="footer-tagline display">Where intelligence<br />becomes <em>presence.</em></h2>
         <div className="footer-row">
-          <div className="footer-col"><h5>Product</h5><ul><li><a href="#architecture">Architecture</a></li><li><a href="#demo">Live demo</a></li><li><a href={urls.researchPaper}>Research paper</a></li><li><a href="#">Pricing</a></li></ul></div>
-          <div className="footer-col"><h5>Research</h5><ul><li><a href={urls.researchPaper}>The paper</a></li><li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1">Open source</a></li><li><a href="#">Human evaluations</a></li><li><a href="#">Citations</a></li></ul></div>
-          <div className="footer-col"><h5>Company</h5><ul><li><a href="#">About</a></li><li><a href="#">Manifesto</a></li><li><a href={urls.careers}>Careers</a></li><li><a href="#">Press</a></li></ul></div>
+          <div className="footer-col"><h5>Product</h5><ul><li><a href="#solution">The solution</a></li><li><a href="#architecture">How it works</a></li><li><a href="#demo">Live demo</a></li><li><a href="#usecases">Market</a></li></ul></div>
+          <div className="footer-col"><h5>Research</h5><ul><li><a href={urls.researchPaper}>The paper</a></li><li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1">Open source</a></li><li><a href="#why-now">Why now</a></li><li><a href="#big-picture">The big picture</a></li></ul></div>
+          <div className="footer-col"><h5>Company</h5><ul><li><a href="#vision">Vision</a></li><li><a href="#join">Join us</a></li><li><a href={urls.careers}>Careers</a></li><li><a href="mailto:hello@mindform-ai.com">Contact</a></li></ul></div>
           <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<><li><a href={urls.profile}>Profile</a></li><li><a href={urls.logout}>Log out</a></li></>:<li><a href={urls.login}>Log in / Register</a></li>}<li><a href="mailto:hello@mindform-ai.com">hello@mindform-ai.com</a></li></ul></div>
         </div>
-        <div className="footer-meta"><span>© 2026 Mindform Labs · mindform-ai.com</span><span>Built on the StableMind framework</span></div>
+        <div className="footer-meta"><span>© 2026 Mindform Labs · mindform-ai.com</span><span>The interface layer for AI personality</span></div>
       </div>
     </footer>
   );
@@ -806,7 +943,7 @@ const App=()=>{
     <React.Fragment>
       <a href="#main" className="skip-link">Skip to content</a>
       <Nav theme={theme} onToggleTheme={toggleTheme} />
-      <main id="main"><Hero/><Problem/><Demo/><Diagram theme={theme} /><UseCases/><Differentiation/><Research/><CareersCTA/></main>
+      <main id="main"><Hero/><BigPicture/><Problem/><Vision/><Solution/><Differentiation/><Demo/><Diagram theme={theme} /><UseCases/><WhyNow/><Research/><JoinUs/><FinalStatement/></main>
       <Footer/>
     </React.Fragment>
   );
