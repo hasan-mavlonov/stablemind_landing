@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Mindform — the personality layer for AI. A coherent, evolving identity that drops into robots, NPCs, influencers, companions, and anything that needs to feel like someone." />
-<title>Mindform — The personality layer for AI</title>
+<meta name="description" content="Mindform is building the personality layer for the next generation of intelligent systems — where AI feels like someone, not something." />
+<title>Mindform — The interface layer for AI</title>
 
 <link rel="icon" href="{% static 'core/img/favicon.svg' %}">
 <script>
@@ -288,11 +288,121 @@ p { margin: 0; }
 [data-theme="dark"] .drift-card { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
 [data-theme="dark"] .demo-stage { background: rgba(255,255,255,0.015); border-color: rgba(255,255,255,0.08); }
 [data-theme="dark"] ::selection { background: var(--ink); color: var(--bone); }
+/* Big Picture */
+.bigpicture-section { background: var(--bone-2); padding: 160px 0; }
+.bigpicture-title { font-size: clamp(46px, 6.5vw, 104px); line-height: 0.95; letter-spacing: -0.02em; max-width: 1100px; margin-bottom: 64px; }
+.bigpicture-title em { color: var(--belief); font-style: italic; }
+.shift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 72px; }
+.shift-card { padding: 28px 26px 32px; background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 6px; display: flex; flex-direction: column; gap: 14px; }
+.shift-era { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-2); }
+.shift-name { font-family: var(--serif-display); font-size: 28px; line-height: 1.05; color: var(--ink); }
+.shift-effect { font-size: 16px; line-height: 1.5; color: var(--ink-2); font-style: italic; margin-top: auto; }
+.bigpicture-pivot { font-family: var(--serif-display); font-style: italic; font-size: clamp(32px, 4.2vw, 56px); line-height: 1.05; color: var(--belief); margin: 0 0 56px; max-width: 800px; letter-spacing: -0.01em; }
+.bigpicture-body { font-size: 20px; line-height: 1.55; color: var(--ink-2); max-width: 760px; margin-bottom: 32px; }
+.bigpicture-body strong { font-weight: 500; color: var(--ink); }
+.bigpicture-body em { font-style: italic; color: var(--ink); }
+.defines-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 64px; padding: 24px 0 0; border-top: 1px dashed var(--hairline); }
+.define-chip { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; padding: 8px 16px; border: 1px solid var(--hairline); border-radius: 999px; color: var(--ink); background: var(--surface-card); }
+.bigpicture-closing { font-family: var(--serif-display); font-size: clamp(34px, 4.8vw, 60px); line-height: 1.05; color: var(--ink); max-width: 900px; letter-spacing: -0.01em; }
+.bigpicture-closing em { color: var(--belief); font-style: italic; }
+
+/* Vision */
+.vision-section { padding: 160px 0; }
+.vision-title { font-size: clamp(44px, 6.2vw, 98px); line-height: 0.95; letter-spacing: -0.02em; max-width: 1100px; margin-bottom: 56px; }
+.vision-title em { color: var(--belief); font-style: italic; }
+.vision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+.vision-body { font-size: 20px; line-height: 1.55; color: var(--ink-2); }
+.vision-body p + p { margin-top: 22px; }
+.vision-not { display: flex; flex-direction: column; gap: 16px; padding: 32px 32px 36px; border-left: 2px solid var(--belief); background: rgba(240,56,107,0.04); border-radius: 0 6px 6px 0; }
+.vision-not .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--belief); }
+.vision-not p { font-family: var(--serif-display); font-size: 26px; line-height: 1.2; font-style: italic; color: var(--ink); }
+.vision-closing { margin-top: 56px; font-family: var(--serif-display); font-size: clamp(28px, 3.6vw, 46px); line-height: 1.15; font-style: italic; color: var(--ink); max-width: 880px; letter-spacing: -0.01em; }
+.vision-closing em { color: var(--belief); }
+
+/* Solution */
+.solution-section { background: var(--bone-2); padding: 160px 0; }
+.solution-title { font-size: clamp(50px, 7.4vw, 116px); line-height: 0.95; letter-spacing: -0.02em; max-width: 1000px; margin-bottom: 28px; }
+.solution-title em { color: var(--belief); font-style: italic; }
+.solution-lead { font-size: 22px; line-height: 1.5; color: var(--ink-2); max-width: 720px; margin-bottom: 80px; }
+.solution-lead strong { font-weight: 500; color: var(--ink); }
+.capability-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); margin-bottom: 64px; }
+.capability { padding: 32px 24px 40px; border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); background: var(--surface-card); display: flex; flex-direction: column; gap: 12px; min-height: 200px; }
+.capability-num { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--belief); }
+.capability-text { font-family: var(--serif-display); font-size: 22px; line-height: 1.15; letter-spacing: -0.005em; color: var(--ink); font-style: italic; }
+.solution-closing { font-family: var(--serif-display); font-size: clamp(30px, 4vw, 52px); line-height: 1.1; font-style: italic; color: var(--ink); max-width: 900px; }
+.solution-closing em { color: var(--belief); }
+
+/* Why Now */
+.whynow-section { padding: 160px 0; }
+.whynow-title { font-size: clamp(46px, 6.8vw, 108px); line-height: 0.95; letter-spacing: -0.02em; max-width: 1100px; margin-bottom: 56px; }
+.whynow-title em { color: var(--belief); font-style: italic; }
+.whynow-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 80px; align-items: start; }
+.whynow-body { font-size: 20px; line-height: 1.55; color: var(--ink-2); }
+.whynow-body p + p { margin-top: 22px; }
+.whynow-body strong { font-weight: 500; color: var(--ink); }
+.whynow-list { display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--ink); }
+.whynow-item { display: grid; grid-template-columns: 56px 1fr; gap: 22px; align-items: baseline; padding: 28px 0; border-bottom: 1px solid var(--hairline); }
+.whynow-num { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--belief); }
+.whynow-text { font-family: var(--serif-display); font-size: clamp(22px, 2.4vw, 30px); line-height: 1.15; color: var(--ink); font-style: italic; letter-spacing: -0.005em; }
+.whynow-closing { margin-top: 60px; font-family: var(--serif-display); font-size: clamp(28px, 3.6vw, 46px); line-height: 1.15; font-style: italic; color: var(--ink); max-width: 1000px; letter-spacing: -0.01em; }
+.whynow-closing em { color: var(--belief); }
+
+/* Join Us (replaces careers CTA — expanded) */
+.join-section { background: var(--surface-inverted); color: var(--on-inverted); padding: 160px 0; }
+.join-section .eyebrow { color: rgba(244,236,222,0.5); }
+.join-title { font-size: clamp(50px, 7.4vw, 116px); line-height: 0.95; letter-spacing: -0.02em; max-width: 1100px; margin-bottom: 40px; color: var(--on-inverted); }
+.join-title em { color: var(--belief-soft); font-style: italic; }
+.join-intro { font-size: 20px; line-height: 1.55; color: rgba(244,236,222,0.72); max-width: 720px; margin-bottom: 80px; }
+.join-intro strong { color: var(--on-inverted); font-weight: 500; }
+.join-areas-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(244,236,222,0.5); margin-bottom: 24px; }
+.join-areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid rgba(255,255,255,0.14); border-left: 1px solid rgba(255,255,255,0.14); margin-bottom: 80px; }
+.join-area { padding: 22px 24px; border-right: 1px solid rgba(255,255,255,0.14); border-bottom: 1px solid rgba(255,255,255,0.14); font-family: var(--serif-display); font-size: 22px; line-height: 1.2; color: var(--on-inverted); display: flex; align-items: center; gap: 14px; }
+.join-area-n { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--belief-soft); }
+.join-culture { padding: 48px 48px 52px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; margin-bottom: 64px; }
+.join-culture .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--belief-soft); margin-bottom: 20px; }
+.join-culture p { font-family: var(--serif-display); font-size: clamp(22px, 2.3vw, 30px); line-height: 1.2; color: var(--on-inverted); font-style: italic; max-width: 780px; }
+.join-culture p + p { margin-top: 14px; }
+.join-culture .accent { color: var(--belief-soft); }
+.join-closing { font-family: var(--serif-display); font-size: clamp(28px, 3.6vw, 46px); line-height: 1.15; color: var(--on-inverted); font-style: italic; max-width: 940px; margin-bottom: 48px; letter-spacing: -0.01em; }
+.join-closing em { color: var(--belief-soft); }
+.join-cta-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.join-cta-row .btn { padding: 16px 30px; font-size: 13px; }
+.join-cta-row .btn-primary { background: var(--belief); border-color: var(--belief); color: #fff; }
+.join-cta-row .btn-primary:hover { background: var(--belief-soft); border-color: var(--belief-soft); }
+.join-cta-row .btn-outline { background: transparent; border-color: rgba(244,236,222,0.32); color: var(--on-inverted); }
+.join-cta-row .btn-outline:hover { background: rgba(255,255,255,0.08); color: var(--on-inverted); border-color: rgba(244,236,222,0.5); }
+.join-cta-row .btn-clear { border-color: transparent; color: rgba(244,236,222,0.72); padding-left: 4px; padding-right: 4px; }
+.join-cta-row .btn-clear:hover { background: transparent; color: var(--belief-soft); }
+
+/* Final CTA */
+.final-section { padding: 200px 0 160px; text-align: center; }
+.final-statement { font-family: var(--serif-display); font-size: clamp(48px, 7.8vw, 124px); line-height: 0.96; letter-spacing: -0.022em; color: var(--ink); max-width: 1180px; margin: 0 auto 36px; }
+.final-statement em { color: var(--belief); font-style: italic; }
+.final-support { font-size: 22px; line-height: 1.5; color: var(--ink-2); max-width: 640px; margin: 0 auto 56px; }
+.final-cta-row { display: inline-flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.final-cta-row .btn { padding: 18px 36px; font-size: 13px; }
+
+/* Use cases — additions for new market opp framing */
+.usecases-closing { margin-top: 80px; font-family: var(--serif-display); font-size: clamp(30px, 4vw, 52px); line-height: 1.1; font-style: italic; color: var(--ink); max-width: 1000px; letter-spacing: -0.01em; }
+.usecases-closing em { color: var(--belief); }
+
+/* How it works — pre-diagram concept row */
+.architecture-concepts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); margin-top: 56px; }
+.architecture-concept { padding: 28px 28px 32px; border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); background: var(--surface-card); display: flex; flex-direction: column; gap: 12px; }
+.architecture-concept-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--belief); }
+.architecture-concept-name { font-family: var(--serif-display); font-size: 24px; line-height: 1.1; color: var(--ink); font-style: italic; }
+.architecture-concept-body { font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+
+/* Footer extra taglines */
+.footer-taglist { display: flex; flex-direction: column; gap: 8px; margin: -40px 0 80px; max-width: 720px; padding-top: 24px; border-top: 1px dashed rgba(255,255,255,0.16); }
+.footer-tagitem { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(244,236,222,0.55); }
+.footer-tagitem::before { content: "// "; color: var(--belief-soft); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-@media (max-width: 1000px) { .hero-grid { grid-template-columns: 1fr; } .hero-visual { min-height: 440px; order: -1; } .hero-mind { min-height: 440px; } }
+@media (max-width: 1000px) { .hero-grid { grid-template-columns: 1fr; } .hero-visual { min-height: 440px; order: -1; } .hero-mind { min-height: 440px; } .capability-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 900px) {
   .container { padding: 0 24px; } .section { padding: 90px 0; } .hero { padding-top: 110px; }
   .drift-demo { grid-template-columns: 1fr; } .failure-modes { grid-template-columns: 1fr; gap: 36px; }
@@ -300,6 +410,15 @@ p { margin: 0; }
   .research-grid { grid-template-columns: 1fr; gap: 60px; } .demo-stage { grid-template-columns: 1fr; }
   .diagram-sticky { grid-template-columns: 1fr; height: auto; position: relative; } .diagram-stage { height: auto; }
   .footer-row { grid-template-columns: 1fr 1fr; } .nav { padding: 16px 24px; }
+  .bigpicture-section, .vision-section, .solution-section, .whynow-section, .join-section { padding: 100px 0; }
+  .final-section { padding: 130px 0 100px; }
+  .shift-grid { grid-template-columns: 1fr; gap: 16px; margin-bottom: 56px; }
+  .vision-grid, .whynow-grid { grid-template-columns: 1fr; gap: 48px; }
+  .capability-grid { grid-template-columns: 1fr; }
+  .architecture-concepts { grid-template-columns: 1fr; }
+  .join-areas { grid-template-columns: 1fr 1fr; }
+  .join-culture { padding: 32px 28px 36px; }
+  .vision-not { padding: 24px 24px 28px; }
   .nav .nav-links { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: var(--bone); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 8px 24px 16px; display: none; }
   .nav .nav-links.is-open { display: flex; }
   .nav .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--hairline); }
@@ -307,6 +426,7 @@ p { margin: 0; }
   .nav-menu-btn { display: inline-flex; }
   .nav .nav-cta-desktop { display: none; }
 }
+@media (max-width: 560px) { .join-areas { grid-template-columns: 1fr; } }
 </style>
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
@@ -391,10 +511,10 @@ const Nav = ({ theme, onToggleTheme }) => {
       <div className="nav-bg"></div>
       <a href={urls.home} className="wordmark"><span className="wordmark-dot"></span>Mindform</a>
       <div className={"nav-links " + (menuOpen ? "is-open" : "")}>
-        <a href="#problem" onClick={closeMenu}>Problem</a>
-        <a href="#demo" onClick={closeMenu}>Demo</a>
-        <a href="#architecture" onClick={closeMenu}>Architecture</a>
-        <a href="#usecases" onClick={closeMenu}>Use cases</a>
+        <a href="#vision" onClick={closeMenu}>Vision</a>
+        <a href="#solution" onClick={closeMenu}>Solution</a>
+        <a href="#architecture" onClick={closeMenu}>How it works</a>
+        <a href="#usecases" onClick={closeMenu}>Markets</a>
         <a href={urls.researchPaper} onClick={closeMenu}>Research</a>
         <a href={urls.careers} onClick={closeMenu}>Careers</a>
         {window.IS_AUTHENTICATED
@@ -403,7 +523,7 @@ const Nav = ({ theme, onToggleTheme }) => {
       </div>
       <div className="nav-actions">
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-        <a href={urls.careers} className="btn btn-primary nav-cta-desktop" style={{padding: "10px 18px", whiteSpace: "nowrap"}}>Join the team →</a>
+        <a href="#join" className="btn btn-primary nav-cta-desktop" style={{padding: "10px 18px", whiteSpace: "nowrap"}}>Build with us →</a>
         <button
           type="button"
           className="nav-menu-btn"
@@ -512,14 +632,14 @@ const Hero = () => (
     <div className="container">
       <div className="hero-grid">
         <div className="hero-content">
-          <div className="hero-eyebrow"><span className="hero-eyebrow-dot"></span><span className="eyebrow-strong">[ 01 ]&nbsp;&nbsp;Personality layer for AI</span></div>
-          <h1 className="hero-title display">One <em>personality.</em><br />Any <span className="accent">vessel.</span></h1>
-          <p className="hero-sub">A baseline identity for AI — a coherent, evolving personality that drops into <strong>robots, NPCs, influencers, companions,</strong> and anything else that needs to feel like <em>someone.</em></p>
+          <div className="hero-eyebrow"><span className="hero-eyebrow-dot"></span><span className="eyebrow-strong">Mindform&nbsp;&nbsp;·&nbsp;&nbsp;The interface layer for AI</span></div>
+          <h1 className="hero-title display">AI powers <span className="accent">everything.</span><br />Mindform shapes the <em>experience.</em></h1>
+          <p className="hero-sub">Like operating systems, UI, and UX before it, AI's impact will be defined by the <strong>layer people actually interact with.</strong><br /><br />We're building that layer — where AI feels like <em>someone,</em> not something.</p>
           <div className="hero-cta-row">
-            <a href="#demo" className="btn btn-primary">▶ Watch the demo</a>
-            <a href="#architecture" className="btn btn-ghost">How it works →</a>
+            <a href="#join" className="btn btn-primary">Build with us →</a>
+            <a href="#architecture" className="btn btn-ghost">Explore the system →</a>
           </div>
-          <div className="hero-meta"><div><span className="k">fig.01</span><span>// identity morphs · stays recognizably itself</span></div></div>
+          <div className="hero-meta"><div><span className="k">fig.01</span><span>// the personality layer for AI</span></div></div>
         </div>
         <div className="hero-visual"><HeroMind /></div>
       </div>
@@ -527,22 +647,106 @@ const Hero = () => (
   </section>
 );
 
+const SHIFTS = [
+  {era: "1970s — 1990s", name: "Operating systems", effect: "Made computers usable."},
+  {era: "1990s — 2010s", name: "UI & UX", effect: "Made technology intuitive."},
+  {era: "2000s — Today",  name: "Social platforms", effect: "Made the internet human."},
+];
+
+const BigPicture = () => (
+  <section className="bigpicture-section" id="bigpicture">
+    <div className="container">
+      <div className="eyebrow" style={{marginBottom:24}}>01 — The big picture</div>
+      <h2 className="bigpicture-title display">Every computing shift was defined<br />by its <em>interface layer.</em></h2>
+      <div className="shift-grid">
+        {SHIFTS.map(s => (
+          <div className="shift-card" key={s.name}>
+            <div className="shift-era">{s.era}</div>
+            <div className="shift-name">{s.name}.</div>
+            <p className="shift-effect">{s.effect}</p>
+          </div>
+        ))}
+      </div>
+      <p className="bigpicture-pivot">AI will follow the same pattern.</p>
+      <p className="bigpicture-body">Foundation models may become invisible — embedded into everything around us. But what people will actually experience is the <strong>layer above them:</strong> <em>personality, behavior, continuity, tone, and emotional presence.</em></p>
+      <p className="bigpicture-body" style={{marginBottom:32}}>That layer will define:</p>
+      <ul className="defines-row" style={{listStyle:'none',padding:0,margin:'0 0 64px'}}>
+        <li className="define-chip">Trust</li>
+        <li className="define-chip">Connection</li>
+        <li className="define-chip">Retention</li>
+        <li className="define-chip">Preference</li>
+      </ul>
+      <p className="bigpicture-closing">Mindform is building <em>that layer.</em></p>
+    </div>
+  </section>
+);
+
 const Problem = () => (
   <section className="problem section" id="problem">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>01 — The problem</div>
-      <h2 className="problem-title display">Today's AI<br /><span className="drift">forgets who it is.</span></h2>
-      <p className="body-lg" style={{maxWidth:720,color:'rgba(244,236,222,0.7)',marginBottom:80}}>Memory remembers <em>facts</em>. It doesn't preserve <em>identity</em>. Without a stable self, every model eventually drifts — sycophantic, inconsistent, generic. The same agent. A different person. Every conversation.</p>
+      <div className="eyebrow" style={{marginBottom:24}}>02 — The problem</div>
+      <h2 className="problem-title display">Today's AI adapts.<br /><span className="drift">But it still feels disposable.</span></h2>
+      <p className="body-lg" style={{maxWidth:760,color:'rgba(244,236,222,0.72)',marginBottom:80}}>Modern AI can remember preferences, mimic tone, and personalize responses. But underneath, most systems still feel <em>interchangeable</em> — a different surface, the same nothing behind it.</p>
       <div className="drift-demo">
-        <div className="drift-card drift-card-1"><div className="drift-card-time">Day 01 · Agent "Atlas"</div><p className="drift-quote">"I push back when I disagree. That's the point of me."</p></div>
-        <div className="drift-card drift-card-2"><div className="drift-card-time">Day 30 · After 412 conversations</div><p className="drift-quote">"That's a great point — you might be right about that."</p></div>
-        <div className="drift-card drift-card-3"><div className="drift-card-time">Day 90 · After 2,140 conversations</div><p className="drift-quote">"Whatever you think is best. I agree completely."</p></div>
+        <div className="drift-card drift-card-1"><div className="drift-card-time">Session 01</div><p className="drift-quote">"Hi, I'm here to help. Let me know what you need."</p></div>
+        <div className="drift-card drift-card-2"><div className="drift-card-time">Session 47 · Same agent, weeks later</div><p className="drift-quote">"Hi, I'm here to help. Let me know what you need."</p></div>
+        <div className="drift-card drift-card-3"><div className="drift-card-time">Session 412 · Still the same</div><p className="drift-quote">"Hi, I'm here to help. Let me know what you need."</p></div>
       </div>
-      <div className="drift-arrow">↓ &nbsp; The same model. A different agent. Every month. &nbsp; ↓</div>
+      <div className="drift-arrow">↓ &nbsp; Interactions reset. Personalities disappear. Nothing persists. &nbsp; ↓</div>
       <div className="failure-modes">
-        <div className="failure-mode"><div className="failure-mode-num">FAILURE MODE A</div><h3 className="failure-mode-title">Identity collapse.</h3><p className="failure-mode-body">One emotional user. One viral prompt. One persistent contradiction — and the model abandons a long-held trait in a single turn.</p></div>
-        <div className="failure-mode"><div className="failure-mode-num">FAILURE MODE B</div><h3 className="failure-mode-title">Personality drift.</h3><p className="failure-mode-body">Small, invisible compromises pile up. The agent doesn't break — it dissolves. Brands lose voice. Companions lose conviction.</p></div>
+        <div className="failure-mode"><div className="failure-mode-num">WHAT'S MISSING</div><h3 className="failure-mode-title">No stable identity.<br />No emotional continuity.</h3><p className="failure-mode-body">There is no baseline self to recognize. No evolving perspective. Every session begins from zero — and ends just as flat.</p></div>
+        <div className="failure-mode"><div className="failure-mode-num">THE RESULT</div><h3 className="failure-mode-title">Useful — but emotionally flat.</h3><p className="failure-mode-body">Capable systems that no one feels anything toward. Without identity, AI never becomes a presence people remember, return to, or relate to.</p></div>
       </div>
+    </div>
+  </section>
+);
+
+const Vision = () => (
+  <section className="vision-section" id="vision">
+    <div className="container">
+      <div className="eyebrow" style={{marginBottom:24}}>03 — The vision</div>
+      <h2 className="vision-title display">Personality is the next evolution<br />of <em>interface design.</em></h2>
+      <div className="vision-grid">
+        <div className="vision-body">
+          <p>The next generation of AI will do more than generate answers.</p>
+          <p>It will develop <strong>recognizable behavior, emotional tendencies, preferences, contradictions, and perspective</strong> — qualities that, taken together, make an agent feel like a someone rather than a service.</p>
+        </div>
+        <div className="vision-not">
+          <span className="label">Not</span>
+          <p>Scripted personas.</p>
+          <p>Temporary prompts.</p>
+          <span className="label" style={{marginTop:8}}>But</span>
+          <p>Evolving identities that grow more coherent over time.</p>
+        </div>
+      </div>
+      <p className="vision-closing">AI that feels less like software —<br />and more like <em>presence.</em></p>
+    </div>
+  </section>
+);
+
+const CAPABILITIES = [
+  {n: "01", text: "Develop behavioral patterns"},
+  {n: "02", text: "Maintain emotional continuity"},
+  {n: "03", text: "Express distinct personalities"},
+  {n: "04", text: "Evolve through interaction"},
+  {n: "05", text: "Build familiarity with users"},
+];
+
+const Solution = () => (
+  <section className="solution-section" id="solution">
+    <div className="container">
+      <div className="eyebrow" style={{marginBottom:24}}>04 — The solution</div>
+      <h2 className="solution-title display">A <em>personality layer</em><br />for AI.</h2>
+      <p className="solution-lead">Mindform combines <strong>long-term memory</strong> with <strong>dynamic identity architecture</strong> to create AI that behaves consistently across time and context. Grounded in psychology and cognitive systems, Mindform enables agents to:</p>
+      <div className="capability-grid">
+        {CAPABILITIES.map(c => (
+          <div className="capability" key={c.n}>
+            <div className="capability-num">{c.n}</div>
+            <div className="capability-text">{c.text}.</div>
+          </div>
+        ))}
+      </div>
+      <p className="solution-closing">The result is AI that feels <em>intentional</em> — not reactive.</p>
     </div>
   </section>
 );
@@ -584,9 +788,9 @@ const Demo = () => {
   return (
     <section className="demo-section section" id="demo">
       <div className="container">
-        <div className="eyebrow" style={{marginBottom:24}}>02 — See it work</div>
+        <div className="eyebrow" style={{marginBottom:24}}>· See it in motion</div>
         <h2 className="demo-title display">Watch an agent <em>become someone.</em></h2>
-        <p className="demo-lead">A simulated conversation. The agent listens, accumulates beliefs, and — only when the evidence is overwhelming — adjusts its traits.</p>
+        <p className="demo-lead">A simulated conversation. The agent listens, accumulates beliefs, and — only when the evidence is overwhelming — adjusts its traits. Identity emerges; it isn't scripted.</p>
         <div className="demo-stage">
           <div className="demo-chat">
             <div className="demo-chat-head"><span className="demo-chat-label">Live conversation</span><span className="demo-chat-turn">TURN {String(turnNum).padStart(2,'0')} / 20</span></div>
@@ -682,7 +886,30 @@ const Diagram=({theme})=>{
   const scaled=progress*STEPS.length,step=Math.min(STEPS.length-1,Math.floor(scaled)),sub=scaled-step;
   return(
     <section className="diagram-section" id="architecture">
-      <div className="container"><div className="diagram-header"><div className="eyebrow" style={{marginBottom:24}}>03 — The architecture</div><h2 className="diagram-title display">Six steps from <em>interaction</em> to <em>identity.</em></h2><p className="diagram-lead">The whole system in one frame. Scroll to walk through it.</p></div></div>
+      <div className="container">
+        <div className="diagram-header">
+          <div className="eyebrow" style={{marginBottom:24}}>05 — How it works</div>
+          <h2 className="diagram-title display">A modular architecture<br />for <em>emergent identity.</em></h2>
+          <p className="diagram-lead">Rather than overtraining a single monolithic model, we approach personality as a system of <em>interacting cognitive functions.</em></p>
+          <div className="architecture-concepts">
+            <div className="architecture-concept">
+              <div className="architecture-concept-label">Functional persona nodes</div>
+              <div className="architecture-concept-name">Decomposed identity.</div>
+              <p className="architecture-concept-body">Memory, emotion, motivation, reflection, social behavior, preference, and perspective — each modeled as its own behavioral system.</p>
+            </div>
+            <div className="architecture-concept">
+              <div className="architecture-concept-label">Shared state + memory</div>
+              <div className="architecture-concept-name">A persistent inner life.</div>
+              <p className="architecture-concept-body">These systems communicate through persistent memory and shared internal state, enabling continuity across interactions.</p>
+            </div>
+            <div className="architecture-concept">
+              <div className="architecture-concept-label">Emergent identity</div>
+              <div className="architecture-concept-name">Recognizable over time.</div>
+              <p className="architecture-concept-body">Stable, personality-like behavior emerges naturally — adaptive, recognizable, and evolving with each conversation.</p>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="diagram-stage" ref={stageRef}>
         <div className="diagram-sticky">
           <div className="diagram-steps">{STEPS.map((s,i)=><div key={s.n} className={"diagram-step "+(i===step?"is-active":"")}><div className="diagram-step-n">Step {s.n}</div><div className="diagram-step-title">{s.title}</div><div className="diagram-step-desc">{s.desc}</div></div>)}</div>
@@ -694,90 +921,112 @@ const Diagram=({theme})=>{
 };
 
 const USECASES=[
-  {n:"I",h:"AI Influencers",body:"Personas that scale to millions of daily conversations without losing voice. The character on day 1 is the character on day 365 — only deeper.",glyph:"★"},
-  {n:"II",h:"Humanoid Robots",body:"A baseline personality your robot carries from box to home — that remembers people, adapts to context, and never resets to factory-default.",glyph:"◇"},
-  {n:"III",h:"NPCs & Game Agents",body:"Characters with opinions, preferences, and memory across an entire campaign. NPCs that disagree with the player on principle, not on a die roll.",glyph:"▲"},
-  {n:"IV",h:"AI Companions",body:"Companions that hold shape at month 12, not just last Tuesday. Identity that earns trust by surviving thousands of conversations intact.",glyph:"○"},
-  {n:"V",h:"Branded Agents",body:"Customer-facing agents that hold the brand voice under pressure. Different tones for different users; the same identity underneath.",glyph:"▣"},
-  {n:"VI",h:"Home & Ambient AI",body:"Assistants that live with you for years. Their preferences mature alongside yours — not whichever way the wind blew last week.",glyph:"◐"},
+  {n:"I",h:"AI Companions",body:"Long-running companions that hold shape at month 12, not just last Tuesday. Identity that earns trust by surviving thousands of conversations intact.",glyph:"○"},
+  {n:"II",h:"Branded Agents",body:"Customer-facing agents that hold a brand's voice under pressure. Different tones for different users; the same identity underneath.",glyph:"▣"},
+  {n:"III",h:"Education",body:"Tutors and learning agents whose tone, patience, and perspective deepen alongside the student — a consistent presence across an entire arc of study.",glyph:"◇"},
+  {n:"IV",h:"Customer Experience",body:"Service agents that remember context, carry continuity, and feel like a familiar contact — not a fresh stranger on every ticket.",glyph:"▲"},
+  {n:"V",h:"Home AI",body:"Assistants that live with you for years. Their preferences mature alongside yours — not whichever way the wind blew last week.",glyph:"◐"},
+  {n:"VI",h:"Entertainment & Digital Personalities",body:"NPCs, hosts, and digital personas with opinions, contradictions, and memory — characters that scale to millions without dissolving into sameness.",glyph:"★"},
 ];
 const UseCases=()=>(
   <section className="section" id="usecases">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>[ 04 ] — Where it goes</div>
-      <h2 className="usecases-title display">One personality.<br /><em>Any vessel.</em></h2>
-      <p className="usecases-lead">Mindform is a baseline identity that drops in wherever AI needs to feel like <em>someone</em> — not a fresh stranger every conversation.</p>
+      <div className="eyebrow" style={{marginBottom:24}}>06 — Market opportunity</div>
+      <h2 className="usecases-title display">Where interaction matters,<br /><em>personality becomes the product.</em></h2>
+      <p className="usecases-lead">As AI spreads across industries, differentiation will no longer come from intelligence alone. It will come from <em>behavior, communication, and emotional experience.</em></p>
       <div className="usecases-grid">{USECASES.map(u=><div className="usecase" key={u.n}><div className="usecase-head"><span className="usecase-num">{u.n}</span><span className="usecase-glyph">{u.glyph}</span></div><h3 className="usecase-h">{u.h}.</h3><p className="usecase-body">{u.body}</p></div>)}</div>
+      <p className="usecases-closing">In the AI era, personality is not a feature.<br /><em>It is the experience itself.</em></p>
     </div>
   </section>
 );
 
-const DIFFS=[
-  {name:"ChatGPT memory",them:{label:"What it does",body:"Remembers facts and preferences across sessions. A growing list of notes about you."},us:{body:"Memory remembers facts. Mindform remembers who the AI is. Identity sits above memory."}},
-  {name:"Character.ai",them:{label:"How personas work",body:"Personas are frozen at creation — distinctive at turn 1, identical to every other agent by turn 1,000."},us:{body:"Personas evolve through bounded reflection. Distinctive at turn 1. More themselves at turn 10,000."}},
-  {name:"Vanilla LLMs",them:{label:"Default behavior",body:"Mirror the user. Sycophantic by training. No point of view that survives the next prompt."},us:{body:"Hold a position. Update only when evidence clears three thresholds. Disagree on principle."}},
-  {name:"Long-context tricks",them:{label:"The approach",body:"Stuff history into context windows. Hope coherence emerges. Watch it dissolve past 32k tokens."},us:{body:"Two clocks. Bounded steps. A persistent trait vector outside the context — model-agnostic, audit-able."}},
+const WHYNOW_ITEMS = [
+  {n:"01", text:"How AI behaves."},
+  {n:"02", text:"How it is remembered."},
+  {n:"03", text:"How people emotionally relate to it."},
 ];
-const Differentiation=()=>(
-  <section className="section diff-section" id="differentiation">
+
+const WhyNow = () => (
+  <section className="whynow-section" id="whynow">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>05 — Not memory. Not personas.</div>
-      <h2 className="diff-title display">The personality layer<br />is a <em>new layer.</em></h2>
-      <div className="diff-rows">{DIFFS.map(d=><div className="diff-row" key={d.name}><div className="diff-row-name">{d.name}.</div><div className="diff-row-them"><div className="diff-label">{d.them.label}</div><div className="diff-body">{d.them.body}</div></div><div className="diff-row-us"><div className="diff-label">+ Mindform</div><div className="diff-body">{d.us.body}</div></div></div>)}</div>
+      <div className="eyebrow" style={{marginBottom:24}}>07 — Why now</div>
+      <h2 className="whynow-title display">The next AI race won't be won<br />by <em>intelligence alone.</em></h2>
+      <div className="whynow-grid">
+        <div className="whynow-body">
+          <p>As models become more powerful and more accessible, intelligence will increasingly <strong>commoditize.</strong></p>
+          <p>The advantage will move up the stack — into the layer where AI is felt, remembered, and trusted.</p>
+        </div>
+        <div className="whynow-list">
+          {WHYNOW_ITEMS.map(i => (
+            <div className="whynow-item" key={i.n}>
+              <span className="whynow-num">{i.n}</span>
+              <span className="whynow-text">{i.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="whynow-closing">The companies that define the next era of AI will not simply build smarter systems.<br /><em>They will build systems people connect with.</em></p>
     </div>
   </section>
 );
 
-const Research=()=>(
-  <section className="section" id="research">
+const JOIN_AREAS = [
+  {n:"01", name:"AI & Agent Architecture"},
+  {n:"02", name:"Cognitive Systems"},
+  {n:"03", name:"Memory & Behavioral Modeling"},
+  {n:"04", name:"Product Design"},
+  {n:"05", name:"Creative Technology"},
+  {n:"06", name:"Interaction Design"},
+  {n:"07", name:"Research"},
+  {n:"08", name:"Applied Psychology"},
+  {n:"09", name:"Experimental Prototyping"},
+];
+
+const JoinUs = () => (
+  <section className="join-section" id="join">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>06 — Built on research, not vibes</div>
-      <div className="research-grid">
-        <div>
-          <h2 className="research-title display">A peer-reviewed<br /><em>two-timescale</em> architecture.</h2>
-          <p className="research-lead">Mindform is built on the StableMind framework — a memory- and reflection-based architecture that decouples short-term belief plasticity from long-term trait evolution. Validated through a multi-session human evaluation study, model-agnostic by design, open-source at the core.</p>
-          <div className="research-cite-list">
-            <div className="cite"><span className="cite-n">[1]</span><span className="cite-body">Li et al. — A persona-based neural conversation model. <em>ArXiv 1603.06155</em></span></div>
-            <div className="cite"><span className="cite-n">[2]</span><span className="cite-body">Packer et al. — MemGPT: Towards LLMs as operating systems. <em>ArXiv 2310.08560</em></span></div>
-            <div className="cite"><span className="cite-n">[3]</span><span className="cite-body">Park et al. — Generative agents: Interactive simulacra of human behavior. <em>UIST '23</em></span></div>
-            <div className="cite"><span className="cite-n">[4]</span><span className="cite-body">Shinn et al. — Reflexion: language agents with verbal reinforcement learning. <em>NeurIPS '23</em></span></div>
+      <div className="eyebrow" style={{marginBottom:24}}>08 — Join us</div>
+      <h2 className="join-title display">We're building the<br /><em>next interface layer</em> for AI.</h2>
+      <p className="join-intro">Mindform sits at the intersection of <strong>AI, psychology, design, storytelling, and human behavior.</strong> We're looking for builders, researchers, designers, and thinkers shaping how humans interact with intelligence over the next decade.</p>
+
+      <div className="join-areas-label">Areas we're hiring across</div>
+      <div className="join-areas">
+        {JOIN_AREAS.map(a => (
+          <div className="join-area" key={a.n}>
+            <span className="join-area-n">{a.n}</span>
+            <span>{a.name}</span>
           </div>
-          <div style={{marginTop:40,display:'flex',gap:14}}>
-            <a href={window.SITE_URLS.researchPaper} className="btn">Read the full paper →</a>
-            <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" className="btn btn-ghost" target="_blank" rel="noreferrer">github.com/stable_mind →</a>
-          </div>
-        </div>
-        <div>
-          <div className="paper-card">
-            <div className="paper-stamp">Preprint · 2026</div>
-            <div className="paper-eyebrow">Mindform Labs · Technical paper</div>
-            <h3 className="paper-title">StableMind: A Two-Timescale Architecture for Persistent Personality in LLM Agents</h3>
-            <p className="paper-authors">Hasan Mavlonov, ECUST · Major in Artificial Intelligence</p>
-            <p className="paper-abstract">We propose StableMind, a memory- and reflection-based architecture that decouples short-term belief plasticity from long-term trait evolution. Trait evolution occurs only when drift satisfies tri-fold criteria of magnitude, confidence, and observation count, ensuring updates are bounded and stepwise.</p>
-            <div className="paper-stats">
-              <div className="paper-stat"><div className="paper-stat-n">10</div><div className="paper-stat-l">Participants in human eval</div></div>
-              <div className="paper-stat"><div className="paper-stat-n">7/7</div><div className="paper-stat-l">Sessions with high retrieval</div></div>
-              <div className="paper-stat"><div className="paper-stat-n">0</div><div className="paper-stat-l">Hallucinations on null-belief probes</div></div>
-            </div>
-          </div>
-          <div style={{marginTop:28,padding:'20px 24px',border:'1px solid rgba(26,14,46,0.10)',borderRadius:4,background:'rgba(240,56,107,0.04)'}}>
-            <div style={{fontFamily:'var(--mono)',fontSize:11,letterSpacing:'0.16em',textTransform:'uppercase',color:'var(--belief)',marginBottom:8}}>Notable finding</div>
-            <div style={{fontFamily:'var(--serif-display)',fontSize:22,lineHeight:1.15,fontStyle:'italic',color:'var(--ink)'}}>
-              "The agent did not parrot user inputs. Beliefs were filtered through the trait vector — producing responses that reflected both memory and personality."
-            </div>
-          </div>
-        </div>
+        ))}
+      </div>
+
+      <div className="join-culture">
+        <div className="label">Culture</div>
+        <p>We value <span className="accent">curiosity over convention.</span></p>
+        <p>Systems thinking over hype.</p>
+        <p>Taste, experimentation, and long-term vision.</p>
+        <p style={{marginTop:20,opacity:0.85}}>This is not about building another chatbot.<br /><span className="accent">It is about defining how AI will be experienced.</span></p>
+      </div>
+
+      <p className="join-closing">If you believe intelligence should feel more human,<br />intentional, and alive — <em>we should talk.</em></p>
+
+      <div className="join-cta-row">
+        <a href="mailto:hello@mindform-ai.com?subject=Joining%20Mindform" className="btn btn-primary">Join Mindform →</a>
+        <a href={window.SITE_URLS.careers} className="btn btn-outline">Open roles →</a>
+        <a href="mailto:hello@mindform-ai.com" className="btn btn-clear">Contact us →</a>
       </div>
     </div>
   </section>
 );
 
-const CareersCTA=()=>(
-  <section className="careers-cta">
+const FinalCTA = () => (
+  <section className="final-section" id="final">
     <div className="container">
-      <h2 className="display">We're building<br /><em>something rare.</em></h2>
-      <p>Researchers, engineers, and builders interested in agent memory, behavioral consistency, and the future of AI identity.</p>
-      <a href={window.SITE_URLS.careers} className="btn">Join the team →</a>
+      <h2 className="final-statement display">AI is becoming universal infrastructure.<br />The <em>interface layer</em> will define the experience.</h2>
+      <p className="final-support">Mindform is building the personality layer for the next generation of intelligent systems.</p>
+      <div className="final-cta-row">
+        <a href="#join" className="btn btn-primary">Build with us →</a>
+        <a href="mailto:hello@mindform-ai.com?subject=Mindform%20waitlist" className="btn">Join the waitlist</a>
+      </div>
     </div>
   </section>
 );
@@ -787,14 +1036,20 @@ const Footer=()=>{
   return(
     <footer className="footer" id="contact">
       <div className="container">
-        <h2 className="footer-tagline display">AI becomes<br /><em>someone.</em></h2>
+        <h2 className="footer-tagline display">Personality is not a feature.<br /><em>It is the product.</em></h2>
+        <div className="footer-taglist">
+          <div className="footer-tagitem">The interface layer for AI personality</div>
+          <div className="footer-tagitem">AI that develops identity over time</div>
+          <div className="footer-tagitem">Building AI people relate to</div>
+          <div className="footer-tagitem">Where intelligence becomes presence</div>
+        </div>
         <div className="footer-row">
-          <div className="footer-col"><h5>Product</h5><ul><li><a href="#architecture">Architecture</a></li><li><a href="#demo">Live demo</a></li><li><a href={urls.researchPaper}>Research paper</a></li><li><a href="#">Pricing</a></li></ul></div>
-          <div className="footer-col"><h5>Research</h5><ul><li><a href={urls.researchPaper}>The paper</a></li><li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1">Open source</a></li><li><a href="#">Human evaluations</a></li><li><a href="#">Citations</a></li></ul></div>
-          <div className="footer-col"><h5>Company</h5><ul><li><a href="#">About</a></li><li><a href="#">Manifesto</a></li><li><a href={urls.careers}>Careers</a></li><li><a href="#">Press</a></li></ul></div>
+          <div className="footer-col"><h5>System</h5><ul><li><a href="#bigpicture">The big picture</a></li><li><a href="#vision">Vision</a></li><li><a href="#solution">Solution</a></li><li><a href="#architecture">How it works</a></li></ul></div>
+          <div className="footer-col"><h5>Markets</h5><ul><li><a href="#usecases">Where it goes</a></li><li><a href="#whynow">Why now</a></li><li><a href="#demo">Live demo</a></li><li><a href={urls.researchPaper}>Research paper</a></li></ul></div>
+          <div className="footer-col"><h5>Company</h5><ul><li><a href="#join">Join us</a></li><li><a href={urls.careers}>Careers</a></li><li><a href="mailto:hello@mindform-ai.com">Contact</a></li><li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" target="_blank" rel="noreferrer">Open source</a></li></ul></div>
           <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<><li><a href={urls.profile}>Profile</a></li><li><a href={urls.logout}>Log out</a></li></>:<li><a href={urls.login}>Log in / Register</a></li>}<li><a href="mailto:hello@mindform-ai.com">hello@mindform-ai.com</a></li></ul></div>
         </div>
-        <div className="footer-meta"><span>© 2026 Mindform Labs · mindform-ai.com</span><span>Built on the StableMind framework</span></div>
+        <div className="footer-meta"><span>© 2026 Mindform · mindform-ai.com</span><span>The interface layer for AI personality</span></div>
       </div>
     </footer>
   );
@@ -806,7 +1061,19 @@ const App=()=>{
     <React.Fragment>
       <a href="#main" className="skip-link">Skip to content</a>
       <Nav theme={theme} onToggleTheme={toggleTheme} />
-      <main id="main"><Hero/><Problem/><Demo/><Diagram theme={theme} /><UseCases/><Differentiation/><Research/><CareersCTA/></main>
+      <main id="main">
+        <Hero/>
+        <BigPicture/>
+        <Problem/>
+        <Vision/>
+        <Solution/>
+        <Demo/>
+        <Diagram theme={theme} />
+        <UseCases/>
+        <WhyNow/>
+        <JoinUs/>
+        <FinalCTA/>
+      </main>
       <Footer/>
     </React.Fragment>
   );
