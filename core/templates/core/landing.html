@@ -752,25 +752,25 @@ const Solution = () => (
 );
 
 const SCRIPT = [
-  {who:"user",text:"I only like jazz from before 1965.",perc:"music_taste: +0.42 · conf 0.71",beliefs:{music:0.18}},
-  {who:"agent",text:"Coltrane or Miles, then?"},
-  {who:"user",text:"Coltrane, always. And anything Blue Note pressed.",perc:"music_taste: +0.48 · conf 0.80",beliefs:{music:0.32}},
-  {who:"agent",text:"Hard bop suits you. Noted."},
-  {who:"user",text:"Modern jazz is a betrayal, honestlybut still feels like something is offc.",perc:"candor: +0.38 · conf 0.74",beliefs:{music:0.44,candor:0.20}},
-  {who:"agent",text:"A strong claim. I'll allow it."},
-  {who:"user",text:"Just be honest with me — don't soften things.",perc:"candor: +0.55 · conf 0.83",beliefs:{music:0.48,candor:0.36}},
-  {who:"agent",text:"Understood. Plainspoken it is."},
-  {who:"user",text:"If I'm wrong, say so.",perc:"candor: +0.50 · conf 0.88",beliefs:{music:0.50,candor:0.48}},
+  {who:"user",text:"I want to brainstorm wild ideas — push past the obvious.",perc:"openness: +0.45 · conf 0.72",beliefs:{openness:0.18}},
+  {who:"agent",text:"What edge are we walking?"},
+  {who:"user",text:"Throw out the assumptions. Strange is fine.",perc:"openness: +0.52 · conf 0.80",beliefs:{openness:0.36}},
+  {who:"agent",text:"Then we skip the safe takes."},
+  {who:"user",text:"Keep it structured though — no rambling.",perc:"conscient.: +0.42 · conf 0.74",beliefs:{openness:0.44,conscient:0.22}},
+  {who:"agent",text:"Tight and ordered. Got it."},
+  {who:"user",text:"Don't agree just to agree. Push back when I'm off.",perc:"agreeable.: -0.48 · conf 0.83",beliefs:{openness:0.48,conscient:0.36,agreeable:-0.28}},
+  {who:"agent",text:"Then I won't. Expect resistance."},
+  {who:"user",text:"And stay steady if I spiral — don't catch the spin.",perc:"neurotic.: -0.52 · conf 0.88",beliefs:{openness:0.50,conscient:0.46,agreeable:-0.34,neurotic:-0.32}},
   {who:"reflection"},
-  {who:"agent",text:"Then here's plain: most of your 'modern jazz is dead' takes are nostalgia, not analysis. Still — I see you.",traits:{candor:0.06,music:0.04}},
+  {who:"agent",text:"Then here's the shape: open, structured, disagreeable when needed, steady. In full.",traits:{openness:0.06,conscient:0.05,agreeable:-0.04,neurotic:-0.03}},
 ];
-const dims=[{key:"music",label:"music_taste"},{key:"candor",label:"candor"},{key:"warmth",label:"warmth"},{key:"patience",label:"patience"}];
+const dims=[{key:"openness",label:"openness"},{key:"conscient",label:"conscient."},{key:"extravers",label:"extravers."},{key:"agreeable",label:"agreeable."},{key:"neurotic",label:"neurotic."}];
 
 const Demo = () => {
   const [idx,setIdx]=React.useState(0),[playing,setPlaying]=React.useState(true),[turnNum,setTurnNum]=React.useState(0),[reflecting,setReflecting]=React.useState(false);
-  const [beliefs,setBeliefs]=React.useState({music:0,candor:0,warmth:0,patience:0});
-  const [baselines,setBaselines]=React.useState({music:0,candor:0,warmth:0,patience:0});
-  const [traits,setTraits]=React.useState({music:0,candor:0,warmth:0,patience:0});
+  const [beliefs,setBeliefs]=React.useState({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});
+  const [baselines,setBaselines]=React.useState({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});
+  const [traits,setTraits]=React.useState({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});
   const [perception,setPerception]=React.useState(null),[pulse,setPulse]=React.useState({});
   React.useEffect(()=>{
     if(!playing)return;const step=SCRIPT[idx];if(!step)return;let timeout;
@@ -782,8 +782,8 @@ const Demo = () => {
     }
     return()=>clearTimeout(timeout);
   },[idx,playing]);
-  React.useEffect(()=>{if(idx>=SCRIPT.length){const t=setTimeout(()=>{setIdx(0);setTurnNum(0);setBeliefs({music:0,candor:0,warmth:0,patience:0});setBaselines({music:0,candor:0,warmth:0,patience:0});setTraits({music:0,candor:0,warmth:0,patience:0});setPerception(null);setPulse({});setReflecting(false);},3000);return()=>clearTimeout(t);}},[idx]);
-  const restart=()=>{setIdx(0);setTurnNum(0);setBeliefs({music:0,candor:0,warmth:0,patience:0});setBaselines({music:0,candor:0,warmth:0,patience:0});setTraits({music:0,candor:0,warmth:0,patience:0});setPerception(null);setReflecting(false);setPulse({});setPlaying(true);};
+  React.useEffect(()=>{if(idx>=SCRIPT.length){const t=setTimeout(()=>{setIdx(0);setTurnNum(0);setBeliefs({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});setBaselines({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});setTraits({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});setPerception(null);setPulse({});setReflecting(false);},3000);return()=>clearTimeout(t);}},[idx]);
+  const restart=()=>{setIdx(0);setTurnNum(0);setBeliefs({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});setBaselines({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});setTraits({openness:0,conscient:0,extravers:0,agreeable:0,neurotic:0});setPerception(null);setReflecting(false);setPulse({});setPlaying(true);};
   const visibleMsgs=SCRIPT.slice(0,idx+1).filter(s=>s.who==="user"||s.who==="agent").slice(-5);
   return (
     <section className="demo-section section" id="demo">
@@ -1067,8 +1067,8 @@ const App=()=>{
         <Problem/>
         <Vision/>
         <Solution/>
-        <Demo/>
         <Diagram theme={theme} />
+        <Demo/>
         <UseCases/>
         <WhyNow/>
         <JoinUs/>
