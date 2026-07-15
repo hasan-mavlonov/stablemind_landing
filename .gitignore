@@ -4,6 +4,7 @@ __pycache__/
 staticfiles/
 .env
 .env.*
+!.env.example
 db.sqlite3
 media/
 mindform_data/

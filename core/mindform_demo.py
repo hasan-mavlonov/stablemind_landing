@@ -6,11 +6,13 @@ stdlib ``http.server`` (web/server.py): they expose the same JSON API, but route
 through Django and back the engine with a *per-visitor* character store so two
 people talking to the demo never collide.
 
-The engine itself (core/mindform_engine/) is vendored from the mindform_v0 repo and
-runs on the Python standard library alone — heuristic appraisal, a heuristic trait
-"push", and a rule-based in-character reply. With a GEMINI_API_KEY in the
-environment it transparently upgrades to LLM-quality pushes and replies; without
-one (the default here) everything still works offline.
+The engine itself is the full mindform_v0 codebase, vendored unchanged: its
+``core``/``nodes``/``web`` modules import exactly as they do upstream (the engine's
+``core`` package and this Django app share the ``core`` name, so the engine modules
+live inside it file-for-file). Perception, formation, genesis, and the in-character
+reply are LLM-primary — Google's Gemma 4 through the Gemini API's OpenAI-compatible
+endpoint (set ``GEMINI_API_KEY``) — and every path falls back to the deterministic
+heuristics, so the demo still works offline.
 """
 
 import json
@@ -23,7 +25,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .mindform_engine import bridge, personality
+from core import personality
+from web import engine_bridge as bridge
 
 log = logging.getLogger("mindform.demo")
 
@@ -66,8 +69,20 @@ def _seed_if_empty():
 
 
 def _activate_store(request):
-    """Bind the engine to this visitor's store for the duration of the request."""
-    personality.set_data_root(_session_data_root(request))
+    """Bind the engine to this visitor's store for the duration of the request.
+
+    The engine stores characters under the module-level ``CHARACTERS_DIR`` (read at
+    call time), so retargeting it per request is all the isolation needed.
+    ``core.memory`` binds the same constant by value at import, so when its heavy
+    deps are installed the memory sidecars are pointed at the session dir too.
+    """
+    characters_dir = os.path.join(_session_data_root(request), "characters")
+    personality.CHARACTERS_DIR = characters_dir
+    try:
+        from core import memory
+        memory.CHARACTERS_DIR = characters_dir
+    except Exception:                     # numpy absent -> engine skips memory anyway
+        pass
     _seed_if_empty()
 
 

@@ -1,6 +1,6 @@
 // api.js -- thin fetch wrappers around the cockpit's JSON endpoints.
-// Every endpoint is backed by the real Python engine via the Django demo views
-// (core/mindform_demo.py -> core/mindform_engine/bridge.py).
+// Every endpoint is backed by the real Python engine via web/engine_bridge.py
+// (served through the Django demo views in core/mindform_demo.py).
 //
 // The API base path is injected by the page (window.MINDFORM_API_BASE) so the
 // cockpit can be mounted under a URL prefix (e.g. "/demo/api") inside the site.
