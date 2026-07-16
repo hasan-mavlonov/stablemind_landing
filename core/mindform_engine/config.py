@@ -117,11 +117,201 @@ VALUES_M = {
     "BE": {"social": 0.5, "valence": 0.2},
     "UN": {"social": 0.1, "valence": 0.1, "novelty": 0.1},
 }
+
+# --- Character: Moral Foundations (the moral-outlook substrate formed by experience) -
+# A second CHARACTER vector alongside the Schwartz values: Haidt's six Moral Foundations.
+# Each is signed [-1, 1]: +1 = the person comes to hold this moral concern strongly,
+# -1 = actively dismisses it, 0 = neutral. Like the values, foundations start at 0
+# (earned, not innate) and form by the SAME push + diminishing-returns dynamics.
+MORAL = ["CARE", "FAIR", "LOYAL", "AUTH", "SANC", "LIB"]
+MORAL_NAMES = {
+    "CARE":  "care / harm",             # compassion; protecting others from suffering
+    "FAIR":  "fairness / cheating",     # justice, reciprocity, proportionality
+    "LOYAL": "loyalty / betrayal",      # standing with one's group, family, team
+    "AUTH":  "authority / subversion",  # respect for hierarchy, tradition, duty, order
+    "SANC":  "sanctity / degradation",  # purity, the sacred, self-discipline, disgust
+    "LIB":   "liberty / oppression",    # resisting domination and coercion; valuing freedom
+}
+# Appraisal -> moral prior (heuristic fallback only; the LLM is primary, as with values).
+# Morality is poorly captured by an affect appraisal, so this is deliberately light: the
+# readable foundations (care/loyalty from social warmth, liberty from agency) get a weak
+# signal; sanctity and authority lean entirely on the LLM and stay near-empty.
+MORAL_M = {
+    "CARE":  {"social": 0.3, "valence": 0.3},
+    "FAIR":  {"outcome": 0.3, "agency": 0.2},
+    "LOYAL": {"social": 0.4},
+    "AUTH":  {"agency": -0.2},
+    "SANC":  {},                         # not readable from affect -> LLM only
+    "LIB":   {"agency": 0.3, "novelty": 0.2},
+}
+
+# --- MOTIVATION & DRIVES: Self-Determination Theory needs (the motivational state) ---
+# A third layer beside TEMPERAMENT (innate OCEAN) and CHARACTER (dispositional Schwartz
+# values): the fast motivational STATE that makes a character *want*. Three SDT basic
+# needs, each carried as a TENSION in [0, 1] -- how unmet / loud the need is right now.
+# WHICH needs matter to a person is seeded from their formed values (DRIVE_SEED); how
+# starved each is rises and falls turn to turn (nodes/drives.py). tension is to its resting
+# weight what a trait x is to its baseline mu.
+DRIVES = ["autonomy", "competence", "relatedness"]
+DRIVE_NAMES = {
+    "autonomy":    "autonomy",       # to act from one's own volition, self-governed
+    "competence":  "competence",     # to be effective, to master and get it right
+    "relatedness": "relatedness",    # to connect, belong, and be cared for
+}
+# Weight seed: project the formed Schwartz values onto the three needs (rows = DRIVES,
+# cols = VALUES), same shape/role as M / VALUES_M. A need's chronic importance = how much
+# the character's values point at it, grounded in Schwartz's higher-order axes: autonomy
+# from openness-to-change (minus conservation), competence from self-enhancement, and
+# relatedness from self-transcendence + in-group conservation (minus dominance).
+DRIVE_SEED = {
+    "autonomy":    {"SD": 1.0, "ST": 0.5, "HE": 0.3, "PO": 0.2, "CO": -0.6, "TR": -0.5, "SE": -0.3},
+    "competence":  {"AC": 1.0, "PO": 0.6, "SD": 0.4, "ST": 0.3},
+    "relatedness": {"BE": 1.0, "UN": 0.6, "CO": 0.4, "TR": 0.4, "SE": 0.3, "PO": -0.3},
+}
+DRIVE_WEIGHT_FLOOR = 0.30   # SDT: all three needs matter to everyone (a blank character stays lively)
+DRIVE_WEIGHT_SLOPE = 0.60   # how strongly the formed values modulate a need's resting weight
+# Satisfaction signal: which appraisal dims FEED (+) or FRUSTRATE (-) each need. NOT the
+# values prior -- VALUES_M encodes the value an event *teaches* (a threat teaches security's
+# worth), which is not the need it *feeds*. rows = DRIVES, cols = appraisal dims.
+DRIVE_SAT = {
+    "autonomy":    {"agency": 0.8, "self_relevance": 0.1},
+    "competence":  {"outcome": 0.7, "agency": 0.2, "threat_challenge": 0.2},
+    "relatedness": {"social": 0.5, "valence": 0.3},
+}
+DRIVE_REGEN = 0.15          # per turn, an unmet need's tension relaxes back UP toward its weight
+DRIVE_SAT_GAIN = 0.35       # how strongly one SATISFYING event relieves a need's tension
+# SDT's asymmetry: need frustration is not the mere absence of satisfaction -- it is the more
+# potent experience (Vansteenkiste & Ryan). A frustrating event raises tension harder than an
+# equally strong satisfying one relieves it.
+DRIVE_FRUST_GAIN = 0.50
+DRIVE_GAIN = 0.15           # how much active-need tension tilts the appraisal (matches COGNITION_GAIN)
+DRIVE_ACTIVE_THRESH = 0.55  # a need must be at least this loud to surface in the lens brief / tag
+# Motivated retrieval: what the character LACKS shapes what it remembers. Recall fetches a
+# wider candidate pool (RECALL_CANDIDATES), then the active needs re-rank it -- a memory that
+# bears on a starved need can outrank a slightly-more-similar neutral one. Multiplicative on
+# the cosine, so semantic relevance stays primary: the need chooses among genuinely related
+# memories, it cannot surface an unrelated one.
+DRIVE_RECALL_GAIN = 0.60    # how strongly need pressure re-ranks recall (0 = off)
+RECALL_CANDIDATES = 8       # candidate pool recall fetches before the need re-ranks and cuts
+
+# --- BEHAVIOR & LIFE OUTCOME: the enacted stance (the sink, and the loop-closer) ---
+# The last node of the diagram. Two INDEPENDENT formed sensitivities (Gray's two systems):
+# approach (BAS -- gain on reward cues, anchored to extraversion/openness) and inhibition
+# (BIS -- gain on threat cues, anchored to neuroticism). Independence is the point: both
+# loud = CONFLICTED (the anxious striver), both quiet = apathy -- states a single
+# approach<->avoid axis cannot express. From the sensitivities and each event's cues, a
+# carried ACTION READINESS (Frijda) -- {tendency, mode} -- is blended with inertia, voiced
+# in the reply as an inclination, and CLOSES THE RING two ways:
+#   * the intake gate: the carried tendency scales the next experience's INTENSITY
+#     (+/- BEHAV_EXPOSURE) before every other lens -- a withdrawn character lets life land
+#     softer, so everything forms less (the shy spiral, structurally damped: withdrawing
+#     attenuates the very signal that trains inhibition);
+#   * operant credit: the world's answer trains the sensitivities -- rewarded OWN action
+#     teaches approach hardest (a contingency gate on agency), threat trains inhibition
+#     faster than mastered challenge extinguishes it (bad-is-stronger, mirroring
+#     DRIVE_FRUST_GAIN), and a carried lean-in earns credit from how the next message
+#     answers it (reception -- the signal Expression Slice 2 was deferred for).
+# The needs and esteem are deliberately NOT gated: withdrawal cannot stop loneliness from
+# starving relatedness -- the ungated ache is the exit ramp from the avoidance spiral.
+BEHAV = ["approach", "inhibition"]
+BEHAV_NAMES = {"approach": "approach", "inhibition": "inhibition"}
+BEHAV_MU = {                # trait-anchored set-points (rows = BEHAV, cols = BASIS)
+    "approach":   {"E": 0.55, "O": 0.20},
+    "inhibition": {"N": 0.60, "E": -0.15},
+}
+BEHAV_TAU = 0.15            # per turn, a sensitivity relaxes toward its trait set-point
+BEHAV_GAIN = 0.25           # operant learning rate (through diminishing returns)
+BEHAV_CREDIT = 0.5          # reception credit share -- only a carried lean-IN earns it
+BEHAV_INH_UP = 1.0          # threat trains inhibition ...
+BEHAV_INH_DOWN = 0.5        # ... twice as fast as safe mastered challenge extinguishes it
+BEHAV_SET_BLEND = 0.6       # action-readiness inertia (fraction of the new reading adopted)
+BEHAV_EXPOSURE = 0.20       # intake gate: intensity x (1 + EXPOSURE * carried tendency)
+BEHAV_ACTIVE_THRESH = 0.30  # activation needed to call a mode (and voice the inclination)
+
+# --- SELF-CONCEPT & IDENTITY: the reflective model of the self ---
+# A fourth layer: the character's model OF ITSELF, which can diverge from what it actually is.
+# self["image"] = a self-schema on the OCEAN basis (who they think they are), formed by
+# self-perception (Bem: it drifts toward the actual traits) WITH self-verification resistance
+# (Swann: drift against the current self-view is damped, so the self-image LAGS reality --
+# "still thinks they're the shy one long after becoming confident"). self["esteem"] = a scalar
+# self-regard (a sociometer riding the competence + relatedness needs) that relaxes to a
+# dispositional baseline set by temperament + achievement. It bends perception via a
+# self-consistency tilt (events that contradict the self-view read as threat) + an esteem buffer.
+SELF_BASE = {"mu": {"N": -0.5, "E": 0.25}, "values": {"AC": 0.3}}   # dispositional esteem set-point
+SCHEMA_LEARN = 0.08          # self-perception drift rate (self-image tracks the actual traits; slow -> lags)
+SCHEMA_RESIST = 0.35         # Swann: fraction of the drift rate kept when the move opposes the self-view
+ESTEEM_GAIN = 0.20           # how strongly one success/acceptance (or failure/rejection) moves self-regard
+ESTEEM_RELAX = 0.10          # per turn, self-regard relaxes toward its dispositional baseline
+SELF_GAIN = 0.15             # self-consistency tilt: contradiction reads as threat, affirmation warms
+SELF_ESTEEM_GAIN = 0.10      # esteem buffer: high regard reads events as challenges, low as threats
+SELF_ACTIVE_THRESH = 0.25    # how strong esteem must be to surface a self tag in the lens
+SELF_INCONGRUENCE_THRESH = 0.25   # mean self-image-vs-actual gap that surfaces the "self-image lags" tag
+# Slice 2 -- the IDEAL and OUGHT selves (Higgins' self-discrepancy theory). Two aspired
+# selves are DERIVED each turn, never stored: the ideal self is who your formed VALUES say
+# you want to be (rows = BASIS, cols = VALUES), the ought self who your MORAL foundations
+# say you should be. Falling short of the ideal (image vs ideal, weighted by how strongly
+# the ideal is held) chronically depresses the esteem baseline -- DEJECTION; falling short
+# of the ought adds vigilance to the reading -- AGITATION. You can only fall short of an
+# ideal you actually hold: a blank character has no aspiration and no gap.
+SELF_IDEAL_M = {
+    "O": {"SD": 0.5, "ST": 0.3, "UN": 0.3},        # aspire to curiosity, breadth
+    "C": {"AC": 0.6, "SE": 0.2, "CO": 0.2, "TR": 0.2},   # aspire to discipline, order
+    "E": {"ST": 0.3, "PO": 0.4, "HE": 0.2, "AC": 0.1},   # aspire to boldness, presence
+    "A": {"BE": 0.6, "UN": 0.4, "CO": 0.3, "PO": -0.2},  # aspire to warmth (power corrodes it)
+    "N": {"SE": -0.5},                              # security prized -> aspire to calm
+}
+SELF_OUGHT_M = {
+    "O": {"LIB": 0.3},                              # ought to stay free-minded
+    "C": {"AUTH": 0.4, "FAIR": 0.3, "SANC": 0.3},   # ought to be dutiful, principled
+    "E": {},
+    "A": {"CARE": 0.5, "FAIR": 0.2, "LOYAL": 0.2},  # ought to be kind, fair, loyal
+    "N": {"SANC": -0.2},                            # ought to be composed
+}
+SELF_GAP_SLOPE = 0.5         # how hard falling short of the ideal depresses the esteem baseline
+SELF_OUGHT_GAIN = 0.10       # agitation: the ought-gap's threat tilt on the reading (small)
+SELF_GAP_THRESH = 0.25       # gap size that surfaces the falling-short tags in the lens
+
+# --- SOCIAL EXPRESSION: the outward voice (a derived faculty, no stored state) ---
+# The output-side twin of the cognitive lens: where cognition bends how the world gets IN,
+# expression shapes how the self gets OUT. A communication STYLE on the interpersonal-
+# circumplex axes, derived fresh each turn from the SELF-VIEW (we perform who we THINK we
+# are -- Goffman), self-regard, and the collective pressure of unmet needs. It drives both
+# the LLM reply prompt (a "voice" brief) and the deterministic offline reply's shape.
+# rows = style dims; sources = self-image dims ("image"), esteem, and need pressure.
+STYLE_SOURCES = {
+    "assertion": {"image": {"E": 0.45, "A": -0.35}, "esteem": 0.30},   # plain assertion vs hedging
+    "warmth":    {"image": {"A": 0.50, "E": 0.25}},                    # taking care vs bluntness
+    "energy":    {"image": {"E": 0.50, "O": 0.25}, "esteem": 0.25},    # animated vs quiet/spare
+    "strain":    {"image": {"N": 0.60}, "esteem": -0.30, "pressure": 0.40},  # tension showing through
+}
+STYLE_THRESH = 0.25          # how far from neutral a style dim must be to shape the voice
+VOICE_MOOD_THRESH = 0.30     # how strongly this turn's (interpreted) mood must lean to be voiced
+# Slice 2 -- style as a FORMED layer. The Slice-1 derivation becomes the SET-POINT (what the
+# inner state calls for) and a persisted style forms around it: it relaxes toward the target
+# (manner lags inner change -- the newly-confident character still sounds tentative for a
+# while) and is operantly SHAPED by reception -- the manner actually spoken with is
+# entrenched when the next message answers it warmly and extinguished when it is rebuffed
+# ("speaks warmly because warmth kept working"; "the humor stopped landing, so it faded").
+STYLE_TRACK = 0.15           # per turn, the formed style relaxes toward its derived target
+STYLE_LEARN = 0.20           # how strongly one reception entrenches/extinguishes the spoken manner
+
 # How many similar past experiences (memory recurrence, RECURRENCE_THRESHOLD) it takes
 # for a recurring experience to count as a habit.
 HABIT_MIN_RECURRENCE = 3
 
-# --- LLM push (OpenAI-compatible): default Google Gemma 4 via the Gemini API ---
+# --- Character: Belief (an open, propositional store formed by experience) ---
+# Unlike the fixed values / moral vectors, beliefs are open-ended propositions the
+# character comes to hold: {statement, confidence in [-1, 1], count}. They are formed by
+# the LLM reading each experience (beliefs.extract_beliefs) -- there is no lexical
+# heuristic for open propositions -- and deduped by semantic similarity (encoder) or,
+# offline, by punctuation-insensitive text match. Experiences logged while the LLM is
+# unavailable stay in memory and are turned into beliefs by a later reflection pass
+# (character.form_beliefs walks the unreviewed memory backlog, tracked by the
+# character["beliefs_reviewed"] watermark).
+BELIEF_SIM_THRESHOLD = 0.62   # cosine over belief statements to count as "the same belief"
+BELIEF_BACKLOG_CAP = 10       # max unreviewed memories turned into beliefs per turn
+
+# --- LLM (OpenAI-compatible): default Gemini 3.5 Flash via the Gemini API ---
 # llm_impact.py asks an OpenAI-compatible chat model for a signed OCEAN delta in
 # [-1, 1] per trait, then push = clamp(LLM_FORMATION_RATE * delta); updater.py
 # applies it with diminishing returns. A max-strength delta (1.0) thus nudges a
@@ -129,10 +319,13 @@ HABIT_MIN_RECURRENCE = 3
 # formation builds over many experiences. Falls back to the heuristic impact()
 # whenever no key/model is reachable.
 #
-# The default provider is Google's Gemma 4 through the Gemini API's
-# OpenAI-compatible endpoint. Put your Google AI Studio key in GEMINI_API_KEY
-# (copy .env.example). Any OpenAI-compatible endpoint still works -- point
-# LLM_BASE_URL + LLM_MODEL at it. The legacy DEEPSEEK_* names remain honored.
+# The default model is Gemini 3.5 Flash (fast AND smart; GA) through the Gemini
+# API's OpenAI-compatible endpoint -- put your Google AI Studio key in
+# GEMINI_API_KEY (copy .env.example). Need it even faster? gemini-3.1-flash-lite
+# is the current speed king. Any OpenAI-compatible provider works instead --
+# point LLM_API_KEY + LLM_BASE_URL + LLM_MODEL at it (e.g. OpenAI's GPT-5.x
+# small tiers; see .env.example). The previous Gemma 4 / DeepSeek setups keep
+# working via the same three variables; legacy DEEPSEEK_* names stay honored.
 def _env(*names, default=None):
     """First non-empty environment variable among ``names`` (real env wins)."""
     for name in names:
@@ -145,7 +338,7 @@ def _env(*names, default=None):
 LLM_API_KEY = _env("LLM_API_KEY", "GEMINI_API_KEY", "DEEPSEEK_API_KEY")
 LLM_BASE_URL = _env("LLM_BASE_URL", "DEEPSEEK_BASE_URL",
                     default="https://generativelanguage.googleapis.com/v1beta/openai/")
-LLM_MODEL = _env("LLM_MODEL", "DEEPSEEK_MODEL", default="gemma-4-31b-it")
+LLM_MODEL = _env("LLM_MODEL", "DEEPSEEK_MODEL", default="gemini-3.5-flash")
 LLM_FORMATION_RATE = float(_env("LLM_FORMATION_RATE", default="0.3"))
 
 # Backward-compatible aliases (older imports referenced these names).
@@ -226,14 +419,37 @@ def parse_json_object(text):
 # --- Memory / recurrence ---
 RECURRENCE_THRESHOLD = 0.80   # cosine similarity to count as the "same" experience
 
-# --- Temperament (genesis baseline) ---
+# --- Temperament (genesis baseline + dynamics) ---
 # A character is born (temperament.genesis) with a per-trait OCEAN baseline `mu`
 # in [-1, 1] and a per-trait stickiness `tau` in [0, 1]. The current traits start
 # AT the baseline (x = mu). DEFAULT_TAU is used when a seed leaves stickiness
-# unspecified (and for blank / legacy characters). High tau = resilient (snaps
-# back to baseline); low tau = easily reshaped. The baseline-as-attractor and slow
-# baseline-drift dynamics that consume tau are added in updater.py (Slice 2).
+# unspecified (and for blank / legacy characters).
+#
+# Every experience, updater.py applies the temperament dynamics:
+#   x[k]  <- x[k] + tau[k] * (mu[k] - x[k])              # pull the trait back to baseline
+#   mu[k] <- mu[k] + TEMPERAMENT_DRIFT * (x[k] - mu[k])  # baseline drifts toward lived state
+# tau is the fraction of the gap to baseline closed per experience: high tau =
+# resilient (snaps back), low tau = easily reshaped. TEMPERAMENT_DRIFT (eta) is the same
+# idea for the baseline itself and stays << tau, so only a *sustained* shift moves your
+# wiring. With the pull on, a repeated experience settles a trait at a fixed point
+# between its baseline and the extreme rather than at the +/-1 wall.
 DEFAULT_TAU = 0.30
+TEMPERAMENT_DRIFT = 0.02   # eta: baseline plasticity per experience (must stay << tau)
+
+# --- Cognitive Patterns (the interpretation lens) ---
+# How you think colours what you perceive: the same event reads differently depending on
+# the character's current traits. cognition.interpret() gently bends the appraisal (anxious
+# -> more threat + darker; open -> more novelty; agreeable -> warmer socially), and
+# cognition.lens() turns the same tilt into a one-line brief for the LLM push prompt. The
+# gain is small and clamped, so perception is tinted, not overwhelmed -- and temperament's
+# pull-back keeps the perceive -> form -> perceive loop from running away.
+COGNITION_GAIN = 0.15
+# Slice 2 -- memory/schema-driven interpretation: recalled similar past episodes pull the
+# reading toward how those *felt* (a learned expectation), and familiarity damps novelty.
+# The pull is toward a bounded target -- it asymptotes once the reading matches the memory,
+# so it can't run away -- and is scaled by how closely the situation is recognised, so a
+# faint match barely tints.
+MEMORY_GAIN = 0.20
 
 # --- Identity (immutable facts collected when a character is created) ---
 # (field_key, prompt_label), in the order the creation form asks for them. These

@@ -17,6 +17,11 @@
   --belief: #F0386B; --belief-soft: #FF6F94;
   --trait: #5B3FE0;
   --warm: #F5B341;
+  --moral: #1FA89A;
+  --drive: #2F9E5E;
+  --self: #3E86C0;
+  --voice: #C2603E;
+  --behav: #A63A5B;
   --surface: #ffffff; --surface-2: #FBF8F2;
   --track: rgba(26,14,46,0.07);
   --serif: "Instrument Serif", Georgia, serif;
@@ -33,6 +38,11 @@
   --belief: #FF6F94; --belief-soft: #FF6F94;
   --trait: #9A7FFF;
   --warm: #F5B341;
+  --moral: #54D6C4;
+  --drive: #56D98A;
+  --self: #6FB0EF;
+  --voice: #EF9670;
+  --behav: #E17296;
   --surface: #14102A; --surface-2: #0F0A20;
   --track: rgba(242,234,214,0.08);
   color-scheme: dark;
@@ -51,6 +61,7 @@ p { margin: 0; }
 .t-belief { color: var(--belief); }
 .t-trait { color: var(--trait); }
 .t-warm { color: var(--warm); }
+.t-drive { color: var(--drive); }
 .hidden { display: none !important; }
 
 /* ---------- shell ---------- */
@@ -152,14 +163,28 @@ p { margin: 0; }
   border-top: 1px solid var(--hairline); margin-top: 6px; }
 .mood-cap { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--muted-2); text-align: center; margin-bottom: 2px; }
-.mood-meter { display: grid; grid-template-columns: 78px 1fr; align-items: center; gap: 12px; }
+.mood-legend { display: flex; align-items: center; justify-content: center; gap: 7px;
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 9px; }
+.mood-legend .ml-tick { width: 2px; height: 9px; background: var(--ink-2); opacity: .55; border-radius: 2px; }
+.mood-legend .ml-bar { width: 12px; height: 5px; background: var(--trait); border-radius: 999px; }
+.mood-legend .ml-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--hairline-2); margin: 0 2px; }
+.mood-meter { display: grid; grid-template-columns: 72px 1fr 42px; align-items: center; gap: 10px; }
 .mood-meter-l { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2); }
-.mood-meter-track { position: relative; height: 6px; background: var(--track); border-radius: 999px; overflow: hidden; }
+.mood-meter-track { position: relative; height: 7px; background: var(--track); border-radius: 999px; overflow: hidden; }
 .mood-meter-zero { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--hairline-2); }
-.mood-meter-fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; transition: width .6s cubic-bezier(.4,0,.2,1), left .6s cubic-bezier(.4,0,.2,1); }
+.mood-meter-ghost { position: absolute; top: 0; bottom: 0; width: 2px; z-index: 2; background: var(--ink-2);
+  opacity: .55; border-radius: 2px; transform: translateX(-1px); transition: left .6s cubic-bezier(.4,0,.2,1); }
+.mood-meter-fill { position: absolute; top: 0; bottom: 0; z-index: 1; border-radius: 999px;
+  transition: width .6s cubic-bezier(.4,0,.2,1), left .6s cubic-bezier(.4,0,.2,1); }
 .mood-meter-fill.t-belief { background: var(--belief); }
 .mood-meter-fill.t-trait { background: var(--trait); }
 .mood-meter-fill.t-warm { background: var(--warm); }
+.mood-meter-fill.t-muted { background: var(--muted); opacity: .6; }
+.mood-meter-fill.t-drive { background: var(--drive); }
+.mood-meter-val { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: right;
+  white-space: nowrap; transition: color .3s; }
+.mood-meter-val.moved { color: var(--trait); }
 
 /* ---------- state column ---------- */
 .state-col { padding: 20px 22px; gap: 8px; overflow-y: auto; }
@@ -194,6 +219,9 @@ p { margin: 0; }
 .cbar-zero { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--hairline-2); }
 .cbar-ghost { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--muted);
   opacity: .5; border-radius: 2px; transform: translateX(-1px); }
+/* the aspired self (Higgins): an amber tick at who they WANT to be */
+.cbar-ideal { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--warm);
+  opacity: .8; border-radius: 2px; transform: translateX(-1px); }
 .cbar-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px;
   transition: left .65s cubic-bezier(.4,0,.2,1), width .65s cubic-bezier(.4,0,.2,1); }
 .cbar--belief .cbar-fill { background: var(--belief); box-shadow: 0 0 10px -2px var(--belief); }
@@ -208,6 +236,81 @@ p { margin: 0; }
 .cbar-pulse { position: absolute; inset: -4px; border: 1px solid var(--trait); border-radius: 5px;
   animation: traitRing 1.4s ease-out; pointer-events: none; }
 @keyframes traitRing { 0% { opacity: .9; transform: scale(.98); } 100% { opacity: 0; transform: scale(1.04); } }
+
+/* ---------- character: values (amber) + moral (teal), beliefs, habits ---------- */
+.bars--compact { gap: 11px; }
+.block-badge.char { background: color-mix(in srgb, var(--warm) 20%, transparent); color: var(--warm); }
+/* values + moral are formed, not innate -> no baseline ghost; they fill from center 0. */
+.cbar--value .cbar-val { color: var(--warm); }
+.cbar--value .cbar-fill { background: var(--warm); box-shadow: 0 0 10px -3px var(--warm);
+  transition: left .9s cubic-bezier(.4,0,.2,1), width .9s cubic-bezier(.4,0,.2,1); }
+.cbar--moral .cbar-val { color: var(--moral); }
+.cbar--moral .cbar-fill { background: var(--moral); box-shadow: 0 0 10px -3px var(--moral);
+  transition: left .9s cubic-bezier(.4,0,.2,1), width .9s cubic-bezier(.4,0,.2,1); }
+
+/* Motivation: the three SDT needs. tension fills from the left (unsigned); the ghost tick
+   marks the resting level. A green pulse (is-sat) when the experience fed the need, the
+   shared magenta is-flash when it denied it. */
+.cbar--drive .cbar-val { color: var(--drive); }
+.cbar--drive .cbar-fill { background: var(--drive); box-shadow: 0 0 10px -3px var(--drive);
+  transition: left .8s cubic-bezier(.4,0,.2,1), width .8s cubic-bezier(.4,0,.2,1); }
+.cbar.is-sat .cbar-fill { animation: satGlow 1.3s ease; }
+@keyframes satGlow { 0% { box-shadow: 0 0 0 0 var(--drive); } 30% { box-shadow: 0 0 16px 2px var(--drive); }
+  100% { box-shadow: 0 0 10px -3px var(--drive); } }
+.cbar.is-sat .cbar-name { color: var(--drive); transition: color .3s; }
+.block-badge.drive { background: color-mix(in srgb, var(--drive) 20%, transparent); color: var(--drive); }
+
+/* Self-concept: signed center-zero bars. Self-worth's ghost is the dispositional baseline;
+   each self-image bar's ghost sits at the ACTUAL trait, so the fill-vs-ghost gap is self-image.
+   is-sat (green) = the experience affirmed the self / lifted regard; is-flash (magenta) = it
+   contradicted the self / lowered regard. */
+.cbar--self .cbar-val { color: var(--self); }
+.cbar--self .cbar-fill { background: var(--self); box-shadow: 0 0 10px -3px var(--self);
+  transition: left .9s cubic-bezier(.4,0,.2,1), width .9s cubic-bezier(.4,0,.2,1); }
+.block-badge.self { background: color-mix(in srgb, var(--self) 22%, transparent); color: var(--self); }
+
+/* Social Expression: the outward voice. Signed center-zero manner dims, no ghost -- there
+   is no baseline for a derived voice, only the current manner. */
+.cbar--voice .cbar-val { color: var(--voice); }
+.cbar--voice .cbar-fill { background: var(--voice); box-shadow: 0 0 10px -3px var(--voice);
+  transition: left .8s cubic-bezier(.4,0,.2,1), width .8s cubic-bezier(.4,0,.2,1); }
+.block-badge.voice { background: color-mix(in srgb, var(--voice) 20%, transparent); color: var(--voice); }
+
+/* Behavior: the enacted stance. Two signed system bars (approach / inhibition) with the
+   trait-anchored disposition as the ghost tick; green/magenta flash on this turn's move. */
+.cbar--behav .cbar-val { color: var(--behav); }
+.cbar--behav .cbar-fill { background: var(--behav); box-shadow: 0 0 10px -3px var(--behav);
+  transition: left .8s cubic-bezier(.4,0,.2,1), width .8s cubic-bezier(.4,0,.2,1); }
+.block-badge.behav { background: color-mix(in srgb, var(--behav) 20%, transparent); color: var(--behav); }
+
+.belief-list { display: flex; flex-direction: column; gap: 9px; }
+.belief-item { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: baseline;
+  padding: 8px 11px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface-2); }
+.belief-item.is-new { animation: barIn .5s ease both; border-color: var(--belief); }
+.belief-conf { font-family: var(--mono); font-size: 11px; color: var(--warm); white-space: nowrap; }
+.belief-conf.neg { color: var(--muted); }
+.belief-text { font-family: var(--body); font-size: 14px; color: var(--ink-2); line-height: 1.35; }
+.belief-count { font-family: var(--mono); font-size: 9px; color: var(--muted); white-space: nowrap; }
+
+.habit-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.habit-chip { display: inline-flex; align-items: baseline; gap: 7px; padding: 6px 11px; border-radius: 999px;
+  border: 1px solid var(--hairline-2); background: var(--surface-2); }
+.habit-text { font-family: var(--body); font-size: 13px; color: var(--ink-2); }
+.habit-x { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+.char-empty { font-family: var(--body); font-style: italic; font-size: 13px; color: var(--muted-2); }
+
+/* recalled memories: what this message brought up */
+.recall-list { display: flex; flex-direction: column; gap: 8px; }
+.recall-item { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: baseline;
+  padding: 7px 10px; border: 1px solid var(--hairline); border-radius: 9px; background: var(--surface-2);
+  animation: barIn .4s ease both; }
+.recall-score { font-family: var(--mono); font-size: 10px; color: var(--trait); white-space: nowrap; }
+.recall-text { font-family: var(--body); font-size: 13.5px; color: var(--ink-2); line-height: 1.3; }
+/* motivated retrieval: the active need that pulled this memory up */
+.recall-need { grid-column: 2; font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--drive); }
+.lens-line { font-family: var(--body); font-style: italic; font-size: 12.5px; color: var(--muted-2);
+  text-align: center; line-height: 1.4; margin-top: 4px; }
 
 /* scrollbars */
 .chat-scroll::-webkit-scrollbar, .state-col::-webkit-scrollbar, .start-scroll::-webkit-scrollbar { width: 8px; }
