@@ -23,10 +23,8 @@ Configure by copying ``.env.example`` to ``.env`` and setting ``GEMINI_API_KEY``
 
 import logging
 
-from .config import (
-    BASIS, LLM_FORMATION_RATE, LLM_LABEL, LLM_MODEL, LLM_BASE_URL, LLM_API_KEY,
-    parse_json_object,
-)
+from .config import BASIS, LLM_FORMATION_RATE, LLM_LABEL
+from .llm import complete_json
 from .appraisal import appraise
 from .impact import impact, clamp
 
@@ -108,39 +106,22 @@ Return ONLY valid JSON, with no markdown and no extra text, in exactly this form
 """
 
 
-def _llm_delta(text):
+def _llm_delta(text, lens=""):
     """Ask the LLM for the signed OCEAN delta of one occurrence of ``text``.
 
-    Uses the configured OpenAI-compatible provider (Google Gemma 4 by default).
+    Uses the configured OpenAI-compatible provider (Gemini 3.5 Flash by default).
     Returns ``{O, C, E, A, N: float, "reasoning": str}``. Raises on any failure
     (missing key/package, network error, malformed JSON, missing/non-numeric
     trait) so ``push_from_text`` can fall back to the heuristic.
     """
-    if not LLM_API_KEY:
-        raise RuntimeError("no LLM API key is set (GEMINI_API_KEY)")
-
-    from openai import OpenAI  # lazy: the heuristic fallback works without this package
-
-    client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
-    completion = client.chat.completions.create(
-        model=LLM_MODEL,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Experience:\n{text}"},
-        ],
-        temperature=0.2,
-        # Headroom so a model that still narrates a <thought> block first can
-        # reach the JSON; parse_json_object strips the reasoning before parsing.
-        max_tokens=600,
-        timeout=30,
-    )
-    data = parse_json_object(completion.choices[0].message.content)
+    user = f"Experience:\n{text}" + (f"\n\n{lens}" if lens else "")
+    data = complete_json(SYSTEM_PROMPT, user)
     delta = {dim: float(data[dim]) for dim in BASIS}  # KeyError / ValueError -> fallback
     delta["reasoning"] = str(data.get("reasoning", ""))
     return delta
 
 
-def push_from_text(text, appraisal=None):
+def push_from_text(text, appraisal=None, lens=""):
     """Best-available signed per-trait push for an experience.
 
     Tries the LLM first (``text -> OCEAN delta -> push = clamp(rate * delta)``);
@@ -150,7 +131,7 @@ def push_from_text(text, appraisal=None):
     (empty on fallback).
     """
     try:
-        delta = _llm_delta(text)
+        delta = _llm_delta(text, lens)
         push = {dim: clamp(LLM_FORMATION_RATE * delta[dim]) for dim in BASIS}
         return push, LLM_LABEL, delta["reasoning"]
     except Exception as exc:  # any failure -> graceful deterministic fallback

@@ -7,10 +7,14 @@ through Django and back the engine with a *per-visitor* character store so two
 people talking to the demo never collide.
 
 The engine itself (core/mindform_engine/) is vendored from the mindform_v0 repo and
-runs on the Python standard library alone — heuristic appraisal, a heuristic trait
-"push", and a rule-based in-character reply. With a GEMINI_API_KEY in the
-environment it transparently upgrades to LLM-quality pushes and replies; without
-one (the default here) everything still works offline.
+runs on the Python standard library alone — appraisal, the interpretation lens,
+trait/values/moral pushes, drives, self-concept, behavior, expression, and a
+rule-based in-character reply all have deterministic offline paths. With a
+GEMINI_API_KEY in the environment it transparently upgrades to LLM-quality
+perception, formation, and replies; without one (the default here) everything
+still works offline. The heavy optional modules (encoder/memory/appraisal_head)
+are not vendored, so recall/recurrence and belief formation stay dormant — the
+bridge's guarded lazy imports skip them cleanly.
 """
 
 import json

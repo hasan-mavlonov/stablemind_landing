@@ -142,24 +142,49 @@
         <div id="refl-mount"></div>
       </div>
       <div class="mood-panel">
-        <div class="mood-cap">What the last message read as</div>
-        <div class="mood-meter">
-          <span class="mood-meter-l">Valence</span>
-          <span class="mood-meter-track"><span class="mood-meter-zero"></span><span class="mood-meter-fill t-warm" id="mood-valence"></span></span>
+        <div class="mood-cap" id="mood-cap">How they read it</div>
+        <div class="mood-legend">
+          <span class="ml-tick"></span>first read<span class="ml-sep"></span><span class="ml-bar"></span>through their eyes
         </div>
         <div class="mood-meter">
-          <span class="mood-meter-l">Intensity</span>
-          <span class="mood-meter-track"><span class="mood-meter-fill t-belief" id="mood-intensity"></span></span>
+          <span class="mood-meter-l">Valence</span>
+          <span class="mood-meter-track"><span class="mood-meter-zero"></span><span class="mood-meter-ghost" id="mood-valence-ghost"></span><span class="mood-meter-fill t-warm" id="mood-valence"></span></span>
+          <span class="mood-meter-val" id="mood-valence-val"></span>
+        </div>
+        <div class="mood-meter">
+          <span class="mood-meter-l">Threat</span>
+          <span class="mood-meter-track"><span class="mood-meter-zero"></span><span class="mood-meter-ghost" id="mood-threat-ghost"></span><span class="mood-meter-fill t-belief" id="mood-threat"></span></span>
+          <span class="mood-meter-val" id="mood-threat-val"></span>
         </div>
         <div class="mood-meter">
           <span class="mood-meter-l">Novelty</span>
-          <span class="mood-meter-track"><span class="mood-meter-fill t-belief" id="mood-novelty"></span></span>
+          <span class="mood-meter-track"><span class="mood-meter-ghost" id="mood-novelty-ghost"></span><span class="mood-meter-fill t-trait" id="mood-novelty"></span></span>
+          <span class="mood-meter-val" id="mood-novelty-val"></span>
         </div>
+        <div class="mood-meter">
+          <span class="mood-meter-l">Relevance</span>
+          <span class="mood-meter-track"><span class="mood-meter-ghost" id="mood-relevance-ghost"></span><span class="mood-meter-fill t-drive" id="mood-relevance"></span></span>
+          <span class="mood-meter-val" id="mood-relevance-val"></span>
+        </div>
+        <div class="mood-meter">
+          <span class="mood-meter-l">Intensity</span>
+          <span class="mood-meter-track"><span class="mood-meter-ghost" id="mood-intensity-ghost"></span><span class="mood-meter-fill t-muted" id="mood-intensity"></span></span>
+          <span class="mood-meter-val" id="mood-intensity-val"></span>
+        </div>
+        <p class="lens-line" id="lens-line"></p>
       </div>
     </section>
 
     <!-- State: the push + OCEAN personality -->
     <section class="col state-col">
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Recalled</span>
+          <span class="block-badge fast">this experience</span>
+        </div>
+        <p class="block-sub">Past experiences this message brought up.</p>
+        <div class="recall-list" id="recall-list"></div>
+      </div>
       <div class="state-block">
         <div class="block-head">
           <span class="block-title">The push</span>
@@ -177,6 +202,78 @@
         <p class="block-sub">Shaped by every experience, with diminishing returns.
            The tick is their <em>baseline</em>.</p>
         <div class="bars" id="trait-bars"></div>
+      </div>
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Needs</span>
+          <span class="block-badge drive">motivation · SDT</span>
+        </div>
+        <p class="block-sub">What they're short on <em>right now</em> — it colors how they read
+           everything. The tick is each need's <em>resting level</em>.</p>
+        <div class="bars bars--compact" id="drive-bars"></div>
+      </div>
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Self-concept</span>
+          <span class="block-badge self">identity · reflective</span>
+        </div>
+        <p class="block-sub">Who they think they are. The gray tick is who they
+           <em>actually</em> are; the amber tick who they <em>want</em> to be —
+           falling short weighs on their regard.</p>
+        <div class="bars bars--compact" id="self-bars"></div>
+      </div>
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Expression</span>
+          <span class="block-badge voice">outward · voice</span>
+        </div>
+        <p class="block-sub">How the inside comes out — a <em>formed</em> manner, shaped by
+           which ways of speaking kept working. The tick is what their inner state
+           <em>calls for</em>.</p>
+        <div class="block-meta" id="voice-meta"></div>
+        <div class="bars bars--compact" id="voice-bars"></div>
+      </div>
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Behavior</span>
+          <span class="block-badge behav">enacted · the loop</span>
+        </div>
+        <p class="block-sub">What they <em>do</em> with what they feel — and how hard the world
+           can reach them because of it. The tick is each system's <em>disposition</em>.</p>
+        <div class="block-meta" id="behavior-meta"></div>
+        <div class="bars bars--compact" id="behavior-bars"></div>
+      </div>
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Values</span>
+          <span class="block-badge char">character · Schwartz</span>
+        </div>
+        <p class="block-sub">What they come to <em>prize</em> — earned from experience, from 0.</p>
+        <div class="bars bars--compact" id="value-bars"></div>
+      </div>
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Moral outlook</span>
+          <span class="block-badge char">character · foundations</span>
+        </div>
+        <p class="block-sub">What they treat as <em>right or wrong</em>.</p>
+        <div class="bars bars--compact" id="moral-bars"></div>
+      </div>
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Beliefs</span>
+          <span class="block-badge char">character · learned</span>
+        </div>
+        <p class="block-sub">Propositions they come to hold, with conviction.</p>
+        <div class="belief-list" id="belief-list"></div>
+      </div>
+      <div class="state-block">
+        <div class="block-head">
+          <span class="block-title">Habits</span>
+          <span class="block-badge char">character · repetition</span>
+        </div>
+        <p class="block-sub">What recurs enough to stick.</p>
+        <div class="habit-list" id="habit-list"></div>
       </div>
     </section>
   </div>

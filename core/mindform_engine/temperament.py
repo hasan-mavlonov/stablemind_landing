@@ -11,7 +11,7 @@ This is Slice 1: it only *seeds* the baseline. The baseline-as-attractor dynamic
 -- the current trait pulled back toward ``mu``, and ``mu`` drifting slowly after a
 sustained ``x`` -- are applied in updater.py (Slice 2).
 
-The primary seed comes from an OpenAI-compatible LLM (Google's Gemma 4 by default).
+The primary seed comes from an OpenAI-compatible LLM (Gemini 3.5 Flash by default).
 If no API key is set, the ``openai`` package is missing, the network fails, or the
 reply is unparseable, ``seed_from_bio`` falls back to a deterministic lexical
 heuristic, so genesis never hard-depends on the network -- the same discipline as
@@ -20,11 +20,13 @@ llm_impact.py.
 
 import logging
 
-from .config import (
-    BASIS, DEFAULT_TAU, LLM_LABEL, LLM_MODEL, LLM_BASE_URL, LLM_API_KEY,
-    parse_json_object,
-)
+from .config import BASIS, DEFAULT_TAU, LLM_LABEL
+from .llm import complete_json
 from .character import default_character
+from .drives import rest_drives
+from .self_concept import default_self
+from .behavior import default_behavior
+from .expression import default_expression
 
 log = logging.getLogger("mindform.genesis")
 
@@ -118,28 +120,12 @@ def _heuristic_seed(bio):
 
 
 def _llm_seed(bio):
-    """Ask the LLM (Gemma 4 by default) to seed identity + mu + tau from the bio.
+    """Ask the LLM (Gemini 3.5 Flash by default) to seed identity + mu + tau from the bio.
 
     Raises on any failure (missing key/package, network, malformed JSON, missing
     or non-numeric trait) so ``seed_from_bio`` can fall back to the heuristic.
     """
-    if not LLM_API_KEY:
-        raise RuntimeError("no LLM API key is set (GEMINI_API_KEY)")
-
-    from openai import OpenAI  # lazy: the heuristic fallback works without this package
-
-    client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
-    completion = client.chat.completions.create(
-        model=LLM_MODEL,
-        messages=[
-            {"role": "system", "content": GENESIS_PROMPT},
-            {"role": "user", "content": f"Biography:\n{bio}"},
-        ],
-        temperature=0.3,
-        max_tokens=600,
-        timeout=30,
-    )
-    data = parse_json_object(completion.choices[0].message.content)
+    data = complete_json(GENESIS_PROMPT, f"Biography:\n{bio}", temperature=0.3)
     mu = {d: float(data["mu"][d]) for d in BASIS}      # KeyError / ValueError -> fallback
     tau = {d: float(data["tau"][d]) for d in BASIS}
     return {
@@ -168,13 +154,19 @@ def _finalize(seed, overrides=None):
 
     mu = {d: _clamp(float(seed["mu"].get(d, 0.0)), -1.0, 1.0) for d in BASIS}
     tau = {d: _clamp(float(seed["tau"].get(d, DEFAULT_TAU)), 0.0, 1.0) for d in BASIS}
-    return {
+    character = default_character()          # values start neutral -- earned, not innate
+    personality = {
         "identity": dict(seed.get("identity") or {}),
         "temperament": {"mu": mu, "tau": tau},
         "traits": dict(mu),       # born at baseline: x = mu
-        "character": default_character(),   # values start neutral -- earned, not innate
+        "character": character,
+        "drives": rest_drives(character["values"]),   # needs at rest (blank values -> floor)
         "experience_count": 0,
     }
+    personality["self"] = default_self(personality)   # self-image mirrors the birth traits (x = mu)
+    personality["behavior"] = default_behavior(personality)   # stance at its trait set-points
+    personality["expression"] = default_expression(personality)  # manner starts at its target
+    return personality
 
 
 def genesis(bio, overrides=None):

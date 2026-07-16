@@ -35,6 +35,7 @@
     const p = pct(v);
     return v >= 0 ? { left: 50, width: p - 50 } : { left: p, width: 50 - p };
   }
+  const pct01 = (v) => clamp(v, 0, 1) * 100;   // unsigned [0,1] -> [0,100]
   // The push is small per experience; show it on a [-0.5, 0.5] visual scale so it
   // reads, while the exact number stays in the label.
   const PUSH_VIS = 2;
@@ -46,6 +47,12 @@
     orb: null,
     pushBars: {},   // key -> { root, fill, val }
     traitBars: {},  // key -> { root, fill, ghost, val, glyph }
+    valueBars: {},  // Schwartz values:   key -> { root, fill, val }
+    moralBars: {},  // moral foundations: key -> { root, fill, val }
+    driveBars: {},  // SDT needs:         key -> { root, fill, ghost, val }
+    selfBars: {},   // self-concept:      key -> { root, fill, ghost, val }
+    voiceBars: {},  // expression style:  key -> { root, fill, val, last }
+    behavBars: {},  // behavior systems:  key -> { root, fill, ghost, val }
     reflTimer: null,
   };
 
@@ -69,6 +76,7 @@
   function showStart() {
     $("cockpit").classList.add("hidden");
     $("start").classList.remove("hidden");
+    setTab("existing");    // returning users land on their roster, not the last creation form
     loadRoster();
   }
   function showCockpit() {
@@ -81,15 +89,19 @@
   // ===========================================================================
   // START SCREEN
   // ===========================================================================
+  function setTab(name) {
+    $("start-tabs").querySelectorAll(".tab")
+      .forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
+    ["existing", "genesis", "manual"].forEach((p) =>
+      $("panel-" + p).classList.toggle("active", p === name));
+  }
+
   function initTabs() {
     const tabs = $("start-tabs");
     tabs.addEventListener("click", (e) => {
       const btn = e.target.closest(".tab");
       if (!btn) return;
-      const name = btn.dataset.tab;
-      tabs.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === btn));
-      ["existing", "genesis", "manual"].forEach((p) =>
-        $("panel-" + p).classList.toggle("active", p === name));
+      setTab(btn.dataset.tab);
     });
   }
 
@@ -241,9 +253,16 @@
     $("chat-scroll").innerHTML = "";
     buildPushBars(snap);
     buildTraitBars(snap);
+    buildCharacter(snap);
+    buildDrives(snap);
+    buildSelf(snap);
+    buildVoice(snap);
+    buildBehavior(snap);
     buildSuggestions();
     renderHeader(snap);
     renderMood(snap);
+    renderRecall(snap);
+    renderLens(snap);
     syncOrb(snap, false);
     if (systemLine) addMessage("system", systemLine);
     const lead = leadIn(snap);
@@ -264,7 +283,8 @@
     $("hs-dominant-label").textContent = d.name + (d.dir >= 0 ? " ▲" : " ▼");
     $("hs-dominant").title = d.glyph;
     $("chat-name").textContent = snap.name;
-    $("chat-tagline").textContent = d.glyph;
+    const voiceLine = snap.expression && snap.expression.line;
+    $("chat-tagline").textContent = d.glyph + (voiceLine ? " — " + voiceLine : "");
   }
 
   function buildSuggestions() {
@@ -316,7 +336,11 @@
     });
     const src = snap.source ? `via ${snap.source}` : "";
     const seen = snap.seen != null ? ` · seen ${snap.seen} like it before` : "";
-    $("push-meta").innerHTML = src ? `<b>${src}</b>${seen}` : "";
+    // the intake gate: how hard this experience landed, given the stance they carried
+    const intake = snap.behavior && snap.behavior.intake;
+    const gate = (intake && Math.abs(intake - 1) > 0.01)
+      ? ` · landed ×${intake.toFixed(2)} — ${intake > 1 ? "leaning in" : "holding back"}` : "";
+    $("push-meta").innerHTML = src ? `<b>${src}</b>${seen}${gate}` : "";
   }
 
   function buildTraitBars(snap) {
@@ -369,13 +393,442 @@
     });
   }
 
+  // ---- character: values, moral, beliefs, habits ----------------------------
+  // Values + moral are fixed signed bars (no baseline ghost) that fill from 0 as
+  // experience forms them; a magenta flash marks the ones this experience pushed.
+  function buildCharBars(hostId, rows, store, variant) {
+    const host = $(hostId);
+    host.innerHTML = "";
+    Object.keys(store).forEach((k) => delete store[k]);
+    (rows || []).forEach((r) => {
+      const root = elc("div", "cbar " + variant);
+      const top = elc("div", "cbar-top");
+      top.appendChild(elc("span", "cbar-name", r.label));
+      const val = elc("span", "cbar-val", fmt(r.value));
+      top.appendChild(val);
+      root.appendChild(top);
+      const track = elc("div", "cbar-track");
+      track.appendChild(elc("span", "cbar-zero"));
+      const fill = elc("span", "cbar-fill");
+      track.appendChild(fill);
+      root.appendChild(track);
+      host.appendChild(root);
+      store[r.key] = { root, fill, val };
+    });
+  }
+
+  function updateCharBars(rows, pushRows, store, flash) {
+    const pushByKey = {};
+    (pushRows || []).forEach((p) => { pushByKey[p.key] = p.value; });
+    (rows || []).forEach((r) => {
+      const b = store[r.key];
+      if (!b) return;
+      const f = centerFill(r.value);
+      b.fill.style.left = f.left + "%";
+      b.fill.style.width = f.width + "%";
+      b.val.textContent = fmt(r.value);
+      if (flash && Math.abs(pushByKey[r.key] || 0) > 0.001) {
+        b.root.classList.remove("is-flash");
+        void b.root.offsetWidth;            // restart the animation
+        b.root.classList.add("is-flash");
+      }
+    });
+  }
+
+  function renderBeliefs(snap, prev) {
+    const host = $("belief-list");
+    host.innerHTML = "";
+    const beliefs = (snap.character && snap.character.beliefs) || [];
+    if (!beliefs.length) {
+      host.appendChild(elc("p", "char-empty",
+        "None yet — beliefs form as the model reads experiences."));
+      return;
+    }
+    const prevByStmt = {};
+    if (prev && prev.character && prev.character.beliefs) {
+      prev.character.beliefs.forEach((b) => { prevByStmt[b.statement] = b; });
+    }
+    beliefs.slice(0, 8).forEach((b) => {
+      const item = elc("div", "belief-item");
+      const prevB = prevByStmt[b.statement];
+      if (!prevB || Math.abs((prevB.confidence || 0) - b.confidence) > 0.001) {
+        item.classList.add("is-new");           // new or moved this turn
+      }
+      const conf = elc("span", "belief-conf", fmt(b.confidence));
+      if (b.confidence < 0) conf.classList.add("neg");
+      item.appendChild(conf);
+      item.appendChild(elc("span", "belief-text", b.statement));
+      if (b.count > 1) item.appendChild(elc("span", "belief-count", "×" + b.count));
+      host.appendChild(item);
+    });
+  }
+
+  function renderHabits(snap) {
+    const host = $("habit-list");
+    host.innerHTML = "";
+    const habits = (snap.character && snap.character.habits) || [];
+    if (!habits.length) {
+      host.appendChild(elc("p", "char-empty",
+        "None yet — a habit forms when an experience recurs."));
+      return;
+    }
+    habits.forEach((h) => {
+      const chip = elc("span", "habit-chip");
+      chip.appendChild(elc("span", "habit-text", h.text));
+      chip.appendChild(elc("span", "habit-x", "×" + h.count));
+      host.appendChild(chip);
+    });
+  }
+
+  function buildCharacter(snap) {
+    const c = snap.character || {};
+    buildCharBars("value-bars", c.values, App.valueBars, "cbar--value");
+    buildCharBars("moral-bars", c.moral, App.moralBars, "cbar--moral");
+    updateCharBars(c.values, null, App.valueBars, false);
+    updateCharBars(c.moral, null, App.moralBars, false);
+    renderBeliefs(snap, null);
+    renderHabits(snap);
+  }
+
+  function updateCharacter(snap, prev) {
+    const c = snap.character || {};
+    updateCharBars(c.values, c.push, App.valueBars, true);
+    updateCharBars(c.moral, c.moral_push, App.moralBars, true);
+    renderBeliefs(snap, prev);
+    renderHabits(snap);
+  }
+
+  // ---- Motivation: the three SDT needs (fill = current tension/loudness, ghost tick =
+  // resting level; a green flash when this experience fed the need, magenta when it denied it).
+  function buildDrives(snap) {
+    const host = $("drive-bars");
+    if (!host) return;
+    host.innerHTML = ""; App.driveBars = {};
+    const drives = snap.drives || [];
+    if (!drives.length) {
+      host.appendChild(elc("p", "char-empty", "None yet — needs form as values do."));
+      return;
+    }
+    drives.forEach((d) => {
+      const root = elc("div", "cbar cbar--drive");
+      const top = elc("div", "cbar-top");
+      top.appendChild(elc("span", "cbar-name", d.name));
+      const val = elc("span", "cbar-val");
+      top.appendChild(val);
+      root.appendChild(top);
+      const track = elc("div", "cbar-track");
+      const ghost = elc("span", "cbar-ghost");
+      ghost.title = "resting level";
+      track.appendChild(ghost);
+      const fill = elc("span", "cbar-fill");
+      track.appendChild(fill);
+      root.appendChild(track);
+      host.appendChild(root);
+      App.driveBars[d.key] = { root, fill, ghost, val };
+    });
+    updateDrives(snap, false);
+  }
+
+  function updateDrives(snap, flash) {
+    (snap.drives || []).forEach((d) => {
+      const b = App.driveBars[d.key];
+      if (!b) return;
+      b.fill.style.left = "0%";                       // tension is unsigned: fill from the left
+      b.fill.style.width = clamp(d.tension || 0, 0, 1) * 100 + "%";
+      b.ghost.style.left = clamp(d.weight || 0, 0, 1) * 100 + "%";
+      b.val.textContent = (d.tension || 0).toFixed(2);
+      if (flash && Math.abs(d.sat || 0) > 0.001) {
+        const cls = d.sat > 0 ? "is-sat" : "is-flash";   // fed a need (green) / denied it (magenta)
+        b.root.classList.remove("is-sat", "is-flash");
+        void b.root.offsetWidth;                      // restart the animation
+        b.root.classList.add(cls);
+      }
+    });
+  }
+
+  // ---- Self-concept: self-worth (esteem, ghost = dispositional baseline) + a five-trait
+  // self-image (fill = who they think they are, ghost = who they ACTUALLY are; the gap is
+  // self-deception). Green flash when the experience affirmed the self-view / lifted regard,
+  // magenta when it contradicted it / lowered regard.
+  function selfRows(snap) {
+    const s = snap.self;
+    if (!s || !s.image) return [];
+    const rows = [{ key: "esteem", label: "self-worth", value: s.esteem, ghost: s.base, kind: "esteem" }];
+    s.image.forEach((r) => rows.push({ key: r.key, label: r.label, value: r.image, ghost: r.actual,
+                                       ideal: r.ideal, kind: "image" }));
+    return rows;
+  }
+
+  function buildSelf(snap) {
+    const host = $("self-bars");
+    if (!host) return;
+    host.innerHTML = ""; App.selfBars = {};
+    const rows = selfRows(snap);
+    if (!rows.length) {
+      host.appendChild(elc("p", "char-empty", "Forming — a sense of self grows with experience."));
+      return;
+    }
+    rows.forEach((r) => {
+      const root = elc("div", "cbar cbar--self");
+      const top = elc("div", "cbar-top");
+      top.appendChild(elc("span", "cbar-name", r.label));
+      const val = elc("span", "cbar-val");
+      top.appendChild(val);
+      root.appendChild(top);
+      const track = elc("div", "cbar-track");
+      track.appendChild(elc("span", "cbar-zero"));
+      const ghost = elc("span", "cbar-ghost");
+      ghost.title = r.kind === "esteem" ? "baseline" : "who they actually are";
+      track.appendChild(ghost);
+      let ideal = null;
+      if (r.kind === "image") {
+        ideal = elc("span", "cbar-ideal");           // who they WANT to be (from their values)
+        ideal.title = "who they want to be";
+        track.appendChild(ideal);
+      }
+      const fill = elc("span", "cbar-fill");
+      track.appendChild(fill);
+      root.appendChild(track);
+      host.appendChild(root);
+      App.selfBars[r.key] = { root, fill, ghost, ideal, val };
+    });
+    updateSelf(snap, false);
+  }
+
+  function updateSelf(snap, flash) {
+    const s = snap.self;
+    if (!s) return;
+    const align = s.align || 0, edelta = s.esteem_delta || 0;
+    selfRows(snap).forEach((r) => {
+      const b = App.selfBars[r.key];
+      if (!b) return;
+      const f = centerFill(r.value);
+      b.fill.style.left = f.left + "%"; b.fill.style.width = f.width + "%";
+      b.ghost.style.left = pct(r.ghost) + "%";
+      if (b.ideal) {
+        // the aspired self: shown only once the values have formed an ideal worth holding
+        const show = r.ideal != null && Math.abs(r.ideal) >= 0.05;
+        b.ideal.style.display = show ? "" : "none";
+        if (show) b.ideal.style.left = pct(r.ideal) + "%";
+      }
+      b.val.textContent = fmt(r.value);
+      if (flash) {
+        // esteem flashes on its own rise/fall; the self-image bars flash on whether the
+        // experience affirmed (green) or contradicted (magenta) the self-view.
+        let cls = null;
+        if (r.kind === "esteem" && Math.abs(edelta) > 0.005) cls = edelta > 0 ? "is-sat" : "is-flash";
+        else if (r.kind === "image" && Math.abs(align) > 0.15) cls = align > 0 ? "is-sat" : "is-flash";
+        if (cls) {
+          b.root.classList.remove("is-sat", "is-flash");
+          void b.root.offsetWidth;
+          b.root.classList.add(cls);
+        }
+      }
+    });
+  }
+
+  // ---- Expression: the outward voice -- the FORMED manner (fill) vs what the inner state
+  // calls for (ghost tick). The gap is a learned mannerism, shaped by how replies land.
+  function buildVoice(snap) {
+    const host = $("voice-bars");
+    if (!host) return;
+    host.innerHTML = ""; App.voiceBars = {};
+    const rows = (snap.expression && snap.expression.style) || [];
+    rows.forEach((r) => {
+      const root = elc("div", "cbar cbar--voice");
+      const top = elc("div", "cbar-top");
+      top.appendChild(elc("span", "cbar-name", r.label));
+      const val = elc("span", "cbar-val");
+      top.appendChild(val);
+      root.appendChild(top);
+      const track = elc("div", "cbar-track");
+      track.appendChild(elc("span", "cbar-zero"));
+      const ghost = elc("span", "cbar-ghost");
+      ghost.title = "what their inner state calls for";
+      track.appendChild(ghost);
+      const fill = elc("span", "cbar-fill");
+      track.appendChild(fill);
+      root.appendChild(track);
+      host.appendChild(root);
+      App.voiceBars[r.key] = { root, fill, ghost, val };
+    });
+    updateVoice(snap, false);
+  }
+
+  function updateVoice(snap, flash) {
+    const ex = snap.expression || {};
+    (ex.style || []).forEach((r) => {
+      const b = App.voiceBars[r.key];
+      if (!b) return;
+      const f = centerFill(r.value);
+      b.fill.style.left = f.left + "%"; b.fill.style.width = f.width + "%";
+      if (b.ghost && r.target != null) b.ghost.style.left = pct(r.target) + "%";
+      b.val.textContent = fmt(r.value);
+      if (flash && Math.abs(r.delta || 0) > 0.005) {
+        const cls = r.delta > 0 ? "is-sat" : "is-flash";   // manner grew / faded this turn
+        b.root.classList.remove("is-sat", "is-flash");
+        void b.root.offsetWidth;
+        b.root.classList.add(cls);
+      }
+    });
+    const meta = $("voice-meta");
+    if (meta) {
+      const via = ex.source ? (ex.source === "rule" ? "offline voice" : "via " + ex.source) : "";
+      const line = ex.line ? "In their voice: " + ex.line : "";
+      meta.innerHTML = "";
+      if (line) meta.appendChild(document.createTextNode(line));
+      if (line && via) meta.appendChild(document.createTextNode(" · "));
+      if (via) { const b = elc("b", null, via); meta.appendChild(b); }
+    }
+  }
+
+  // ---- Behavior: the enacted stance -- two Gray systems (approach/inhibition) with their
+  // trait-anchored dispositions as ghost ticks, the carried leaning, and this turn's
+  // reception ("their reach was met" / "rebuffed").
+  function buildBehavior(snap) {
+    const host = $("behavior-bars");
+    if (!host) return;
+    host.innerHTML = ""; App.behavBars = {};
+    const rows = (snap.behavior && snap.behavior.sensitivities) || [];
+    rows.forEach((r) => {
+      const root = elc("div", "cbar cbar--behav");
+      const top = elc("div", "cbar-top");
+      top.appendChild(elc("span", "cbar-name", r.label));
+      const val = elc("span", "cbar-val");
+      top.appendChild(val);
+      root.appendChild(top);
+      const track = elc("div", "cbar-track");
+      track.appendChild(elc("span", "cbar-zero"));
+      const ghost = elc("span", "cbar-ghost");
+      ghost.title = "disposition (from their traits)";
+      track.appendChild(ghost);
+      const fill = elc("span", "cbar-fill");
+      track.appendChild(fill);
+      root.appendChild(track);
+      host.appendChild(root);
+      App.behavBars[r.key] = { root, fill, ghost, val };
+    });
+    updateBehavior(snap, false);
+  }
+
+  function updateBehavior(snap, flash) {
+    const b = snap.behavior || {};
+    (b.sensitivities || []).forEach((r) => {
+      const bar = App.behavBars[r.key];
+      if (!bar) return;
+      const f = centerFill(r.value);
+      bar.fill.style.left = f.left + "%"; bar.fill.style.width = f.width + "%";
+      bar.ghost.style.left = pct(r.base) + "%";
+      bar.val.textContent = fmt(r.value);
+      if (flash && Math.abs(r.delta || 0) > 0.005) {
+        const cls = r.key === "inhibition"
+          ? (r.delta > 0 ? "is-flash" : "is-sat")     // inhibition growing = magenta
+          : (r.delta > 0 ? "is-sat" : "is-flash");    // approach growing = green
+        bar.root.classList.remove("is-sat", "is-flash");
+        void bar.root.offsetWidth;
+        bar.root.classList.add(cls);
+      }
+    });
+    const meta = $("behavior-meta");
+    if (meta) {
+      const bits = [];
+      if (b.line) bits.push(b.line);
+      if (b.reception != null && Math.abs(b.reception) > 0.05) {
+        bits.push((b.reception > 0 ? "their reach was met (+" : "rebuffed (−")
+                  + Math.abs(b.reception).toFixed(2) + ")");
+      }
+      meta.textContent = bits.join(" · ");
+    }
+  }
+
+  function renderLens(snap) {
+    const el = $("lens-line");
+    if (!el) return;
+    const lens = snap.lens || "";
+    el.textContent = lens ? "Through their eyes: " + lens : "";
+    el.style.display = lens ? "block" : "none";
+  }
+
+  function renderRecall(snap) {
+    const host = $("recall-list");
+    if (!host) return;
+    host.innerHTML = "";
+    const recalled = snap.recalled || [];
+    if (!recalled.length) {
+      host.appendChild(elc("p", "char-empty", "Nothing specific came to mind."));
+      return;
+    }
+    const NEED_TAG = {
+      autonomy: "their need for autonomy",
+      competence: "their need to prove themselves",
+      relatedness: "their need for connection",
+    };
+    recalled.forEach((m) => {
+      const item = elc("div", "recall-item");
+      item.appendChild(elc("span", "recall-score", (m.score || 0).toFixed(2)));
+      item.appendChild(elc("span", "recall-text", m.text));
+      if (m.need && NEED_TAG[m.need]) {
+        // motivated retrieval: this memory was pulled up by an active need
+        item.appendChild(elc("span", "recall-need", "surfaced by " + NEED_TAG[m.need]));
+      }
+      host.appendChild(item);
+    });
+  }
+
+  // The appraisal dimensions shown in the mood panel. valence/threat are signed
+  // (center-zero); novelty/intensity run 0..1. The lens bends valence/threat/novelty,
+  // so those carry a ghost tick at the *raw* reading (before the lens); intensity it
+  // leaves alone, so it has no tick. The engine stores threat_challenge as
+  // -1 = threat/loss .. +1 = challenge/growth; the "Threat" meter negates it so the bar
+  // reads as threat LEVEL (right = more threatening), which is what the label implies.
+  const MOOD_METERS = [
+    { id: "valence",   field: "valence",          signed: true,  lens: true               },
+    { id: "threat",    field: "threat_challenge", signed: true,  lens: true, negate: true  },
+    { id: "novelty",   field: "novelty",          signed: false, lens: true               },
+    { id: "relevance", field: "self_relevance",   signed: false, lens: true               },
+    // intensity's raw-vs-interpreted gap is exactly the behavior intake gate: nothing else
+    // touches this dim, so the ghost is attributable to the carried stance alone
+    { id: "intensity", field: "intensity",        signed: false, lens: true               },
+  ];
+
+  function setMoodFill(el, value, signed) {
+    if (signed) {
+      const f = centerFill(value);
+      el.style.left = f.left + "%"; el.style.width = f.width + "%";
+    } else {
+      el.style.left = "0%"; el.style.width = pct01(value) + "%";
+    }
+  }
+
   function renderMood(snap) {
-    const a = snap.appraisal || { valence: 0, intensity: 0, novelty: 0 };
-    const val = centerFill(a.valence || 0);
-    const vEl = $("mood-valence");
-    vEl.style.left = val.left + "%"; vEl.style.width = val.width + "%";
-    $("mood-intensity").style.width = clamp(a.intensity || 0, 0, 1) * 100 + "%";
-    $("mood-novelty").style.width = clamp(a.novelty || 0, 0, 1) * 100 + "%";
+    const a = snap.appraisal || null;                  // interpreted (through their eyes)
+    const raw = snap.appraisal_raw || null;            // the base reading, before the lens
+    const cap = $("mood-cap");
+    if (cap) {
+      const src = snap.appraisal_source;
+      cap.textContent = "How they read it" + (src ? " · " + (src === "offline" ? "offline" : src) : "");
+    }
+    MOOD_METERS.forEach((m) => {
+      const fill = $("mood-" + m.id);
+      if (!fill) return;
+      const ghost = $("mood-" + m.id + "-ghost");
+      const valEl = $("mood-" + m.id + "-val");
+      const s = m.negate ? -1 : 1;                               // display sign (see MOOD_METERS)
+      const iv = a ? s * (a[m.field] || 0) : 0;
+      setMoodFill(fill, iv, m.signed);
+
+      const rv = (raw && m.lens) ? s * (raw[m.field] || 0) : null;   // raw, only where the lens acts
+      const moved = rv != null && Math.abs(iv - rv) > 0.02;
+      if (ghost) {
+        ghost.style.display = rv == null ? "none" : "";
+        if (rv != null) ghost.style.left = (m.signed ? pct(rv) : pct01(rv)) + "%";
+      }
+      if (valEl) {
+        valEl.textContent = a ? fmt(iv) : "";
+        valEl.className = "mood-meter-val" + (moved ? " moved" : "");
+        valEl.title = moved ? "the lens moved this " + fmt(iv - rv) : "";
+      }
+    });
   }
 
   function syncOrb(snap, fresh) {
@@ -466,6 +919,13 @@
       updatePushBars(snap, true);           // magenta flash: the push just landed
       const moved = snap.formation ? snap.formation.key : biggestMove(prev, snap);
       updateTraitBars(snap, moved);         // violet bars ease to new values
+      updateCharacter(snap, prev);          // values / moral / beliefs / habits
+      updateDrives(snap, true);             // SDT needs: tension + satisfy/frustrate flash
+      updateSelf(snap, true);               // self-image vs actual + esteem, with affirm/contradict flash
+      updateVoice(snap, true);              // the outward voice: style dims + the via chip
+      updateBehavior(snap, true);           // the enacted stance + reception flash
+      renderRecall(snap);                   // the memories this message surfaced
+      renderLens(snap);                     // how they're reading the world now
       renderMood(snap);
       renderHeader(snap);
       syncOrb(snap, true);

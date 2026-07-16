@@ -15,8 +15,12 @@ import json
 import os
 import re
 
-from .config import BASIS, BASIS_NAMES, DEFAULT_TAU, VALUES
+from .config import BASIS, BASIS_NAMES, DEFAULT_TAU, VALUES, MORAL, DRIVES
 from .character import default_character
+from .drives import rest_drives
+from .self_concept import default_self, seed_base
+from .behavior import default_behavior
+from .expression import default_expression
 
 # Data root is request-scoped so each visitor (Django session) gets an isolated
 # character store. The Django demo sets it per request via ``set_data_root``;
@@ -52,13 +56,19 @@ def default_temperament():
 
 def default_personality():
     """A blank character: born at a neutral temperament (traits start at mu = 0)."""
-    return {
+    character = default_character()
+    personality = {
         "identity": {},
         "temperament": default_temperament(),
         "traits": {d: 0.0 for d in BASIS},
-        "character": default_character(),
+        "character": character,
+        "drives": rest_drives(character["values"]),   # needs seeded at their resting level
         "experience_count": 0,
     }
+    personality["self"] = default_self(personality)   # self-image mirrors the birth traits
+    personality["behavior"] = default_behavior(personality)   # stance at its trait set-points
+    personality["expression"] = default_expression(personality)  # manner starts at its target
+    return personality
 
 
 def _ensure_temperament(personality):
@@ -81,9 +91,57 @@ def _ensure_character(personality):
         personality["character"] = default_character()
     else:
         character.setdefault("habits", [])
+        character.setdefault("beliefs", [])
+        character.setdefault("beliefs_reviewed", 0)
         values = character.setdefault("values", {})
         for v in VALUES:                      # seed any missing value at neutral
             values.setdefault(v, 0.0)
+        moral = character.setdefault("moral", {})
+        for m in MORAL:                       # seed any missing foundation at neutral
+            moral.setdefault(m, 0.0)
+    return personality
+
+
+def _ensure_drives(personality):
+    """Backfill the motivational drive state onto a pre-drives save (needs at rest = weight)."""
+    values = ((personality.get("character") or {}).get("values")) or {}
+    drives = personality.get("drives")
+    if not isinstance(drives, dict):
+        personality["drives"] = rest_drives(values)
+    else:
+        rest = rest_drives(values)
+        for d in DRIVES:                      # seed any missing need at its resting level
+            drives.setdefault(d, rest[d])
+    return personality
+
+
+def _ensure_self(personality):
+    """Backfill the self-concept onto a pre-self save (self-image = current traits, esteem at base)."""
+    self_state = personality.get("self")
+    if not isinstance(self_state, dict) or "image" not in self_state:
+        personality["self"] = default_self(personality)
+    else:
+        image = self_state.setdefault("image", {})
+        traits = personality.get("traits") or {}
+        for d in BASIS:                        # seed any missing OCEAN self-image dim from the trait
+            image.setdefault(d, float(traits.get(d, 0.0)))
+        self_state.setdefault("esteem", seed_base(personality))
+    return personality
+
+
+def _ensure_behavior(personality):
+    """Backfill the behavior state onto a pre-behavior save (sensitivities at their
+    trait-anchored set-points, readiness steady, no act yet)."""
+    if not isinstance(personality.get("behavior"), dict):
+        personality["behavior"] = default_behavior(personality)
+    return personality
+
+
+def _ensure_expression(personality):
+    """Backfill the formed style onto a pre-Slice-2 save (manner starts at its derived
+    target -- no learned mannerism yet)."""
+    if not isinstance(personality.get("expression"), dict):
+        personality["expression"] = default_expression(personality)
     return personality
 
 
@@ -103,7 +161,8 @@ def migrate(data):
             key = name_to_key.get(name)
             if key is not None:
                 personality["traits"][key] = value
-    return _ensure_character(_ensure_temperament(personality))
+    return _ensure_expression(_ensure_behavior(
+        _ensure_self(_ensure_drives(_ensure_character(_ensure_temperament(personality))))))
 
 
 def _read(path):
