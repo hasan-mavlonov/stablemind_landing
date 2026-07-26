@@ -1,1 +1,1 @@
-web: gunicorn stablemind.wsgi:application --workers 2 --threads 4 --timeout 240
+web: gunicorn stablemind.wsgi:application --workers 2 --worker-class gthread --threads 4 --timeout 240

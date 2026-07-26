@@ -150,7 +150,12 @@ def _llm_reply(personality, user_text, memories=None, appraisal=None):
             # Big enough for Gemma's <thought> to finish and the reply to follow;
             # too small a budget is what left only a truncated thought to strip.
             max_tokens=2048,
-            timeout=45,
+            # This is the last of up to four sequential LLM calls in a single turn
+            # (appraisal, then the three formation pushes, then this); a generous
+            # per-call wait here is what let one slow turn stack past the gunicorn
+            # worker timeout and get SIGKILLed mid-request. 25s (retried once) is
+            # still ample for a two-sentence reply.
+            timeout=25,
         )
         reply = strip_reasoning(completion.choices[0].message.content)
         if reply:
