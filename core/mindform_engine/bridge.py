@@ -15,6 +15,7 @@ the "seen before" recurrence count and the persisted memory log.
 """
 
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 from .config import (
     BASIS, BASIS_NAMES, TRAIT_QUESTIONS, TRAIT_LEVELS, IDENTITY_FIELDS,
@@ -467,9 +468,20 @@ def run_turn(name, message):
     appraisal = interpret(raw_appraisal, personality, recalled=recalled)   # bent by the lens
     self_sig = self_signal(personality.get("self"), appraisal)  # did it affirm / contradict the self-view
     view = lens(personality, recalled=recalled)
-    push, source, reasoning = push_from_text(text, appraisal, lens=view)
-    values_push, values_source, values_reasoning = values_push_from_text(text, appraisal, lens=view)
-    moral_push, moral_source, _ = moral_push_from_text(text, appraisal, lens=view)
+
+    # These three read the SAME (text, appraisal, lens) and don't depend on each other's
+    # output, so they fire as concurrent requests instead of three serial network round
+    # trips -- with an LLM key configured this is the difference between one wait and
+    # three stacked waits, which is what was blowing past the gunicorn worker timeout
+    # (a single turn used to chain appraisal + push + values + moral + reply, up to five
+    # sequential LLM calls deep, each with its own retry).
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        push_future = pool.submit(push_from_text, text, appraisal, view)
+        values_future = pool.submit(values_push_from_text, text, appraisal, view)
+        moral_future = pool.submit(moral_push_from_text, text, appraisal, view)
+        push, source, reasoning = push_future.result()
+        values_push, values_source, values_reasoning = values_future.result()
+        moral_push, moral_source, _ = moral_future.result()
 
     # BEHAVIOR (the intake gate, LLM mirror): the heuristic pushes already inherit the gate
     # through salience (they read the gated intensity); the LLM pushes read raw text, so the

@@ -29,9 +29,15 @@ JSON_MAX_TOKENS = 2048
 _JSON_ONLY_NUDGE = ("\n\nReturn ONLY the JSON object now -- no <thought>, no thinking, "
                     "no explanation before or after it.")
 
+# A single chat turn chains several of these calls (appraisal, formation, reply); each one
+# getting to wait the full 30s -- twice, with the retry -- is what stacked up past gunicorn's
+# worker timeout and killed the request outright. 20s is still generous for a JSON-sized
+# reply and keeps a fully-retried call well under a minute.
+NETWORK_TIMEOUT = 20
+
 
 def complete_json(system_prompt, user_content, *, temperature=0.2,
-                  max_tokens=JSON_MAX_TOKENS, retries=1):
+                  max_tokens=JSON_MAX_TOKENS, retries=1, timeout=NETWORK_TIMEOUT):
     """Call the configured model and return a parsed JSON object (a dict).
 
     Raises ``RuntimeError`` when no API key is set, propagates a transport error if the
@@ -55,7 +61,7 @@ def complete_json(system_prompt, user_content, *, temperature=0.2,
             ],
             temperature=temperature,
             max_tokens=max_tokens,
-            timeout=30,
+            timeout=timeout,
         )
         try:
             return parse_json_object(completion.choices[0].message.content)
