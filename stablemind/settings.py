@@ -157,3 +157,28 @@ if not DEBUG:
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# -----------------------
+# Logging
+# -----------------------
+# The MindForm engine logs every LLM-fallback (bad/missing key, wrong model, network
+# error) at INFO under the "mindform" logger tree, but Django/gunicorn don't configure
+# a handler for it by default, so those messages -- the exact reason the demo drops to
+# its offline voice -- were silently dropped instead of reaching the platform's log
+# viewer. Wire "mindform" to the console explicitly so they show up.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "mindform": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
