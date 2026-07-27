@@ -338,7 +338,7 @@ def _env(*names, default=None):
 LLM_API_KEY = _env("LLM_API_KEY", "GEMINI_API_KEY", "DEEPSEEK_API_KEY")
 LLM_BASE_URL = _env("LLM_BASE_URL", "DEEPSEEK_BASE_URL",
                     default="https://generativelanguage.googleapis.com/v1beta/openai/")
-LLM_MODEL = _env("LLM_MODEL", "DEEPSEEK_MODEL", default="gemini-3.5-flash")
+LLM_MODEL = _env("LLM_MODEL", "DEEPSEEK_MODEL", default="gemini-3.1-flash-lite")
 LLM_FORMATION_RATE = float(_env("LLM_FORMATION_RATE", default="0.3"))
 
 # Backward-compatible aliases (older imports referenced these names).
