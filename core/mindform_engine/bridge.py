@@ -52,7 +52,7 @@ from .behavior import (
 )
 from .impact import clamp
 from .personality import (
-    save_character, load_character, list_characters,
+    save_character, load_character, list_characters, unique_name,
     read_traits, read_temperament,
 )
 from .reply import generate_reply
@@ -269,7 +269,8 @@ def _self_row(personality, before=None, signal=None):
 def snapshot(personality, *, push=None, appraisal=None, appraisal_raw=None, source=None,
              reasoning="", seen=None, formation=None, reply=None,
              values_push=None, values_source=None, values_reasoning="",
-             moral_push=None, recalled=None, drive_before=None, self_before=None, self_sig=None,
+             moral_push=None, recalled=None, recalled_beliefs=None,
+             drive_before=None, self_before=None, self_sig=None,
              reply_source=None, behavior_before=None, expression_before=None,
              appraisal_source=None):
     """The full state object the cockpit reads. Engine values pass straight through."""
@@ -290,7 +291,7 @@ def snapshot(personality, *, push=None, appraisal=None, appraisal_raw=None, sour
         "recalled": _recalled_rows(recalled),
         "formation": formation,
         "dominant": _dominant(trait_rows),
-        "lens": read_lens(personality, recalled=recalled),
+        "lens": read_lens(personality, recalled=recalled, recalled_beliefs=recalled_beliefs),
         "character": _character_block(
             personality, push=values_push, source=values_source,
             reasoning=values_reasoning, moral_push=moral_push,
@@ -327,11 +328,24 @@ def load_snapshot(name):
 
 # --- Creation paths (mirror interactive.py's three authoring routes) ---------
 def create_genesis(bio):
-    """Born from a one-line biography (DeepSeek seed, heuristic fallback)."""
+    """Born from a one-line biography (DeepSeek seed, heuristic fallback).
+
+    The roster is keyed by name-slug alone (``core.personality.character_path``), so a
+    bio the seed can't extract a name from -- or one that just happens to share a name
+    with someone already on the roster -- would otherwise silently overwrite that other
+    character on save. ``unique_name`` disambiguates before the save ever happens; the
+    snapshot reports the rename (``renamed_from``) so the UI can say so instead of the
+    character quietly not being who the story said.
+    """
     personality, source, reasoning = genesis(bio)
+    requested = (personality["identity"].get("name") or "").strip()
+    final_name = unique_name(requested)
+    personality["identity"]["name"] = final_name
     save_character(personality)
     snap = snapshot(personality, source=source, reasoning=reasoning)
     snap["created_via"] = source
+    if final_name != (requested or "unnamed"):
+        snap["renamed_from"] = requested or None
     return snap
 
 
@@ -352,9 +366,14 @@ def create_manual(identity, levels):
         mu[key] = TRAIT_LEVELS[level]
     clean_identity = {k: v for k, v in (identity or {}).items() if v not in (None, "")}
     personality, _, _ = build_character(clean_identity, mu)
+    requested = (personality["identity"].get("name") or "").strip()
+    final_name = unique_name(requested)                    # see create_genesis: no silent overwrite
+    personality["identity"]["name"] = final_name
     save_character(personality)
     snap = snapshot(personality)
     snap["created_via"] = "manual"
+    if final_name != requested:
+        snap["renamed_from"] = requested or None
     return snap
 
 
@@ -371,6 +390,11 @@ def _recall(text, name, personality=None):
     MOTIVATED RETRIEVAL: recall fetches a wider candidate pool, then the character's
     active needs re-rank it (``drives.recall_bias``) -- what they lack shapes what comes
     to mind. Pass ``personality`` with its drives already refreshed.
+
+    EMOTIONAL MEMORY, retrieval decay: recall is also told the character's current turn
+    number (``experience_count``, pre-increment -- so a memory stored last turn reads as
+    age 0), so a stale, unremarkable memory fades in favor of a fresh one at similar
+    relevance (``core.memory._decay_factor``).
     """
     try:
         from .encoder import encode_text          # heavy: sentence-transformers
@@ -380,12 +404,29 @@ def _recall(text, name, personality=None):
         return None, None, []
     try:
         embedding = encode_text(text)
-        candidates = recall(embedding, name=name, k=RECALL_CANDIDATES)
+        current_turn = (personality or {}).get("experience_count", 0)
+        candidates = recall(embedding, name=name, k=RECALL_CANDIDATES, current_turn=current_turn)
         recalled = recall_bias(candidates, (personality or {}).get("drives"))
         return embedding, recurrence(embedding, name=name), recalled
     except Exception as exc:
         log.warning("recall step failed (%s); continuing", exc)
         return None, None, []
+
+
+def _recall_beliefs(embedding, personality, name):
+    """SEMANTIC memory recall: which of this character's held beliefs bear on the
+    experience -- reuses the embedding ``_recall`` already computed (no second encode
+    call). Guarded exactly like ``_recall``: no deps / no beliefs yet -> ``[]``, formation
+    still works, only the belief lens goes quiet.
+    """
+    if embedding is None:
+        return []
+    try:
+        from .belief_memory import recall_beliefs   # heavy: numpy
+        return recall_beliefs(embedding, personality.get("character") or {}, name=name)
+    except Exception as exc:
+        log.warning("belief recall failed (%s); continuing", exc)
+        return []
 
 
 def _store_memory(text, embedding, appraisal, push, personality, name):
@@ -410,15 +451,34 @@ def _form_beliefs(personality, char_name):
     Reads the per-character memory log and the encoder for embedding dedup; if those deps
     are absent there is no backlog to read, so the character is returned unchanged.
     ``form_beliefs`` itself is a no-op when the LLM is unavailable, leaving the watermark.
+
+    SEMANTIC memory, the write side: passes the persisted belief-embedding sidecar in as
+    ``belief_matrix`` (skips re-embedding the whole belief history just to dedup one new
+    statement), then -- since beliefs are only ever appended, never reordered or removed --
+    diffs the list length before/after to find exactly the newly-formed statements, and
+    appends their embeddings in one batched call. A no-op when nothing new formed (the
+    common case) or the deps are absent.
     """
     character = personality.get("character") or default_character()
     try:
         from .memory import load_memories
         from .encoder import encode_text
+        from .belief_memory import load_belief_embeddings, append_belief_embeddings
         memories, embedder = load_memories(char_name), encode_text
+        belief_matrix = load_belief_embeddings(char_name)
     except Exception:
-        memories, embedder = [], None
-    return form_beliefs(character, memories, embedder)
+        memories, embedder, belief_matrix = [], None, None
+
+    before = len(character.get("beliefs") or [])
+    character = form_beliefs(character, memories, embedder, belief_matrix=belief_matrix)
+    if embedder is not None:
+        new_statements = [b["statement"] for b in (character.get("beliefs") or [])[before:]]
+        if new_statements:
+            try:
+                append_belief_embeddings(encode_text(new_statements), char_name)
+            except Exception as exc:
+                log.warning("belief embedding store failed (%s); continuing", exc)
+    return character
 
 
 def run_turn(name, message):
@@ -444,6 +504,10 @@ def run_turn(name, message):
     # with the active needs re-ranking what comes to mind (drives.recall_bias).
     embedding, seen, recalled = _recall(text, char_name, personality)
 
+    # SEMANTIC memory: which held beliefs bear on this experience -- reuses the same
+    # embedding, also read before interpreting so belief colours the reading too.
+    recalled_beliefs = _recall_beliefs(embedding, personality, char_name)
+
     # SELF-CONCEPT: relax self-esteem toward its dispositional baseline BEFORE interpreting, so the
     # self they carry (self-image + regard) colours the read.
     personality = refresh_self(personality)
@@ -465,9 +529,10 @@ def run_turn(name, message):
     # offline appraiser learns from the online one with use (distillation).
     raw_appraisal, appraisal_source = appraise_from_text(text)
     log_appraisal_row(text, raw_appraisal, appraisal_source)
-    appraisal = interpret(raw_appraisal, personality, recalled=recalled)   # bent by the lens
+    appraisal = interpret(raw_appraisal, personality, recalled=recalled,
+                          recalled_beliefs=recalled_beliefs)   # bent by the lens
     self_sig = self_signal(personality.get("self"), appraisal)  # did it affirm / contradict the self-view
-    view = lens(personality, recalled=recalled)
+    view = lens(personality, recalled=recalled, recalled_beliefs=recalled_beliefs)
 
     # These three read the SAME (text, appraisal, lens) and don't depend on each other's
     # output, so they fire as concurrent requests instead of three serial network round
@@ -524,12 +589,16 @@ def run_turn(name, message):
 
     # SELF-CONCEPT: self-regard responds to the interpreted experience (sociometer) and the
     # self-image drifts toward the just-formed traits (self-perception, resisting disconfirmation).
-    personality = apply_self_event(personality, appraisal, personality["traits"])
+    # A recognised pattern across the recalled episodes (a running reputation, not just this
+    # instant) adds a second, smaller esteem term -- see self_concept.apply_event.
+    personality = apply_self_event(personality, appraisal, personality["traits"], recalled=recalled)
 
     # BEHAVIOR: the world's answer trains the sensitivities (rewarded own action teaches
     # approach; threat trains inhibition; a carried lean-in is credited with how this
     # message received it), and the new action readiness is read and carried forward.
-    personality = apply_behavior_event(personality, appraisal)
+    # PROCEDURAL memory: recurrence (this occurrence included, matching note_habit's own
+    # "+1" convention below) tells it whether this is a recognized habit -- automaticity.
+    personality = apply_behavior_event(personality, appraisal, recurrence=(seen or 0) + 1)
 
     # EXPRESSION (operant shaping): the manner actually SPOKEN WITH last turn (frozen in the
     # act record) is entrenched or extinguished by how this message received it -- read
@@ -556,6 +625,7 @@ def run_turn(name, message):
         source=source, reasoning=reasoning, seen=seen, formation=formation, reply=reply,
         values_push=values_push, values_source=values_source,
         values_reasoning=values_reasoning, moral_push=moral_push, recalled=recalled,
+        recalled_beliefs=recalled_beliefs,
         drive_before=drive_before, self_before=self_before, self_sig=self_sig,
         reply_source=reply_source, behavior_before=behavior_before,
         expression_before=expression_before, appraisal_source=appraisal_source,
