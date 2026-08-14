@@ -125,6 +125,7 @@
   async function loadRoster() {
     const host = $("roster");
     host.innerHTML = "";
+    $("roster-note").classList.add("hidden");   // a fresh roster view never carries a stale error
     let chars = [];
     try { chars = (await API.characters()).characters || []; }
     catch (e) { host.appendChild(elc("p", "roster-empty", "Could not load characters.")); return; }
@@ -193,6 +194,16 @@
     });
   }
 
+  // The roster is keyed by name alone, so a creation that collides with (or can't infer
+  // past) an existing name gets disambiguated server-side (core.personality.unique_name)
+  // rather than silently overwriting that other character. Say so when it happens.
+  function renameNote(snap) {
+    if (snap.renamed_from === undefined) return "";
+    return snap.renamed_from
+      ? ` (another character is already named ${snap.renamed_from} — saved as ${snap.name}.)`
+      : ` (couldn't tell their name from that — saved as ${snap.name}.)`;
+  }
+
   async function doGenesis() {
     const bio = $("bio-input").value.trim();
     const note = $("genesis-note");
@@ -202,7 +213,7 @@
       const snap = await API.createGenesis(bio);
       const via = snap.created_via === "heuristic"
         ? "seeded heuristically" : "seeded by " + snap.created_via;
-      enterWith(snap, `${snap.name} was born — ${via}.`);
+      enterWith(snap, `${snap.name} was born — ${via}.${renameNote(snap)}`);
     } catch (e) {
       note.className = "form-note err"; note.textContent = e.message || "Something went wrong.";
     } finally { setFormBusy("genesis", false); }
@@ -223,7 +234,7 @@
     setFormBusy("manual", true, "Creating…");
     try {
       const snap = await API.createManual(identity, levels);
-      enterWith(snap, `${snap.name} is ready. Tell them what happens next.`);
+      enterWith(snap, `${snap.name} is ready. Tell them what happens next.${renameNote(snap)}`);
     } catch (e) {
       note.className = "form-note err"; note.textContent = e.message || "Something went wrong.";
     } finally { setFormBusy("manual", false); }
@@ -238,10 +249,21 @@
   }
 
   async function selectCharacter(name) {
+    const note = $("roster-note");
     try {
       const snap = await API.select(name);
+      note.classList.add("hidden");
       enterWith(snap, `Continuing as ${snap.name}. Every message shapes who they become.`);
-    } catch (e) { alert(e.message || "Could not open that character."); }
+    } catch (e) {
+      // Refresh FIRST (the roster may be stale -- e.g. the character was renamed or
+      // removed), since loadRoster() clears any earlier stale note as a fresh view should;
+      // only then show this failure's own message, or it would erase itself immediately.
+      await loadRoster();
+      // matches every other error surface in the app (the creation forms, the chat) --
+      // no native alert() dialog, ever.
+      note.textContent = e.message || "Could not open that character.";
+      note.classList.remove("hidden");
+    }
   }
 
   // ===========================================================================
@@ -271,9 +293,15 @@
   }
 
   function leadIn(snap) {
-    // A short in-character hello grounded in their dominant trait.
+    // A short in-character hello grounded in their dominant trait. A brand-new character
+    // (no experiences yet) genuinely doesn't know who they are; a returning one already
+    // does, so re-using the "I don't know who I am yet" line for them read like amnesia --
+    // right under a "Continuing as X" banner, no less. Only the blank-slate opener claims
+    // not to know; a returning character just says how they currently feel.
     const d = snap.dominant;
-    return `Hi. I don't know quite who I am yet — right now I feel ${d.glyph}. Tell me what happens to me.`;
+    return snap.turn === 0
+      ? `Hi. I don't know quite who I am yet — right now I feel ${d.glyph}. Tell me what happens to me.`
+      : `Hi again — right now I feel ${d.glyph}.`;
   }
 
   function renderHeader(snap) {

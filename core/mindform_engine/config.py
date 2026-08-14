@@ -242,6 +242,13 @@ SCHEMA_LEARN = 0.08          # self-perception drift rate (self-image tracks the
 SCHEMA_RESIST = 0.35         # Swann: fraction of the drift rate kept when the move opposes the self-view
 ESTEEM_GAIN = 0.20           # how strongly one success/acceptance (or failure/rejection) moves self-regard
 ESTEEM_RELAX = 0.10          # per turn, self-regard relaxes toward its dispositional baseline
+# A sociometer tracks a running reputation, not one instant -- self_concept.apply_event's
+# second, smaller esteem term: a recognised PATTERN across recalled self-relevant episodes.
+# Deliberately light next to ESTEEM_GAIN: this turn's own experience should dominate, and
+# recalled episodes already colour appraisal itself via cognition._memory_tilt before this
+# ever runs -- this channel exists to add a direct pattern signal without double-counting
+# that path, not to duplicate it.
+SELF_PATTERN_GAIN = 0.05
 SELF_GAIN = 0.15             # self-consistency tilt: contradiction reads as threat, affirmation warms
 SELF_ESTEEM_GAIN = 0.10      # esteem buffer: high regard reads events as challenges, low as threats
 SELF_ACTIVE_THRESH = 0.25    # how strong esteem must be to surface a self tag in the lens
@@ -298,6 +305,15 @@ STYLE_LEARN = 0.20           # how strongly one reception entrenches/extinguishe
 # How many similar past experiences (memory recurrence, RECURRENCE_THRESHOLD) it takes
 # for a recurring experience to count as a habit.
 HABIT_MIN_RECURRENCE = 3
+# PROCEDURAL memory (behavior.apply_event): once a situation is a recognized habit (the
+# SAME gate as above -- one source of truth, not a second competing threshold), the
+# carried action-readiness leans harder on itself and less on this turn's fresh reading --
+# automaticity, a well-worn response gets re-deliberated less each time. Layered on top of
+# cognition._memory_tilt (which already makes a recurring situation's APPRAISAL read as
+# more expected), so this is kept modest -- it covers the remaining action-readiness
+# rigidity, not the whole effect.
+HABIT_INERTIA_GAIN = 0.4     # a recognized habit's blend loses up to 40% of its
+                              # responsiveness to the fresh reading
 
 # --- Character: Belief (an open, propositional store formed by experience) ---
 # Unlike the fixed values / moral vectors, beliefs are open-ended propositions the
@@ -310,6 +326,17 @@ HABIT_MIN_RECURRENCE = 3
 # character["beliefs_reviewed"] watermark).
 BELIEF_SIM_THRESHOLD = 0.62   # cosine over belief statements to count as "the same belief"
 BELIEF_BACKLOG_CAP = 10       # max unreviewed memories turned into beliefs per turn
+# SEMANTIC memory made recallable (core/belief_memory.py): beliefs are formed every turn
+# but were, until now, never read back -- a write-only sink. min_score is a floor on the
+# raw experience-text -vs- belief-statement cosine (core.belief_memory.recall_beliefs).
+BELIEF_MIN_SCORE = 0.20       # UNCALIBRATED -- an experience-text/belief-statement cosine
+                               # is a different genre pairing than RECURRENCE_THRESHOLD's
+                               # (which was measured against real MiniLM cosines on same-
+                               # kind-of-experience retellings); revisit if real usage shows
+                               # this too loose or too tight
+BELIEF_RECALL_GAIN = 0.40     # mirrors INTENSITY_RECALL_GAIN: reweights belief recall by
+                               # how firmly the belief is held (|confidence|), inside the
+                               # min_score floor -- it can break ties, never grant relevance
 
 # --- LLM (OpenAI-compatible): default Gemini 3.5 Flash via the Gemini API ---
 # llm_impact.py asks an OpenAI-compatible chat model for a signed OCEAN delta in
@@ -417,7 +444,38 @@ def parse_json_object(text):
         return json.loads(match.group(0))
 
 # --- Memory / recurrence ---
-RECURRENCE_THRESHOLD = 0.80   # cosine similarity to count as the "same" experience
+# Recalibrated from MiniLM cosines measured on real paraphrases of the same recurring life
+# pattern reworded turn to turn (0.42-0.88: "I danced at a party" / "went to another party
+# and danced again") against genuinely different experiences (0.06-0.32): 0.80 asked for a
+# near-verbatim retelling, so recurrence -- and habit formation, which is gated on it --
+# almost never fired on naturally reworded input (a live run: the same three recurring
+# situations, retold across five turns, scored 0 recurrence every time). 0.40 sits in the
+# empirical gap between the two distributions, with margin on both sides.
+RECURRENCE_THRESHOLD = 0.40   # cosine similarity to count as "the same kind of experience"
+# Emotional memory: a vivid past episode should come to mind ahead of a flat one at the same
+# topical similarity (a searing memory outranks a mundane one). Multiplicative on the raw
+# cosine and applied INSIDE the relevance floor (core.memory.recall), so it can only break
+# ties among what min_score already judged related -- it cannot surface an unrelated memory.
+# drives.recall_bias re-ranks this same pool again, on top, by what is currently NEEDED.
+INTENSITY_RECALL_GAIN = 0.50  # how strongly a memory's own intensity re-ranks recall (0 = off)
+# Emotional memory, part two: retrieval DECAY. Not deletion -- the text log and every
+# embedding stay forever (core.memory's own docstring and the README both promise nothing
+# is forgotten). What fades is RETRIEVABILITY: an old, emotionally flat memory should rank
+# below a fresh one at the same cosine similarity, the way an unremarkable Tuesday from a
+# year ago is harder to bring to mind than one from yesterday. A vivid ("flashbulb")
+# memory resists this almost entirely -- real memory keeps searing moments sharp for
+# decades while mundane ones blur. Bounded (never below FLOOR) and applied INSIDE the same
+# min_score relevance floor as INTENSITY_RECALL_GAIN, so decay can only re-rank among
+# already-related memories, never surface or bury one the floor didn't already gate.
+MEMORY_DECAY_HALF_LIFE = 20          # turns for an ordinary memory's recall weight to fall
+                                      # halfway to the floor -- a judgment call (like BEHAV_TAU
+                                      # or ESTEEM_RELAX), not an empirical measurement (unlike
+                                      # RECURRENCE_THRESHOLD, which was calibrated against
+                                      # measured cosines)
+MEMORY_DECAY_FLOOR = 0.35            # decay never pushes recall weight below this fraction of
+                                      # its undecayed value
+MEMORY_DECAY_FLASHBULB_PROTECT = 0.7 # 0 = no protection from decay, 1 = full immunity at
+                                      # max intensity -- vivid memories decay much more slowly
 
 # --- Temperament (genesis baseline + dynamics) ---
 # A character is born (temperament.genesis) with a per-trait OCEAN baseline `mu`
@@ -450,6 +508,17 @@ COGNITION_GAIN = 0.15
 # so it can't run away -- and is scaled by how closely the situation is recognised, so a
 # faint match barely tints.
 MEMORY_GAIN = 0.20
+# SEMANTIC memory -- the belief-driven tilt (cognition._belief_tilt): a recalled belief
+# damps novelty and raises self-relevance in proportion to how strongly it's held and how
+# relevant it is -- "this is already categorized" reads as less surprising and more
+# personally about you, REGARDLESS of whether the belief itself is optimistic or grim.
+# Deliberately NOT a valence pull: confidence measures how firmly a proposition is held,
+# not whether its content is good or bad news ("the world is dangerous" held at confidence
+# +0.9 is a strongly-confirmed belief with threatening content -- reading its sign as
+# brightness would be exactly backwards). A directional version would need a second signal
+# (the statement's own content polarity), deferred as a separate, bigger decision. Lighter
+# than MEMORY_GAIN since it compounds with memory's own novelty damp on the same dimension.
+BELIEF_TILT_GAIN = 0.15
 
 # --- Identity (immutable facts collected when a character is created) ---
 # (field_key, prompt_label), in the order the creation form asks for them. These
