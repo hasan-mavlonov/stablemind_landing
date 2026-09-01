@@ -1,0 +1,12 @@
+{
+  "name": "mindform-landing",
+  "version": "1.0.0",
+  "description": "Mindform landing page",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild frontend/src/landing.jsx --bundle --minify --loader:.jsx=jsx --jsx-factory=React.createElement --jsx-fragment=React.Fragment --format=iife --target=es2018 --external:react --external:react-dom --external:three --outfile=core/static/core/js/landing.bundle.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
