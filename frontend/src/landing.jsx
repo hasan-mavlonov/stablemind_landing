@@ -518,6 +518,30 @@ const WhyNow = () => (
   </section>
 );
 
+const TEAM_MEMBERS = [
+  {name: "Marc Mechkak", role: "CEO & Co-founder", url: "https://www.linkedin.com/in/marc-mechkak-9083492a/"},
+  {name: "Hasan Mavlonov", role: "CTO & Co-founder", url: "https://github.com/hasan-mavlonov"},
+  {name: "François Mechkak", role: "Founding AI Engineer", url: "https://www.linkedin.com/in/fran%C3%A7ois-r%C3%A9gis-mechkak-a360183b/"},
+];
+
+const Team = () => (
+  <section className="section" id="team">
+    <div className="container">
+      <div className="eyebrow" style={{marginBottom:24}}>08 — Team</div>
+      <h2 className="usecases-title display">Founded by builders who understand<br /><em>the complexity of personality.</em></h2>
+      <div className="usecases-grid" style={{gridTemplateColumns: 'repeat(3, 1fr)'}}>
+        {TEAM_MEMBERS.map(member => (
+          <div className="usecase" key={member.name} style={{borderRight: 'none', borderBottom: 'none', borderLeft: '1px solid var(--hairline)', borderTop: '1px solid var(--hairline)'}}>
+            <h3 className="usecase-h">{member.name}</h3>
+            <p className="usecase-body" style={{fontSize: '16px', color: 'var(--ink-2)', marginTop: 'auto'}}>{member.role}</p>
+            <a href={member.url} target="_blank" rel="noopener noreferrer" className="btn" style={{marginTop: '16px', display: 'inline-flex', alignSelf: 'flex-start'}}>View profile →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
 const JOIN_AREAS = [
   {n:"01", name:"AI & Agent Architecture"},
   {n:"02", name:"Cognitive Systems"},
@@ -533,7 +557,7 @@ const JOIN_AREAS = [
 const JoinUs = () => (
   <section className="join-section" id="join">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>08 — Join us</div>
+      <div className="eyebrow" style={{marginBottom:24}}>09 — Join us</div>
       <h2 className="join-title display">We're building the<br /><em>next interface layer</em> for AI.</h2>
       <p className="join-intro">Mindform sits at the intersection of <strong>AI, psychology, design, storytelling, and human behavior.</strong> We're looking for builders, researchers, designers, and thinkers shaping how humans interact with intelligence over the next decade.</p>
 
@@ -619,6 +643,7 @@ const App=()=>{
         <Demo/>
         <UseCases/>
         <WhyNow/>
+        <Team/>
         <JoinUs/>
         <FinalCTA/>
       </main>
