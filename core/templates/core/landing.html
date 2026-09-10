@@ -429,28 +429,63 @@ p { margin: 0; }
 @media (max-width: 560px) { .join-areas { grid-template-columns: 1fr; } }
 </style>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<!--
+  LOAD ORDER CONTRACT — read before editing these tags.
+
+  landing.bundle.js is an IIFE that calls ReactDOM.createRoot(...).render(...) at
+  parse time, and references React / ReactDOM as bare globals. So React and
+  ReactDOM MUST already be defined when the bundle executes.
+
+  `defer` is safe here ONLY because it is applied to all four scripts: deferred
+  scripts run after parsing in document order, so react -> react-dom -> three ->
+  bundle is preserved, and #root exists by then.
+
+  Do NOT defer these three without also deferring landing.bundle.js at the end of
+  <body> — the bundle would then run first and die on "ReactDOM is not defined",
+  blanking the page. Do NOT use `async` on any of them: async runs in completion
+  order, so the bundle can beat React to execution.
+
+  three.js is only used by the HeroMind background animation, which guards on
+  window.THREE and no-ops if it is absent — a failed three.js load costs the
+  animation, not the page.
+-->
+<script defer src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
+<script defer src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
+<script defer src="https://unpkg.com/three@0.160.0/build/three.min.js" integrity="sha384-qOkzR5Ke/XkQxuGVJ9hpFEpDlcoLtWwVYhnJf06cLIZa2vaIptSqaubivErzmD5O" crossorigin="anonymous"></script>
 </head>
 <body>
 
+{# The `... as var` form of {% url %} is deliberate: unlike the bare form it does #}
+{# NOT raise NoReverseMatch when a route is missing or renamed, it resolves to an #}
+{# empty string. That keeps the homepage's availability decoupled from these five #}
+{# route names. The bundle skips any link whose URL is empty, so a removed route  #}
+{# drops one nav/footer item instead of returning a 500 for the whole page.       #}
+{% url 'careers' as careers_url %}
+{% url 'research_paper' as research_paper_url %}
+{% url 'login' as login_url %}
+{% url 'logout' as logout_url %}
+{% url 'profile' as profile_url %}
 <script>
 window.SITE_URLS = {
   home: "/",
-  careers: "{% url 'careers' %}",
-  researchPaper: "{% url 'research_paper' %}",
-  login: "{% url 'login' %}",
-  logout: "{% url 'logout' %}",
-  profile: "{% url 'profile' %}",
+  demo: "/demo/",
+  careers: "{{ careers_url }}",
+  researchPaper: "{{ research_paper_url }}",
+  login: "{{ login_url }}",
+  logout: "{{ logout_url }}",
+  profile: "{{ profile_url }}",
 };
 window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
 </script>
 
 <noscript>
+{# Deliberately NOT class="hero": that rule is min-height:100vh + flex column   #}
+{# centering + overflow:hidden, sized for the React hero. Applied to this long  #}
+{# text document it centers overflowing content and clips the top — hiding the  #}
+{# h1 and the demo CTA from exactly the crawlers this block exists to serve.    #}
 <main id="main">
-  <section className="hero">
-    <div className="container">
+  <section>
+    <div class="container" style="padding-top: 48px; padding-bottom: 48px;">
       <h1>Mindform — Building the Personality Layer for AI</h1>
       <p><strong><a href="/demo/" style="color: #F0386B; text-decoration: none; font-weight: 600;">→ Try the Live Interactive Demo ←</a></strong></p>
       <p>Mindform is building the interface layer for the next generation of intelligent systems — where AI feels like someone, not something.</p>
@@ -467,7 +502,7 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
         <li><strong>Education:</strong> Tutors and learning agents whose tone deepens alongside the student</li>
         <li><strong>Customer Experience:</strong> Service agents that remember context and feel like familiar contacts</li>
         <li><strong>Home AI:</strong> Assistants that live with users for years with preferences that mature over time</li>
-        <li><strong>Entertainment & Digital Personalities:</strong> NPCs and digital personas with opinions and memory</li>
+        <li><strong>Entertainment &amp; Digital Personalities:</strong> NPCs and digital personas with opinions and memory</li>
       </ul>
       <h2>Why Now</h2>
       <p>As models become more powerful and accessible, intelligence will commoditize. The advantage will move into the layer where AI is felt, remembered, and trusted. The next AI race will be won by those who build systems people connect with.</p>
@@ -476,12 +511,12 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
       <h2>Team</h2>
       <p>Mindform is founded by builders who understand the complexity of personality and the future of AI interaction.</p>
       <ul>
-        <li><strong>Marc Mechkak</strong> — CEO & Co-founder — <a href="https://www.linkedin.com/in/marc-mechkak-9083492a/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></li>
-        <li><strong>Hasan Mavlonov</strong> — CTO & Co-founder — <a href="https://github.com/hasan-mavlonov" target="_blank" rel="noopener noreferrer">GitHub Profile</a></li>
+        <li><strong>Marc Mechkak</strong> — CEO &amp; Co-founder — <a href="https://www.linkedin.com/in/marc-mechkak-9083492a/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></li>
+        <li><strong>Hasan Mavlonov</strong> — CTO &amp; Co-founder — <a href="https://github.com/hasan-mavlonov" target="_blank" rel="noopener noreferrer">GitHub Profile</a></li>
         <li><strong>François Mechkak</strong> — Founding AI Engineer — <a href="https://www.linkedin.com/in/fran%C3%A7ois-r%C3%A9gis-mechkak-a360183b/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></li>
       </ul>
       <h2>Join Us</h2>
-      <p>We're looking for builders, researchers, designers, and thinkers who believe intelligence should feel more human, intentional, and alive. We're hiring across AI & Agent Architecture, Cognitive Systems, Memory & Behavioral Modeling, Product Design, Creative Technology, Interaction Design, Research, Applied Psychology, and Experimental Prototyping.</p>
+      <p>We're looking for builders, researchers, designers, and thinkers who believe intelligence should feel more human, intentional, and alive. We're hiring across AI &amp; Agent Architecture, Cognitive Systems, Memory &amp; Behavioral Modeling, Product Design, Creative Technology, Interaction Design, Research, Applied Psychology, and Experimental Prototyping.</p>
       <p>Learn more about us or join Mindform: <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1">Visit our open source repository</a></p>
       <p>© 2026 Mindform · The interface layer for AI personality · mindform-ai.com</p>
     </div>
@@ -491,6 +526,7 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
 
 <div id="root"></div>
 
-<script src="{% static 'core/js/landing.bundle.js' %}"></script>
+<!-- Deferred to match the CDN scripts above; see the LOAD ORDER CONTRACT in <head>. -->
+<script defer src="{% static 'core/js/landing.bundle.js' %}"></script>
 </body>
 </html>

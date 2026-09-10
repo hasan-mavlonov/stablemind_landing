@@ -43,6 +43,14 @@ const ThemeToggle = ({ theme, onToggle }) => (
   </button>
 );
 
+// The template resolves Django route names with the non-raising `{% url ... as var %}`
+// form, so a removed or renamed route arrives here as "" instead of 500-ing the page.
+// SiteLink drops such a link rather than rendering a dead href="" that reloads the
+// current page. Anchors and mailto: links are plain <a> — they can't fail to resolve.
+const SiteLink = ({ href, children, ...rest }) => (
+  href ? <a href={href} {...rest}>{children}</a> : null
+);
+
 const Nav = ({ theme, onToggleTheme }) => {
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -51,22 +59,22 @@ const Nav = ({ theme, onToggleTheme }) => {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-  const urls = window.SITE_URLS;
+  const urls = window.SITE_URLS || {};
   const closeMenu = () => setMenuOpen(false);
   return (
     <nav className={"nav " + (scrolled ? "is-scrolled" : "")}>
       <div className="nav-bg"></div>
-      <a href={urls.home} className="wordmark"><span className="wordmark-dot"></span>Mindform</a>
+      <a href={urls.home || "/"} className="wordmark"><span className="wordmark-dot"></span>Mindform</a>
       <div className={"nav-links " + (menuOpen ? "is-open" : "")}>
         <a href="#vision" onClick={closeMenu}>Vision</a>
         <a href="#solution" onClick={closeMenu}>Solution</a>
         <a href="#architecture" onClick={closeMenu}>How it works</a>
         <a href="#usecases" onClick={closeMenu}>Markets</a>
-        <a href={urls.researchPaper} onClick={closeMenu}>Research</a>
-        <a href={urls.careers} onClick={closeMenu}>Careers</a>
+        <SiteLink href={urls.researchPaper} onClick={closeMenu}>Research</SiteLink>
+        <SiteLink href={urls.careers} onClick={closeMenu}>Careers</SiteLink>
         {window.IS_AUTHENTICATED
-          ? <a href={urls.profile} onClick={closeMenu}>Profile</a>
-          : <a href={urls.login} onClick={closeMenu}>Log in</a>}
+          ? <SiteLink href={urls.profile} onClick={closeMenu}>Profile</SiteLink>
+          : <SiteLink href={urls.login} onClick={closeMenu}>Log in</SiteLink>}
       </div>
       <div className="nav-actions">
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
@@ -583,7 +591,7 @@ const JoinUs = () => (
 
       <div className="join-cta-row">
         <a href="mailto:hello@mindform-ai.com?subject=Joining%20Mindform" className="btn btn-primary">Join Mindform →</a>
-        <a href={window.SITE_URLS.careers} className="btn btn-outline">Open roles →</a>
+        <SiteLink href={(window.SITE_URLS || {}).careers} className="btn btn-outline">Open roles →</SiteLink>
         <a href="mailto:hello@mindform-ai.com" className="btn btn-clear">Contact us →</a>
       </div>
     </div>
@@ -604,7 +612,7 @@ const FinalCTA = () => (
 );
 
 const Footer=()=>{
-  const urls=window.SITE_URLS;
+  const urls=window.SITE_URLS || {};
   return(
     <footer className="footer" id="contact">
       <div className="container">
@@ -617,9 +625,9 @@ const Footer=()=>{
         </div>
         <div className="footer-row">
           <div className="footer-col"><h5>System</h5><ul><li><a href="#bigpicture">The big picture</a></li><li><a href="#vision">Vision</a></li><li><a href="#solution">Solution</a></li><li><a href="#architecture">How it works</a></li></ul></div>
-          <div className="footer-col"><h5>Markets</h5><ul><li><a href="#usecases">Where it goes</a></li><li><a href="#whynow">Why now</a></li><li><a href="#demo">Live demo</a></li><li><a href={urls.researchPaper}>Research paper</a></li></ul></div>
-          <div className="footer-col"><h5>Company</h5><ul><li><a href="#join">Join us</a></li><li><a href={urls.careers}>Careers</a></li><li><a href="mailto:hello@mindform-ai.com">Contact</a></li><li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" target="_blank" rel="noreferrer">Open source</a></li></ul></div>
-          <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<><li><a href={urls.profile}>Profile</a></li><li><a href={urls.logout}>Log out</a></li></>:<li><a href={urls.login}>Log in / Register</a></li>}<li><a href="mailto:hello@mindform-ai.com">hello@mindform-ai.com</a></li></ul></div>
+          <div className="footer-col"><h5>Markets</h5><ul><li><a href="#usecases">Where it goes</a></li><li><a href="#whynow">Why now</a></li><li><a href={urls.demo || "/demo/"}>Live demo</a></li><li><a href="#demo">Demo walkthrough</a></li>{urls.researchPaper && <li><a href={urls.researchPaper}>Research paper</a></li>}</ul></div>
+          <div className="footer-col"><h5>Company</h5><ul><li><a href="#join">Join us</a></li>{urls.careers && <li><a href={urls.careers}>Careers</a></li>}<li><a href="mailto:hello@mindform-ai.com">Contact</a></li><li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" target="_blank" rel="noreferrer">Open source</a></li></ul></div>
+          <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<>{urls.profile && <li><a href={urls.profile}>Profile</a></li>}{urls.logout && <li><a href={urls.logout}>Log out</a></li>}</>:urls.login && <li><a href={urls.login}>Log in / Register</a></li>}<li><a href="mailto:hello@mindform-ai.com">hello@mindform-ai.com</a></li></ul></div>
         </div>
         <div className="footer-meta"><span>© 2026 Mindform · mindform-ai.com</span><span>The interface layer for AI personality</span></div>
       </div>
