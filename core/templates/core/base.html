@@ -79,10 +79,19 @@
           {% endif %}
         </div>
       </div>
+      {# NVIDIA Inception badge: governed by our NVIDIA trademark license (Exhibit B). #}
+      {# Official file untouched, at least 30px tall, clear space, once per page, and #}
+      {# worded as membership only. See README "NVIDIA Inception badge".              #}
+      <a class="inception-member" href="https://www.nvidia.com/en-us/startups/" target="_blank" rel="noopener noreferrer">
+        <span class="inception-member-label">Member of</span>
+        <img class="inception-badge" src="{% static 'core/img/nvidia/nvidia-inception-program-badge-rgb-for-screen.svg' %}" alt="NVIDIA Inception Program" width="102" height="44" loading="lazy" decoding="async">
+        <span class="sr-only">(opens in a new tab)</span>
+      </a>
       <div class="footer-copy">
         <span>© 2026 Mindform Labs</span>
         <span>Persistent personality systems for AI agents</span>
       </div>
+      <p class="footer-legal">NVIDIA, the NVIDIA logo and NVIDIA Inception are trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries.</p>
     </div>
   </footer>
 
