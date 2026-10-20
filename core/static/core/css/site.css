@@ -466,8 +466,8 @@ code {
   display: block;
   flex-shrink: 0;
   height: 44px;
-  width: auto;
-  aspect-ratio: 500.4288 / 216;
+  /* from NVIDIA's own ratio, not left to the browser, so no engine can stretch it */
+  width: calc(44px * 500.4288 / 216);
 }
 .footer-legal {
   margin-top: 20px;

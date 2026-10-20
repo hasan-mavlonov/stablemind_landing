@@ -1,5 +1,17 @@
 # mindform_landing
 
+## Run locally
+
+1. `git pull` to get the latest code. Merging a PR on GitHub doesn't update the copy on your
+   computer.
+2. In `.env`, set `DEBUG=True`. With it off, Django redirects to HTTPS, which the local server
+   can't serve, so `http://127.0.0.1:8000` won't load.
+3. `python manage.py runserver`, then open http://127.0.0.1:8000. Restart it after pulling.
+
+`npm run build` only rebuilds `core/static/core/js/landing.bundle.js` from
+`frontend/src/landing.jsx`. Run it after editing that file. It doesn't download code or restart
+the server, and the built bundle is committed, so a fresh pull already includes it.
+
 ## NVIDIA Inception badge
 
 Mindform is a member of the NVIDIA Inception Program. We display the badge under a signed NVIDIA
@@ -23,6 +35,7 @@ fixed within 15 days, the license ends, so treat these as hard requirements.
   trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries."
 - **Samples.** NVIDIA may ask to review materials that use the badge before they go out.
 
-The badge appears in the landing hero (`frontend/src/landing.jsx`; rebuild with `npm run build`)
-and in the shared footer (`core/templates/core/base.html`). `python manage.py test core` checks
-the file hash, one badge per page, the credit line and the wording.
+The badge appears on the top line of the landing hero, so it is visible as soon as the page
+loads (`frontend/src/landing.jsx`; rebuild with `npm run build`), and in the shared footer
+(`core/templates/core/base.html`). `python manage.py test core` checks the file hash, one badge
+per page, the credit line and the wording.

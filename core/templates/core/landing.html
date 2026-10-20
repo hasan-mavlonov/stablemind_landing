@@ -96,6 +96,7 @@ p { margin: 0; }
 .hero-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 56px; align-items: center; min-height: calc(100vh - 200px); }
 .hero-content { display: flex; flex-direction: column; gap: 36px; }
 .hero-eyebrow { display: inline-flex; align-items: center; gap: 12px; }
+.hero-topline { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 28px 24px; }
 .hero-eyebrow-dot { width: 6px; height: 6px; background: var(--belief); border-radius: 50%; animation: pulse 2.2s ease-in-out infinite; box-shadow: 0 0 12px var(--belief); }
 @keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
 .hero-title { font-size: clamp(40px, 5.5vw, 84px); line-height: 0.96; letter-spacing: -0.025em; font-weight: 400; }
@@ -112,19 +113,22 @@ p { margin: 0; }
 .hero-mind-caption .dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; display: inline-block; vertical-align: middle; }
 .hero-mind-caption .dot-belief { background: var(--belief); box-shadow: 0 0 8px var(--belief); }
 .hero-mind-caption .dot-trait  { background: var(--trait-soft); box-shadow: 0 0 6px var(--trait-soft); }
-.hero-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 32px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted-2); padding-top: 24px; margin-top: 8px; border-top: 1px dashed var(--hairline); }
+.hero-meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted-2); padding-top: 24px; margin-top: 8px; border-top: 1px dashed var(--hairline); }
 .hero-meta .k { color: var(--belief); margin-right: 12px; text-transform: uppercase; letter-spacing: 0.16em; }
 
-/* NVIDIA Inception badge. Exhibit B of the NVIDIA trademark license: official artwork only
-   (no recolor, filter, blend mode, crop or stretch), at least 30px tall, clear space around it.
-   The SVG canvas is 500.4288 x 216 and the bordered badge is inset 25.5 units on every side,
-   so the visible badge is 76.5% of the rendered height: 48px renders a 36.7px badge. The
-   14px gap plus that inset keeps the label at least one NVIDIA-eye height (~15px) away. */
-.inception-member { display: inline-flex; align-items: center; gap: 14px; color: var(--muted-2); border-radius: 4px; }
-.inception-member-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap; transition: color 0.2s; }
-.inception-member:hover .inception-member-label { color: var(--ink); }
+/* NVIDIA Inception badge, on the hero's top line so it is visible as soon as the page loads.
+   Exhibit B of the NVIDIA trademark license: official artwork only (no recolor, filter, blend
+   mode, crop or stretch), at least 30px tall, clear space around it. The SVG canvas is
+   500.4288 x 216 and the bordered badge is inset 25.5 units on every side, so the visible badge
+   is 76.5% of the rendered height: 48px renders a 36.7px badge. The width comes from that same
+   ratio instead of being left to the browser, so no engine can stretch it. The -14px vertical
+   margins let the badge share the eyebrow's line without pushing the headline down; when the
+   line wraps on narrow screens, the 28px row gap plus the inset still leaves one NVIDIA-eye
+   height (~15px) of clear space above it. */
+.inception-member { display: inline-flex; align-items: center; border-radius: 4px; }
+.hero-topline .inception-member { margin: -14px 0; }
 .inception-member:focus-visible { outline: 2px solid var(--belief); outline-offset: 4px; }
-.inception-badge { display: block; flex-shrink: 0; height: 48px; width: auto; aspect-ratio: 500.4288 / 216; }
+.inception-badge { display: block; flex-shrink: 0; height: 48px; width: calc(48px * 500.4288 / 216); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* Problem */
