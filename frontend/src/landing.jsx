@@ -55,10 +55,9 @@ const SiteLink = ({ href, children, ...rest }) => (
 // Trademark License (Exhibit B): NVIDIA's artwork file as-is (never recolor, filter, crop or
 // stretch it), at least 30px tall, with clear space around it, one badge per page, and worded
 // as membership only. "Backed by", "Powered by" or "Partner" would imply an NVIDIA
-// endorsement, which the license forbids. It sits on the hero's top line so it is on screen
-// as soon as the page loads; "Member of" is kept for screen readers only, so the badge fits
-// beside the eyebrow without pushing the headline down. The template passes the file's
-// static URL in; without it, nothing renders.
+// endorsement, which the license forbids. It sits in the hero's proof row, directly under
+// the call-to-action buttons and labelled "Member of", which is where visitors look for
+// credentials. The template passes the file's static URL in; without it, nothing renders.
 const NVIDIA_INCEPTION_URL = "https://www.nvidia.com/en-us/startups/";
 const NVIDIA_TRADEMARK_NOTICE = "NVIDIA, the NVIDIA logo and NVIDIA Inception are trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries.";
 
@@ -67,7 +66,7 @@ const InceptionMember = () => {
   if (!src) return null;
   return (
     <a className="inception-member" href={NVIDIA_INCEPTION_URL} target="_blank" rel="noopener noreferrer">
-      <span className="sr-only">Member of</span>
+      <span className="inception-member-label">Member of</span>
       <img className="inception-badge" src={src} alt="NVIDIA Inception Program" width="111" height="48" decoding="async" />
       <span className="sr-only">(opens in a new tab)</span>
     </a>
@@ -210,10 +209,7 @@ const Hero = () => (
     <div className="container">
       <div className="hero-grid">
         <div className="hero-content">
-          <div className="hero-topline">
-            <div className="hero-eyebrow"><span className="hero-eyebrow-dot"></span><span className="eyebrow-strong">Mindform&nbsp;&nbsp;·&nbsp;&nbsp;The interface layer for AI</span></div>
-            <InceptionMember />
-          </div>
+          <div className="hero-eyebrow"><span className="hero-eyebrow-dot"></span><span className="eyebrow-strong">Mindform&nbsp;&nbsp;·&nbsp;&nbsp;The interface layer for AI</span></div>
           <h1 className="hero-title display">AI will power <span className="accent">everything.</span><br />Mindform shapes the <em>experience.</em></h1>
           <p className="hero-sub">Technology advances through <strong>capability.</strong><br />Adoption happens through <strong>interaction.</strong><br /><br />We're building <em>the connection.</em></p>
           <div className="hero-cta-row">
@@ -221,6 +217,7 @@ const Hero = () => (
             <a href="#join" className="btn">Build with us →</a>
             <a href="#architecture" className="btn btn-ghost">Explore the system →</a>
           </div>
+          <div className="hero-proof"><InceptionMember /></div>
           <div className="hero-meta"><div><span className="k">fig.01</span><span>// the personality layer for AI</span></div></div>
         </div>
         <div className="hero-visual"><HeroMind /></div>

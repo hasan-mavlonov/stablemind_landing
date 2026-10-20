@@ -35,7 +35,8 @@ fixed within 15 days, the license ends, so treat these as hard requirements.
   trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries."
 - **Samples.** NVIDIA may ask to review materials that use the badge before they go out.
 
-The badge appears on the top line of the landing hero, so it is visible as soon as the page
-loads (`frontend/src/landing.jsx`; rebuild with `npm run build`), and in the shared footer
+The badge appears in the landing hero's proof row, directly under the call-to-action buttons
+and labelled "Member of", inside the first screen on common laptops (`frontend/src/landing.jsx`;
+rebuild with `npm run build`). It also appears in the shared footer
 (`core/templates/core/base.html`). `python manage.py test core` checks the file hash, one badge
 per page, the credit line and the wording.
