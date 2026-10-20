@@ -51,6 +51,27 @@ const SiteLink = ({ href, children, ...rest }) => (
   href ? <a href={href} {...rest}>{children}</a> : null
 );
 
+// NVIDIA Inception membership badge. How it may be shown is set by our signed NVIDIA
+// Trademark License (Exhibit B): NVIDIA's artwork file as-is (never recolor, filter, crop or
+// stretch it), at least 30px tall, with clear space around it, one badge per page, and worded
+// as membership only. "Backed by", "Powered by" or "Partner" would imply an NVIDIA
+// endorsement, which the license forbids. The template passes the file's static URL in;
+// without it, nothing renders.
+const NVIDIA_INCEPTION_URL = "https://www.nvidia.com/en-us/startups/";
+const NVIDIA_TRADEMARK_NOTICE = "NVIDIA, the NVIDIA logo and NVIDIA Inception are trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries.";
+
+const InceptionMember = () => {
+  const src = (window.SITE_ASSETS || {}).nvidiaInceptionBadge;
+  if (!src) return null;
+  return (
+    <a className="inception-member" href={NVIDIA_INCEPTION_URL} target="_blank" rel="noopener noreferrer">
+      <span className="inception-member-label">Member of</span>
+      <img className="inception-badge" src={src} alt="NVIDIA Inception Program" width="111" height="48" decoding="async" />
+      <span className="sr-only">(opens in a new tab)</span>
+    </a>
+  );
+};
+
 const Nav = ({ theme, onToggleTheme }) => {
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -195,7 +216,10 @@ const Hero = () => (
             <a href="#join" className="btn">Build with us →</a>
             <a href="#architecture" className="btn btn-ghost">Explore the system →</a>
           </div>
-          <div className="hero-meta"><div><span className="k">fig.01</span><span>// the personality layer for AI</span></div></div>
+          <div className="hero-meta">
+            <div><span className="k">fig.01</span><span>// the personality layer for AI</span></div>
+            <InceptionMember />
+          </div>
         </div>
         <div className="hero-visual"><HeroMind /></div>
       </div>
@@ -630,6 +654,7 @@ const Footer=()=>{
           <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<>{urls.profile && <li><a href={urls.profile}>Profile</a></li>}{urls.logout && <li><a href={urls.logout}>Log out</a></li>}</>:urls.login && <li><a href={urls.login}>Log in / Register</a></li>}<li><a href="mailto:hello@mindform-ai.com">hello@mindform-ai.com</a></li></ul></div>
         </div>
         <div className="footer-meta"><span>© 2026 Mindform · mindform-ai.com</span><span>The interface layer for AI personality</span></div>
+        <p className="footer-legal">{NVIDIA_TRADEMARK_NOTICE}</p>
       </div>
     </footer>
   );
