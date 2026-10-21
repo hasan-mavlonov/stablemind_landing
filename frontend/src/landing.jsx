@@ -769,9 +769,9 @@ const JoinUs = ({ n }) => (
       <p className="join-closing">If you believe intelligence should feel more human,<br />intentional, and alive — <em>we should talk.</em></p>
 
       <div className="join-cta-row">
-        <a href={mailto('Joining MindForm')} className="btn btn-primary">Join MindForm →</a>
+        <a href="mailto:hasan@mindform-ai.com?subject=Joining%20MindForm" className="btn btn-primary">Join MindForm →</a>
         <SiteLink href={(window.SITE_URLS || {}).careers} className="btn btn-outline">Open roles →</SiteLink>
-        <a href={mailto()} className="btn btn-clear">Contact us →</a>
+        <a href="mailto:hasan@mindform-ai.com" className="btn btn-clear">Contact us →</a>
       </div>
     </div>
   </section>
@@ -784,7 +784,7 @@ const FinalCTA = () => (
       <p className="final-support">MindForm is building the personality layer for the next generation of intelligent systems.</p>
       <div className="final-cta-row">
         <a href="#join" className="btn btn-primary">Build with us →</a>
-        <a href={mailto('MindForm waitlist')} className="btn">Join the waitlist</a>
+        <a href="mailto:hasan@mindform-ai.com?subject=MindForm%20waitlist" className="btn">Join the waitlist</a>
       </div>
     </div>
   </section>
@@ -807,7 +807,7 @@ const Footer=()=>{
           <div className="footer-col"><h5>Markets</h5><ul><li><a href="#usecases">Where it goes</a></li><li><a href="#whynow">Why now</a></li><li><a href={urls.demo || "/demo/"}>Live demo</a></li><li><a href="#demo">Demo walkthrough</a></li>{urls.researchPaper && <li><a href={urls.researchPaper}>Research paper</a></li>}</ul></div>
           <div className="footer-col"><h5>Company</h5><ul><li><a href="#join">Join us</a></li>{urls.careers && <li><a href={urls.careers}>Careers</a></li>}<li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" target="_blank" rel="noreferrer">Open source</a></li></ul></div>
           <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<>{urls.profile && <li><a href={urls.profile}>Profile</a></li>}{urls.logout && <li><a href={urls.logout}>Log out</a></li>}</>:urls.login && <li><a href={urls.login}>Log in / Register</a></li>}</ul></div>
-          <div className="footer-col"><h5>Contact</h5><ul><li><a href={mailto()}>{CONTACT_EMAIL}</a></li>{CONTACT.linkedin && <li><OutLink href={CONTACT.linkedin}>LinkedIn</OutLink></li>}{CONTACT.wechat && <li>WeChat: {CONTACT.wechat}</li>}</ul></div>
+          <div className="footer-col"><h5>Contact</h5><ul><li><a href="mailto:hasan@mindform-ai.com">hasan@mindform-ai.com</a></li>{CONTACT.linkedin && <li><OutLink href={CONTACT.linkedin}>LinkedIn</OutLink></li>}{CONTACT.wechat && <li>WeChat: {CONTACT.wechat}</li>}</ul></div>
         </div>
         <div className="footer-meta"><span>© 2026 MindForm · mindform-ai.com</span><span>The interface layer for AI personality</span></div>
         <p className="footer-legal">{NVIDIA_TRADEMARK_NOTICE}</p>
