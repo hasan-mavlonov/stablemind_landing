@@ -14,6 +14,7 @@ cockpit still runs the full personality-formation pipeline -- it simply skips
 the "seen before" recurrence count and the persisted memory log.
 """
 
+import contextvars
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
@@ -540,10 +541,13 @@ def run_turn(name, message):
     # three stacked waits, which is what was blowing past the gunicorn worker timeout
     # (a single turn used to chain appraisal + push + values + moral + reply, up to five
     # sequential LLM calls deep, each with its own retry).
+    # Each task runs in its own copy of this request's context, so the per-turn LLM time
+    # budget (a contextvar set by the demo view, see llm.time_budget) applies in the
+    # worker threads too; plain executor threads start with an empty context.
     with ThreadPoolExecutor(max_workers=3) as pool:
-        push_future = pool.submit(push_from_text, text, appraisal, view)
-        values_future = pool.submit(values_push_from_text, text, appraisal, view)
-        moral_future = pool.submit(moral_push_from_text, text, appraisal, view)
+        push_future = pool.submit(contextvars.copy_context().run, push_from_text, text, appraisal, view)
+        values_future = pool.submit(contextvars.copy_context().run, values_push_from_text, text, appraisal, view)
+        moral_future = pool.submit(contextvars.copy_context().run, moral_push_from_text, text, appraisal, view)
         push, source, reasoning = push_future.result()
         values_push, values_source, values_reasoning = values_future.result()
         moral_push, moral_source, _ = moral_future.result()

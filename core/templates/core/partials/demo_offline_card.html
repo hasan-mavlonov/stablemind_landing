@@ -1,0 +1,13 @@
+{# The demo's "temporarily offline" state. Used by the kill-switch page (demo_offline.html) #}
+{# and by the cockpit's overlay, which api.js reveals when the API stops answering.       #}
+<div class="offline-card">
+  <p class="eyebrow">Live demo · offline</p>
+  <h1 id="demo-offline-title">Demo temporarily <em>offline.</em></h1>
+  <p>The live engine isn't answering right now.
+    {% if recording_url %}Watch the recording to see a full session, or try again in a few minutes.{% else %}Please try again in a few minutes.{% endif %}</p>
+  <div class="offline-actions">
+    {% if recording_url %}<a class="primary-btn" href="{{ recording_url }}" target="_blank" rel="noopener">Watch the recording →</a>{% endif %}
+    <a class="ghost-btn" href="{% url 'mindform_demo' %}">Try again</a>
+    <a class="ghost-btn" href="{% url 'landing' %}">Back to site</a>
+  </div>
+</div>

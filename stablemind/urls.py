@@ -29,7 +29,8 @@ urlpatterns = [
     path('demo/api/create/genesis', mindform_demo.api_create_genesis),
     path('demo/api/create/manual', mindform_demo.api_create_manual),
 
-    path('media/resumes/<str:filename>/', serve_resume),
+    # Applicants' resumes: staff only (see core.views.serve_resume).
+    path('media/resumes/<str:filename>/', serve_resume, name='serve_resume'),
 
     path('accounts/login/', auth_page, name='login'),
     path('accounts/logout/', logout_page, name='logout'),

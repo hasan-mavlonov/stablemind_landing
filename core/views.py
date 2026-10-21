@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from django.shortcuts import redirect, render
 from django.urls import reverse
-import os
 from django.http import FileResponse, Http404
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -36,13 +38,19 @@ def careers_page(request):
         },
     )
 
+@staff_member_required
 def serve_resume(request, filename):
-    file_path = os.path.join(settings.MEDIA_ROOT, "resumes", filename)
+    """Download an applicant's resume. Staff only: these are applicants' personal documents.
 
-    if not os.path.exists(file_path):
+    Always served as an attachment, so an uploaded file can never render as a page on this
+    domain, and only plain filenames inside MEDIA_ROOT/resumes resolve.
+    """
+    resumes_dir = (Path(settings.MEDIA_ROOT) / "resumes").resolve()
+    path = (resumes_dir / filename).resolve()
+    if path.parent != resumes_dir or path.name != filename or not path.is_file():
         raise Http404("File not found")
 
-    return FileResponse(open(file_path, "rb"))
+    return FileResponse(path.open("rb"), as_attachment=True, filename=path.name)
 
 
 def research_paper_page(request):

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {# Rendered without a request or context processors, and possibly while something else #}
+  {# is broken, so this page depends on nothing: inline styles, no template tags.        #}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Something went wrong | MindForm</title>
+  <style>
+    :root { --bone: #FAF7F1; --ink: #1A0E2E; --ink-2: #2E1F4A; --muted-2: #6A597F; --belief: #F0386B; --trait: #5B3FE0; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bone: #0E0820; --ink: #F2EAD6; --ink-2: #C9C0AA; --muted-2: #B5A8C7; }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bone); color: var(--ink); }
+    body { font-family: "Newsreader", Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    main { max-width: 760px; margin: 0 auto; padding: 18vh 24px 80px; }
+    .wordmark { font-family: "Instrument Serif", Georgia, serif; font-size: 26px; color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+    .wordmark span { width: 9px; height: 9px; border-radius: 50%; background: var(--belief); display: inline-block; }
+    .eyebrow { margin: 64px 0 24px; font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-2); }
+    h1 { margin: 0 0 24px; font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: clamp(44px, 8vw, 88px); line-height: 0.96; letter-spacing: -0.02em; }
+    h1 em { color: var(--belief); }
+    p { margin: 0 0 40px; color: var(--ink-2); font-size: 20px; }
+    a.btn { display: inline-flex; font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; padding: 14px 22px; border-radius: 999px; background: var(--ink); color: var(--bone); text-decoration: none; }
+    a.btn:hover { background: var(--belief); }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="wordmark" href="/"><span></span>Mindform</a>
+    <p class="eyebrow">[ 500 ] — Server error</p>
+    <h1>Something went <em>wrong.</em></h1>
+    <p>It's on our side, not yours. Please try again in a minute.</p>
+    <a class="btn" href="/">Back to the homepage →</a>
+  </main>
+</body>
+</html>
