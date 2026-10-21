@@ -12,6 +12,12 @@
 `frontend/src/landing.jsx`. Run it after editing that file. It doesn't download code or restart
 the server, and the built bundle is committed, so a fresh pull already includes it.
 
+## Site content
+
+Recognition, partners, press, team, advisors, milestones and benchmarks are JSON files in
+`content/`. Editing them needs no rebuild. See [content/README.md](content/README.md) for the
+fields and rules (unknown values stay as `TODO` and are never shown).
+
 ## NVIDIA Inception badge
 
 Mindform is a member of the NVIDIA Inception Program. We display the badge under a signed NVIDIA

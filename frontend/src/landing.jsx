@@ -51,6 +51,40 @@ const SiteLink = ({ href, children, ...rest }) => (
   href ? <a href={href} {...rest}>{children}</a> : null
 );
 
+// Lists shown on this page (recognition, partners, press, team, advisors) live in
+// content/*.json. Django validates them (core/content.py) and hands them over in a
+// <script type="application/json" id="site-content"> tag, so editing a list needs no
+// rebuild. Unknown values ("TODO") arrive as empty strings and are simply not shown.
+const SITE_CONTENT = (() => {
+  try { return JSON.parse(document.getElementById('site-content').textContent) || {}; }
+  catch (e) { return {}; }
+})();
+const contentList = (key) => (Array.isArray(SITE_CONTENT[key]) ? SITE_CONTENT[key] : []);
+
+// A logo when we have the file, otherwise the name as a text label: never a made-up mark.
+// The text label is skipped when it would only repeat the card's title.
+const sameName = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+const LogoOrLabel = ({ src, label, title }) => (
+  src
+    ? <img className="proof-logo" src={src} alt={label} loading="lazy" decoding="async" />
+    : (sameName(label, title) ? null : <span className="proof-label">{label}</span>)
+);
+
+// "Accepted · offer declined": the first part sets the pill's colour, the rest stays in the
+// pill, so the qualifier is read together with the status.
+const StatusPill = ({ status, kind }) => {
+  const [head, ...rest] = String(status).split(' · ');
+  return (
+    <span className="status-pill" data-status={kind || head.toLowerCase()}>
+      {head}{rest.length > 0 && <span className="status-pill-note"> · {rest.join(' · ')}</span>}
+    </span>
+  );
+};
+
+const OutLink = ({ href, children }) => (
+  <a href={href} target="_blank" rel="noopener noreferrer">{children}<span className="sr-only"> (opens in a new tab)</span></a>
+);
+
 // NVIDIA Inception membership badge. How it may be shown is set by our signed NVIDIA
 // Trademark License (Exhibit B): NVIDIA's artwork file as-is (never recolor, filter, crop or
 // stretch it), at least 30px tall, with clear space around it, one badge per page, and worded
@@ -232,10 +266,10 @@ const SHIFTS = [
   {era: "2000s — Today",  name: "Social platforms", effect: "Made the internet human."},
 ];
 
-const BigPicture = () => (
+const BigPicture = ({ n }) => (
   <section className="bigpicture-section" id="bigpicture">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>01 — The big picture</div>
+      <div className="eyebrow" style={{marginBottom:24}}>{n} — The big picture</div>
       <h2 className="bigpicture-title display">Every computing shift was defined<br />by its <em>interface layer.</em></h2>
       <div className="shift-grid">
         {SHIFTS.map(s => (
@@ -260,10 +294,10 @@ const BigPicture = () => (
   </section>
 );
 
-const Problem = () => (
+const Problem = ({ n }) => (
   <section className="problem section" id="problem">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>02 — The problem</div>
+      <div className="eyebrow" style={{marginBottom:24}}>{n} — The problem</div>
       <h2 className="problem-title display">Today's AI adapts.<br /><span className="drift">But it still feels off.</span></h2>
       <p className="body-lg" style={{maxWidth:760,color:'rgba(244,236,222,0.72)',marginBottom:80}}>Modern AI can remember preferences, mimic tone, and personalize responses. But underneath, most systems still feel <em>interchangeable</em> — a different surface, the same nothing behind it.</p>
       <div className="drift-demo">
@@ -280,10 +314,10 @@ const Problem = () => (
   </section>
 );
 
-const Vision = () => (
+const Vision = ({ n }) => (
   <section className="vision-section" id="vision">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>03 — The vision</div>
+      <div className="eyebrow" style={{marginBottom:24}}>{n} — The vision</div>
       <h2 className="vision-title display">Personality is the next evolution<br />of <em>interface design.</em></h2>
       <div className="vision-grid">
         <div className="vision-body">
@@ -311,10 +345,10 @@ const CAPABILITIES = [
   {n: "05", text: "Build familiarity with users"},
 ];
 
-const Solution = () => (
+const Solution = ({ n }) => (
   <section className="solution-section" id="solution">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>04 — The solution</div>
+      <div className="eyebrow" style={{marginBottom:24}}>{n} — The solution</div>
       <h2 className="solution-title display">A <em>personality layer</em><br />for AI.</h2>
       <p className="solution-lead">Mindform combines <strong>long-term memory</strong> with <strong>dynamic identity architecture</strong> to create AI that behaves consistently across time and context. Grounded in psychology and cognitive systems, Mindform enables agents to:</p>
       <div className="capability-grid">
@@ -459,7 +493,7 @@ const DiagramCanvas=({step,sub,theme})=>{
   );
 };
 
-const Diagram=({theme})=>{
+const Diagram=({theme, n})=>{
   const stageRef=React.useRef(null);const[progress,setProgress]=React.useState(0);
   React.useEffect(()=>{const onScroll=()=>{const el=stageRef.current;if(!el)return;const rect=el.getBoundingClientRect(),vh=window.innerHeight,p=Math.max(0,Math.min(1,-rect.top/(rect.height-vh)));setProgress(p);};onScroll();window.addEventListener('scroll',onScroll,{passive:true});return()=>window.removeEventListener('scroll',onScroll);},[]);
   const scaled=progress*STEPS.length,step=Math.min(STEPS.length-1,Math.floor(scaled)),sub=scaled-step;
@@ -467,7 +501,7 @@ const Diagram=({theme})=>{
     <section className="diagram-section" id="architecture">
       <div className="container">
         <div className="diagram-header">
-          <div className="eyebrow" style={{marginBottom:24}}>05 — How it works</div>
+          <div className="eyebrow" style={{marginBottom:24}}>{n} — How it works</div>
           <h2 className="diagram-title display">A modular architecture<br />for <em>emergent identity.</em></h2>
           <p className="diagram-lead">Rather than overtraining a single monolithic model, we approach personality as a system of <em>interacting cognitive functions.</em></p>
           <div className="architecture-concepts">
@@ -507,10 +541,10 @@ const USECASES=[
   {n:"V",h:"Home AI",body:"Assistants that live with you for years. Their preferences mature alongside yours — not whichever way the wind blew last week.",glyph:"◐"},
   {n:"VI",h:"Entertainment & Digital Personalities",body:"NPCs, hosts, and digital personas with opinions, contradictions, and memory — characters that scale to millions without dissolving into sameness.",glyph:"★"},
 ];
-const UseCases=()=>(
+const UseCases=({ n })=>(
   <section className="section" id="usecases">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>06 — Market opportunity</div>
+      <div className="eyebrow" style={{marginBottom:24}}>{n} — Market opportunity</div>
       <h2 className="usecases-title display">Where interaction matters,<br /><em>personality becomes the product.</em></h2>
       <p className="usecases-lead">As AI spreads across industries, differentiation will no longer come from intelligence alone. It will come from <em>behavior, communication, and emotional experience.</em></p>
       <div className="usecases-grid">{USECASES.map(u=><div className="usecase" key={u.n}><div className="usecase-head"><span className="usecase-num">{u.n}</span><span className="usecase-glyph">{u.glyph}</span></div><h3 className="usecase-h">{u.h}.</h3><p className="usecase-body">{u.body}</p></div>)}</div>
@@ -525,10 +559,10 @@ const WHYNOW_ITEMS = [
   {n:"03", text:"How people emotionally relate to it."},
 ];
 
-const WhyNow = () => (
+const WhyNow = ({ n }) => (
   <section className="whynow-section" id="whynow">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>07 — Why now</div>
+      <div className="eyebrow" style={{marginBottom:24}}>{n} — Why now</div>
       <h2 className="whynow-title display">The next AI race won't be won<br />by <em>intelligence alone.</em></h2>
       <div className="whynow-grid">
         <div className="whynow-body">
@@ -549,29 +583,147 @@ const WhyNow = () => (
   </section>
 );
 
-const TEAM_MEMBERS = [
-  {name: "Marc Mechkak", role: "CEO & Co-founder", url: "https://www.linkedin.com/in/marc-mechkak-9083492a/"},
-  {name: "Hasan Mavlonov", role: "CTO & Co-founder", url: "https://github.com/hasan-mavlonov"},
-  {name: "François Mechkak", role: "Founding AI Engineer", url: "https://www.linkedin.com/in/fran%C3%A7ois-r%C3%A9gis-mechkak-a360183b/"},
-];
-
-const Team = () => (
-  <section className="section" id="team">
-    <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>08 — Team</div>
-      <h2 className="usecases-title display">Founded by builders who understand<br /><em>the complexity of personality.</em></h2>
-      <div className="usecases-grid" style={{gridTemplateColumns: 'repeat(3, 1fr)'}}>
-        {TEAM_MEMBERS.map(member => (
-          <div className="usecase" key={member.name} style={{borderRight: 'none', borderBottom: 'none', borderLeft: '1px solid var(--hairline)', borderTop: '1px solid var(--hairline)'}}>
-            <h3 className="usecase-h">{member.name}</h3>
-            <p className="usecase-body" style={{fontSize: '16px', color: 'var(--ink-2)', marginTop: 'auto'}}>{member.role}</p>
-            <a href={member.url} target="_blank" rel="noopener noreferrer" className="btn" style={{marginTop: '16px', display: 'inline-flex', alignSelf: 'flex-start'}}>View profile →</a>
-          </div>
-        ))}
+const Recognition = ({ n }) => {
+  const items = contentList('recognition');
+  if (!items.length) return null;
+  return (
+    <section className="section proof-section" id="recognition">
+      <div className="container">
+        <div className="eyebrow" style={{marginBottom:24}}>{n} — Recognition</div>
+        <h2 className="usecases-title display">Early <em>recognition.</em></h2>
+        <div className="proof-grid">
+          {items.map(item => (
+            <article className="proof-card" key={item.title}>
+              <div className="proof-card-head">
+                <LogoOrLabel src={item.logo} label={item.org || item.title} title={item.title} />
+                <StatusPill status={item.status} />
+              </div>
+              <h3 className="proof-title">{item.title}</h3>
+              {item.description && <p className="proof-body">{item.description}</p>}
+              {(item.year || item.link) && (
+                <div className="proof-meta">
+                  {item.year && <span>{item.year}</span>}
+                  {item.link && <OutLink href={item.link}>Visit →</OutLink>}
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
       </div>
+    </section>
+  );
+};
+
+const PARTNER_TYPES = {research: 'Research', industry: 'Industry', pilot: 'Pilot'};
+
+const Partners = ({ n }) => {
+  const items = contentList('partners');
+  const email = SITE_CONTENT.partnersEmail;
+  return (
+    <section className="section" id="partners">
+      <div className="container">
+        <div className="eyebrow" style={{marginBottom:24}}>{n} — Partners &amp; collaborators</div>
+        <h2 className="usecases-title display">Partners &amp; <em>collaborators.</em></h2>
+        {items.length > 0 ? (
+          <div className="proof-grid">
+            {items.map(item => (
+              <article className="proof-card" key={item.name}>
+                <div className="proof-card-head">
+                  <LogoOrLabel src={item.logo} label={item.name} title={item.name} />
+                  <StatusPill status={PARTNER_TYPES[item.type] || item.type} kind="partner" />
+                </div>
+                <h3 className="proof-title">{item.name}</h3>
+                {item.blurb && <p className="proof-body">{item.blurb}</p>}
+                {item.link && <div className="proof-meta"><OutLink href={item.link}>Visit →</OutLink></div>}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="proof-empty">
+            <p className="proof-empty-text">We're onboarding our first design partners in companion AI, robotics and games.</p>
+            {email && <p className="proof-empty-cta">Interested? <a href={'mailto:' + email}>→ {email}</a></p>}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+const Press = ({ n }) => {
+  const items = contentList('press');
+  if (!items.length) return null;
+  return (
+    <section className="section" id="press">
+      <div className="container">
+        <div className="eyebrow" style={{marginBottom:24}}>{n} — Press</div>
+        <h2 className="usecases-title display">In the <em>press.</em></h2>
+        <ul className="press-list">
+          {items.map(item => (
+            <li className="press-item" key={item.outlet + item.title}>
+              <span className="press-outlet">{item.outlet}</span>
+              {item.link
+                ? <a className="press-title" href={item.link} target="_blank" rel="noopener noreferrer">{item.title} →<span className="sr-only"> (opens in a new tab)</span></a>
+                : <span className="press-title">{item.title}</span>}
+              {item.date_label && <span className="press-date">{item.date_label}</span>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+};
+
+// Initials stand in until a photo file exists (content/team.json "photo").
+const initials = (name) => {
+  const words = String(name).trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return '';
+  const first = words[0][0], last = words.length > 1 ? words[words.length - 1][0] : '';
+  return (first + last).toUpperCase();
+};
+
+const PersonCard = ({ person, detail, level = 3 }) => {
+  const Name = level === 4 ? 'h4' : 'h3';
+  return (
+    <div className="person">
+      <span className="person-avatar" aria-hidden="true">
+        {person.photo ? <img src={person.photo} alt="" loading="lazy" decoding="async" /> : initials(person.name)}
+      </span>
+      <Name className="person-name">{person.name}</Name>
+      {detail && <p className="person-role">{detail}</p>}
+      {person.link && (
+        <a href={person.link} target="_blank" rel="noopener noreferrer" className="btn person-link">View profile →<span className="sr-only"> (opens in a new tab)</span></a>
+      )}
     </div>
-  </section>
-);
+  );
+};
+
+const Team = ({ n }) => {
+  const team = contentList('team');
+  const advisors = contentList('advisors');
+  if (!team.length && !advisors.length) return null;
+  return (
+    <section className="section" id="team">
+      <div className="container">
+        <div className="eyebrow" style={{marginBottom:24}}>{n} — Team</div>
+        <h2 className="usecases-title display">Founded by builders who understand<br /><em>the complexity of personality.</em></h2>
+        <div className="team-grid">
+          {team.map(member => <PersonCard key={member.name} person={member} detail={member.role} />)}
+        </div>
+        {advisors.length > 0 && (
+          <div className="advisors">
+            <h3 className="advisors-label">Advisors</h3>
+            <div className="team-grid">
+              {advisors.map(advisor => (
+                <PersonCard key={advisor.name} person={advisor} level={4}
+                  detail={[advisor.role, advisor.affiliation].filter(Boolean).join(' · ')} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
 
 const JOIN_AREAS = [
   {n:"01", name:"AI & Agent Architecture"},
@@ -585,10 +737,10 @@ const JOIN_AREAS = [
   {n:"09", name:"Experimental Prototyping"},
 ];
 
-const JoinUs = () => (
+const JoinUs = ({ n }) => (
   <section className="join-section" id="join">
     <div className="container">
-      <div className="eyebrow" style={{marginBottom:24}}>09 — Join us</div>
+      <div className="eyebrow" style={{marginBottom:24}}>{n} — Join us</div>
       <h2 className="join-title display">We're building the<br /><em>next interface layer</em> for AI.</h2>
       <p className="join-intro">Mindform sits at the intersection of <strong>AI, psychology, design, storytelling, and human behavior.</strong> We're looking for builders, researchers, designers, and thinkers shaping how humans interact with intelligence over the next decade.</p>
 
@@ -659,24 +811,39 @@ const Footer=()=>{
   );
 };
 
+// Section numbers follow the sections that actually render, so an empty list (no press
+// yet, say) never leaves a gap in the 01, 02, 03... sequence.
+const NUMBERED_SECTIONS = ['bigpicture', 'problem', 'vision', 'solution', 'architecture', 'usecases',
+  'whynow', 'recognition', 'partners', 'press', 'team', 'join'];
+const HIDDEN_WHEN_EMPTY = {
+  recognition: () => contentList('recognition').length === 0,
+  press: () => contentList('press').length === 0,
+  team: () => contentList('team').length === 0 && contentList('advisors').length === 0,
+};
+
 const App=()=>{
   const [theme, toggleTheme] = useTheme();
+  const shown = NUMBERED_SECTIONS.filter(id => !(HIDDEN_WHEN_EMPTY[id] && HIDDEN_WHEN_EMPTY[id]()));
+  const n = (id) => String(shown.indexOf(id) + 1).padStart(2, '0');
   return (
     <React.Fragment>
       <a href="#main" className="skip-link">Skip to content</a>
       <Nav theme={theme} onToggleTheme={toggleTheme} />
       <main id="main">
         <Hero/>
-        <BigPicture/>
-        <Problem/>
-        <Vision/>
-        <Solution/>
-        <Diagram theme={theme} />
+        <BigPicture n={n('bigpicture')} />
+        <Problem n={n('problem')} />
+        <Vision n={n('vision')} />
+        <Solution n={n('solution')} />
+        <Diagram theme={theme} n={n('architecture')} />
         <Demo/>
-        <UseCases/>
-        <WhyNow/>
-        <Team/>
-        <JoinUs/>
+        <UseCases n={n('usecases')} />
+        <WhyNow n={n('whynow')} />
+        <Recognition n={n('recognition')} />
+        <Partners n={n('partners')} />
+        <Press n={n('press')} />
+        <Team n={n('team')} />
+        <JoinUs n={n('join')} />
         <FinalCTA/>
       </main>
       <Footer/>

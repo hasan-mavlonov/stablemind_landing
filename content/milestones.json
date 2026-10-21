@@ -1,0 +1,33 @@
+[
+  {
+    "date": "2026-06",
+    "title": "StableMind preprint published",
+    "detail": "Zenodo · DOI 10.5281/zenodo.20827145",
+    "link": "https://doi.org/10.5281/zenodo.20827145"
+  },
+  {
+    "date": "2026-08",
+    "date_end": "2026-10",
+    "title": "10 node white papers published",
+    "link": "TODO: Zenodo community or list page"
+  },
+  {
+    "date": "TODO",
+    "title": "Open-source core released (Apache-2.0)",
+    "detail": "github.com/hasan-mavlonov/stable_mind_v0.1",
+    "link": "https://github.com/hasan-mavlonov/stable_mind_v0.1"
+  },
+  {
+    "date": "TODO",
+    "title": "NVIDIA Inception Program: member",
+    "link": "https://www.nvidia.com/en-us/startups/"
+  },
+  {
+    "date": "TODO",
+    "title": "Google Gemma 4 Hackathon, Shanghai: semifinalist"
+  },
+  {
+    "date": "TODO",
+    "title": "UzCombinator: accepted, offer declined"
+  }
+]

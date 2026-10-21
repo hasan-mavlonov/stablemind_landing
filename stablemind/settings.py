@@ -219,6 +219,12 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # -----------------------
+# Site content
+# -----------------------
+# Shown in the Partners & Collaborators section until content/partners.json has entries.
+PARTNERS_EMAIL = os.getenv("PARTNERS_EMAIL", "partners@mindform-ai.com").strip()
+
+# -----------------------
 # MindForm demo (/demo/)
 # -----------------------
 # Kill switch: DEMO_ENABLED=False serves a friendly "Demo temporarily offline" page (and

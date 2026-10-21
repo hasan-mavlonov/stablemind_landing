@@ -1,8 +1,10 @@
 import contextvars
 import hashlib
 import importlib.util
+import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -25,7 +27,7 @@ from django.templatetags.static import static
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
-from . import mindform_demo
+from . import content, mindform_demo
 from .forms import ApplicationForm
 from .mindform_engine import llm
 from .mindform_engine import reply as engine_reply
@@ -422,3 +424,162 @@ class DemoKillSwitchTests(_TempDemoStore, TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertNotContains(response, "mindform_data", status_code=500)
         self.assertIn("mindform_data/secret", "\n".join(logs.output))   # details go to the log
+
+
+class ShippedContentTests(TestCase):
+    def test_every_content_file_passes_strict_validation(self):
+        for name in content.SCHEMAS:
+            with self.subTest(file=f"content/{name}.json"):
+                content.load(name, strict=True)
+
+    def test_todo_markers_never_reach_a_page(self):
+        for name in ("landing", "research_paper"):
+            with self.subTest(page=name):
+                html = self.client.get(reverse(name), secure=True).content.decode()
+                self.assertIsNone(re.search(r"\btodo\b", html, re.IGNORECASE))
+
+    def test_logo_folders_never_hold_the_nvidia_badge(self):
+        # Logos there are shown in grayscale until hover; the NVIDIA license forbids changing
+        # the badge's colours, and the homepage already shows it once in the hero.
+        for folder in ("recognition", "partners"):
+            directory = Path(settings.BASE_DIR) / "core" / "static" / content.IMAGE_ROOT / folder
+            for path in (directory.iterdir() if directory.is_dir() else ()):
+                with self.subTest(file=path.name):
+                    self.assertNotIn("nvidia", path.name.lower())
+                    self.assertNotEqual(hashlib.sha256(path.read_bytes()).hexdigest(), BADGE_SHA256)
+
+
+class ValidateContentCommandTests(TestCase):
+    def test_shipped_files_pass_and_a_broken_one_fails_the_build(self):
+        from django.core.management import CommandError, call_command
+        call_command("validate_content", stdout=io.StringIO())
+        broken = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, broken, ignore_errors=True)
+        for name in content.SCHEMAS:
+            (broken / f"{name}.json").write_text("[]", encoding="utf-8")
+        (broken / "team.json").write_text('[{"name": "Ada", "rol": "Engineer"}]', encoding="utf-8")
+        with mock.patch.object(content, "CONTENT_DIR", broken), self.assertRaises(CommandError):
+            call_command("validate_content", stdout=io.StringIO())
+
+
+class ContentLoaderTests(TestCase):
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.dir, ignore_errors=True)
+        patcher = mock.patch.object(content, "CONTENT_DIR", self.dir)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def write(self, name, data):
+        text = data if isinstance(data, str) else json.dumps(data)
+        (self.dir / f"{name}.json").write_text(text, encoding="utf-8")
+
+    def test_a_broken_file_empties_its_section_instead_of_breaking_the_page(self):
+        self.write("recognition", "{not json")
+        with self.assertLogs("core.content", "ERROR"):
+            self.assertEqual(content.load("recognition"), [])
+        with self.assertRaises(content.ContentError):
+            content.load("recognition", strict=True)
+        response = self.client.get(reverse("landing"), secure=True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_a_missing_file_counts_as_empty(self):
+        with self.assertLogs("core.content", "WARNING"):
+            self.assertEqual(content.load("press"), [])
+
+    def test_todo_and_unsafe_values_are_dropped(self):
+        self.write("recognition", [{"title": "Lab award", "status": "Member", "year": "TODO",
+                                    "link": "javascript:alert(1)", "logo": "missing.svg"}])
+        with self.assertLogs("core.content", "WARNING"):
+            [item] = content.load("recognition")
+        self.assertEqual((item["year"], item["link"], item["logo"]), ("", "", ""))
+
+    def test_incomplete_items_are_skipped_and_typos_fail_strict_loading(self):
+        self.write("partners", [{"name": "Lab", "type": "research"}, {"name": "No type"},
+                                {"name": "Sponsor", "type": "sponsor"}])
+        with self.assertLogs("core.content", "WARNING"):
+            self.assertEqual([p["name"] for p in content.load("partners")], ["Lab"])
+        self.write("team", [{"name": "Ada", "role": "Engineer", "linkk": "https://example.com"}])
+        with self.assertRaises(content.ContentError):
+            content.load("team", strict=True)
+
+    def test_only_the_todo_marker_counts_as_unknown(self):
+        for value in ("TODO", "TODO: year", "todo: ask Marc", "  Todo  "):
+            self.assertEqual(content.known(value), "", value)
+        for value in ("Todoist", "TODOS app", "Learn more"):
+            self.assertEqual(content.known(value), value.strip(), value)
+
+    def test_dates_are_formatted_for_display(self):
+        self.assertEqual(content.format_date("2026-06"), "Jun 2026")
+        self.assertEqual(content.format_date("2026-08", "2026-10"), "Aug to Oct 2026")
+        self.assertEqual(content.format_date("2025-11", "2026-02"), "Nov 2025 to Feb 2026")
+        self.assertEqual(content.format_date("2026"), "2026")
+        self.assertEqual(content.format_date("TODO"), "")
+
+
+class ContentSectionTests(TestCase):
+    """The sections render whatever the JSON holds; these tests don't pin the real content."""
+
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.dir, ignore_errors=True)
+        patcher = mock.patch.object(content, "CONTENT_DIR", self.dir)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        for name in content.SCHEMAS:
+            (self.dir / f"{name}.json").write_text("[]", encoding="utf-8")
+
+    def write(self, name, data):
+        (self.dir / f"{name}.json").write_text(json.dumps(data), encoding="utf-8")
+
+    def landing(self):
+        html = self.client.get(reverse("landing"), secure=True).content.decode()
+        match = re.search(r'<script id="site-content" type="application/json">(.*?)</script>', html, re.S)
+        return json.loads(match.group(1)), html
+
+    def test_landing_hands_the_lists_to_the_page_and_its_noscript_copy(self):
+        self.write("recognition", [{"title": "Example Program", "status": "Accepted · offer declined",
+                                    "description": "Picked from many."}])
+        self.write("team", [{"name": "Ada Lovelace", "role": "Engineer"}])
+        data, html = self.landing()
+        self.assertEqual(data["recognition"][0]["status"], "Accepted · offer declined")
+        self.assertEqual(data["team"][0]["name"], "Ada Lovelace")
+        self.assertIn("<strong>Example Program</strong>: Accepted · offer declined.", html)
+        self.assertIn("<strong>Ada Lovelace</strong>: Engineer", html)
+
+    def test_empty_partners_show_the_onboarding_message_with_the_configured_email(self):
+        with override_settings(PARTNERS_EMAIL="design@example.com"):
+            data, html = self.landing()
+        self.assertEqual(data["partners"], [])
+        self.assertEqual(data["partnersEmail"], "design@example.com")
+        self.assertIn("We're onboarding our first design partners in companion AI, robotics and games.", html)
+        self.assertIn("mailto:design@example.com", html)
+
+    def test_press_and_advisors_stay_out_of_the_page_until_listed(self):
+        _, html = self.landing()
+        self.assertNotIn("<h2>Press</h2>", html)
+        self.assertNotIn("<h3>Advisors</h3>", html)
+        self.write("press", [{"outlet": "Example Times", "title": "A story", "date": "2026-09"}])
+        _, html = self.landing()
+        self.assertIn("<h2>Press</h2>", html)
+        self.assertIn("Example Times", html)
+
+    def test_research_page_benchmarks_and_milestones(self):
+        self.write("milestones", [
+            {"date": "2026-08", "date_end": "2026-10", "title": "Later"},
+            {"date": "TODO", "title": "Undated"},
+            {"date": "2026-06", "title": "Earlier", "link": "https://example.com/paper"},
+        ])
+        response = self.client.get(reverse("research_paper"), secure=True)
+        self.assertContains(response, "Benchmark results coming soon.")
+        html = response.content.decode()
+        self.assertLess(html.index("Earlier"), html.index("Later"))          # time order
+        self.assertLess(html.index("Later"), html.index("Undated"))          # unknown dates apart
+        self.assertIn("Aug to Oct 2026", html)
+
+        self.write("benchmarks", [{"benchmark": "Persona drift", "metric": "Score",
+                                   "mindform_score": 0.91, "baseline": 0.62, "date": "2026-10"}])
+        response = self.client.get(reverse("research_paper"), secure=True)
+        self.assertNotContains(response, "Benchmark results coming soon.")
+        self.assertContains(response, "Persona drift")
+        self.assertContains(response, "0.91")

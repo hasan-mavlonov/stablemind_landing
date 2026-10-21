@@ -10,12 +10,22 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
+from . import content
 from .forms import ApplicationForm, AuthForm
 from .models import UserProfile
 
 
 def landing_page(request):
-    return render(request, "core/landing.html")
+    # Everything listed in these sections comes from content/*.json (see core/content.py).
+    site_content = {
+        "recognition": content.load("recognition"),
+        "partners": content.load("partners"),
+        "press": content.load("press"),
+        "team": content.load("team"),
+        "advisors": content.load("advisors"),
+        "partnersEmail": settings.PARTNERS_EMAIL,
+    }
+    return render(request, "core/landing.html", {"site_content": site_content, **site_content})
 
 
 def careers_page(request):
@@ -54,7 +64,14 @@ def serve_resume(request, filename):
 
 
 def research_paper_page(request):
-    return render(request, "core/research_paper.html")
+    milestones = content.load("milestones")
+    return render(request, "core/research_paper.html", {
+        "benchmarks": content.load("benchmarks"),
+        # Dated milestones in time order; ones still marked TODO are listed apart, so the
+        # page never implies an order we don't know.
+        "milestones": sorted((m for m in milestones if m["date"]), key=lambda m: m["date"]),
+        "undated_milestones": [m for m in milestones if not m["date"]],
+    })
 
 
 def auth_page(request):

@@ -1,0 +1,29 @@
+[
+  {
+    "title": "NVIDIA Inception Program",
+    "org": "NVIDIA",
+    "year": "TODO: year MindForm joined Inception",
+    "status": "Member",
+    "logo": "",
+    "link": "https://www.nvidia.com/en-us/startups/",
+    "description": "NVIDIA's program for startups building in AI."
+  },
+  {
+    "title": "Google Gemma 4 Hackathon, Shanghai",
+    "org": "Google",
+    "year": "2026",
+    "status": "Semifinalist",
+    "logo": "TODO: only with written permission from Google or the organizers",
+    "link": "TODO: event page",
+    "description": "Semifinalist at the Gemma 4 hackathon in Shanghai."
+  },
+  {
+    "title": "UzCombinator",
+    "org": "UzCombinator",
+    "year": "TODO",
+    "status": "Accepted · offer declined",
+    "logo": "TODO: official logo file from the UzCombinator team",
+    "link": "TODO: confirm the official site",
+    "description": "Selected from a highly competitive applicant pool; we chose to stay independent."
+  }
+]
