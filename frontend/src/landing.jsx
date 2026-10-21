@@ -60,6 +60,10 @@ const SITE_CONTENT = (() => {
   catch (e) { return {}; }
 })();
 const contentList = (key) => (Array.isArray(SITE_CONTENT[key]) ? SITE_CONTENT[key] : []);
+// Contact details come from settings (CONTACT_EMAIL, LINKEDIN_URL, WECHAT_ID).
+const CONTACT = SITE_CONTENT.contact || {};
+const CONTACT_EMAIL = CONTACT.email || 'hello@mindform-ai.com';
+const mailto = (subject) => 'mailto:' + CONTACT_EMAIL + (subject ? '?subject=' + encodeURIComponent(subject) : '');
 
 // A logo when we have the file, otherwise the name as a text label: never a made-up mark.
 // The text label is skipped when it would only repeat the card's title.
@@ -243,8 +247,8 @@ const Hero = () => (
     <div className="container">
       <div className="hero-grid">
         <div className="hero-content">
-          <div className="hero-eyebrow"><span className="hero-eyebrow-dot"></span><span className="eyebrow-strong">Mindform&nbsp;&nbsp;·&nbsp;&nbsp;The interface layer for AI</span></div>
-          <h1 className="hero-title display">AI will power <span className="accent">everything.</span><br />Mindform shapes the <em>experience.</em></h1>
+          <div className="hero-eyebrow"><span className="hero-eyebrow-dot"></span><span className="eyebrow-strong">MindForm&nbsp;&nbsp;·&nbsp;&nbsp;The interface layer for AI</span></div>
+          <h1 className="hero-title display">AI will power <span className="accent">everything.</span><br />MindForm shapes the <em>experience.</em></h1>
           <p className="hero-sub">Technology advances through <strong>capability.</strong><br />Adoption happens through <strong>interaction.</strong><br /><br />We're building <em>the connection.</em></p>
           <div className="hero-cta-row">
             <a href="/demo/" className="btn btn-primary">Try the live demo →</a>
@@ -289,7 +293,7 @@ const BigPicture = ({ n }) => (
         <li className="define-chip">Retention</li>
         <li className="define-chip">Preference</li>
       </ul>
-      <p className="bigpicture-closing">Mindform is building <em>that layer.</em></p>
+      <p className="bigpicture-closing">MindForm is building <em>that layer.</em></p>
     </div>
   </section>
 );
@@ -350,7 +354,7 @@ const Solution = ({ n }) => (
     <div className="container">
       <div className="eyebrow" style={{marginBottom:24}}>{n} — The solution</div>
       <h2 className="solution-title display">A <em>personality layer</em><br />for AI.</h2>
-      <p className="solution-lead">Mindform combines <strong>long-term memory</strong> with <strong>dynamic identity architecture</strong> to create AI that behaves consistently across time and context. Grounded in psychology and cognitive systems, Mindform enables agents to:</p>
+      <p className="solution-lead">MindForm combines <strong>long-term memory</strong> with <strong>dynamic identity architecture</strong> to create AI that behaves consistently across time and context. Grounded in psychology and cognitive systems, MindForm enables agents to:</p>
       <div className="capability-grid">
         {CAPABILITIES.map(c => (
           <div className="capability" key={c.n}>
@@ -742,7 +746,7 @@ const JoinUs = ({ n }) => (
     <div className="container">
       <div className="eyebrow" style={{marginBottom:24}}>{n} — Join us</div>
       <h2 className="join-title display">We're building the<br /><em>next interface layer</em> for AI.</h2>
-      <p className="join-intro">Mindform sits at the intersection of <strong>AI, psychology, design, storytelling, and human behavior.</strong> We're looking for builders, researchers, designers, and thinkers shaping how humans interact with intelligence over the next decade.</p>
+      <p className="join-intro">MindForm sits at the intersection of <strong>AI, psychology, design, storytelling, and human behavior.</strong> We're looking for builders, researchers, designers, and thinkers shaping how humans interact with intelligence over the next decade.</p>
 
       <div className="join-areas-label">Seeking bright minds across these fields to partner up :</div>
       <div className="join-areas">
@@ -765,9 +769,9 @@ const JoinUs = ({ n }) => (
       <p className="join-closing">If you believe intelligence should feel more human,<br />intentional, and alive — <em>we should talk.</em></p>
 
       <div className="join-cta-row">
-        <a href="mailto:hello@mindform-ai.com?subject=Joining%20Mindform" className="btn btn-primary">Join Mindform →</a>
+        <a href={mailto('Joining MindForm')} className="btn btn-primary">Join MindForm →</a>
         <SiteLink href={(window.SITE_URLS || {}).careers} className="btn btn-outline">Open roles →</SiteLink>
-        <a href="mailto:hello@mindform-ai.com" className="btn btn-clear">Contact us →</a>
+        <a href={mailto()} className="btn btn-clear">Contact us →</a>
       </div>
     </div>
   </section>
@@ -777,10 +781,10 @@ const FinalCTA = () => (
   <section className="final-section" id="final">
     <div className="container">
       <h2 className="final-statement display">AI is becoming universal infrastructure.<br />The <em>interface layer</em> will define the experience.</h2>
-      <p className="final-support">Mindform is building the personality layer for the next generation of intelligent systems.</p>
+      <p className="final-support">MindForm is building the personality layer for the next generation of intelligent systems.</p>
       <div className="final-cta-row">
         <a href="#join" className="btn btn-primary">Build with us →</a>
-        <a href="mailto:hello@mindform-ai.com?subject=Mindform%20waitlist" className="btn">Join the waitlist</a>
+        <a href={mailto('MindForm waitlist')} className="btn">Join the waitlist</a>
       </div>
     </div>
   </section>
@@ -801,10 +805,11 @@ const Footer=()=>{
         <div className="footer-row">
           <div className="footer-col"><h5>System</h5><ul><li><a href="#bigpicture">The big picture</a></li><li><a href="#vision">Vision</a></li><li><a href="#solution">Solution</a></li><li><a href="#architecture">How it works</a></li></ul></div>
           <div className="footer-col"><h5>Markets</h5><ul><li><a href="#usecases">Where it goes</a></li><li><a href="#whynow">Why now</a></li><li><a href={urls.demo || "/demo/"}>Live demo</a></li><li><a href="#demo">Demo walkthrough</a></li>{urls.researchPaper && <li><a href={urls.researchPaper}>Research paper</a></li>}</ul></div>
-          <div className="footer-col"><h5>Company</h5><ul><li><a href="#join">Join us</a></li>{urls.careers && <li><a href={urls.careers}>Careers</a></li>}<li><a href="mailto:hello@mindform-ai.com">Contact</a></li><li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" target="_blank" rel="noreferrer">Open source</a></li></ul></div>
-          <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<>{urls.profile && <li><a href={urls.profile}>Profile</a></li>}{urls.logout && <li><a href={urls.logout}>Log out</a></li>}</>:urls.login && <li><a href={urls.login}>Log in / Register</a></li>}<li><a href="mailto:hello@mindform-ai.com">hello@mindform-ai.com</a></li></ul></div>
+          <div className="footer-col"><h5>Company</h5><ul><li><a href="#join">Join us</a></li>{urls.careers && <li><a href={urls.careers}>Careers</a></li>}<li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" target="_blank" rel="noreferrer">Open source</a></li></ul></div>
+          <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<>{urls.profile && <li><a href={urls.profile}>Profile</a></li>}{urls.logout && <li><a href={urls.logout}>Log out</a></li>}</>:urls.login && <li><a href={urls.login}>Log in / Register</a></li>}</ul></div>
+          <div className="footer-col"><h5>Contact</h5><ul><li><a href={mailto()}>{CONTACT_EMAIL}</a></li>{CONTACT.linkedin && <li><OutLink href={CONTACT.linkedin}>LinkedIn</OutLink></li>}{CONTACT.wechat && <li>WeChat: {CONTACT.wechat}</li>}</ul></div>
         </div>
-        <div className="footer-meta"><span>© 2026 Mindform · mindform-ai.com</span><span>The interface layer for AI personality</span></div>
+        <div className="footer-meta"><span>© 2026 MindForm · mindform-ai.com</span><span>The interface layer for AI personality</span></div>
         <p className="footer-legal">{NVIDIA_TRADEMARK_NOTICE}</p>
       </div>
     </footer>

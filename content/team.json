@@ -3,18 +3,30 @@
     "name": "Marc Mechkak",
     "role": "CEO & Co-founder",
     "link": "https://www.linkedin.com/in/marc-mechkak-9083492a/",
-    "photo": ""
+    "photo": "TODO: marc-mechkak.jpg in core/static/core/img/team/"
   },
   {
     "name": "Hasan Mavlonov",
     "role": "CTO & Co-founder",
     "link": "https://github.com/hasan-mavlonov",
-    "photo": ""
+    "photo": "TODO: hasan-mavlonov.jpg in core/static/core/img/team/"
   },
   {
     "name": "François Mechkak",
-    "role": "Founding AI Engineer",
+    "role": "Founding AI Engineer / SWE Lead",
     "link": "https://www.linkedin.com/in/fran%C3%A7ois-r%C3%A9gis-mechkak-a360183b/",
-    "photo": ""
+    "photo": "TODO: francois-mechkak.jpg in core/static/core/img/team/"
+  },
+  {
+    "name": "Qodirberganov Umar",
+    "role": "Lead Frontend Engineer",
+    "link": "TODO: LinkedIn or GitHub profile",
+    "photo": "TODO: umar-qodirberganov.jpg in core/static/core/img/team/"
+  },
+  {
+    "name": "Yifei",
+    "role": "SWE, Math & Computing",
+    "link": "TODO: LinkedIn or GitHub profile",
+    "photo": "TODO: yifei.jpg in core/static/core/img/team/"
   }
 ]

@@ -459,7 +459,22 @@ code {
   text-transform: uppercase;
 }
 .footer-links a { color: rgba(250,247,241,0.55); transition: color 0.2s; }
-.footer-links a:hover { color: var(--bone); }
+.footer-links a:hover { color: var(--on-inverted); }
+.footer-contact {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 24px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: rgba(250,247,241,0.55);
+}
+.footer-contact-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+.footer-contact a { color: rgba(250,247,241,0.8); transition: color 0.2s; }
+.footer-contact a:hover { color: var(--on-inverted); }
+.footer-contact a:focus-visible { outline: 2px solid var(--belief); outline-offset: 3px; border-radius: 2px; }
 .footer-copy {
   margin-top: 40px;
   padding-top: 24px;

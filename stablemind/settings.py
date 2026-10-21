@@ -124,6 +124,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
     "core",
 ]
 
@@ -156,6 +157,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.site_contact",
             ],
         },
     },
@@ -219,10 +221,14 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # -----------------------
-# Site content
+# Site content and contact details
 # -----------------------
 # Shown in the Partners & Collaborators section until content/partners.json has entries.
 PARTNERS_EMAIL = os.getenv("PARTNERS_EMAIL", "partners@mindform-ai.com").strip()
+# Footer contact path on every page. LinkedIn and WeChat stay hidden until they are set.
+CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "hello@mindform-ai.com").strip()
+LINKEDIN_URL = os.getenv("LINKEDIN_URL", "").strip()      # company page, https://...
+WECHAT_ID = os.getenv("WECHAT_ID", "").strip()            # shown as text: "WeChat: <id>"
 
 # -----------------------
 # MindForm demo (/demo/)

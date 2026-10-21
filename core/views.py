@@ -2,7 +2,7 @@ from pathlib import Path
 
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from . import content
+from .context_processors import contact_details
 from .forms import ApplicationForm, AuthForm
 from .models import UserProfile
 
@@ -24,6 +25,7 @@ def landing_page(request):
         "team": content.load("team"),
         "advisors": content.load("advisors"),
         "partnersEmail": settings.PARTNERS_EMAIL,
+        "contact": contact_details(),
     }
     return render(request, "core/landing.html", {"site_content": site_content, **site_content})
 
@@ -117,3 +119,16 @@ def logout_page(request):
 def profile_page(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     return render(request, "core/profile.html", {"profile": profile})
+
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Disallow: /accounts/",
+        "Disallow: /media/",
+        "Disallow: /demo/api/",
+        "",
+        f"Sitemap: {request.build_absolute_uri(reverse('sitemap'))}",
+    ]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")

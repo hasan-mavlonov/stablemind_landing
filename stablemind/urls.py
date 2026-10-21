@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 
 from core.views import (
@@ -9,8 +10,10 @@ from core.views import (
     auth_page,
     logout_page,
     profile_page,
+    robots_txt,
 )
 from core import mindform_demo
+from core.sitemaps import StaticPagesSitemap
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -18,6 +21,8 @@ urlpatterns = [
     path('', landing_page, name='landing'),
     path('careers/', careers_page, name='careers'),
     path('research-paper/', research_paper_page, name='research_paper'),
+    path('sitemap.xml', sitemap, {'sitemaps': {'pages': StaticPagesSitemap}}, name='sitemap'),
+    path('robots.txt', robots_txt, name='robots_txt'),
 
     # MindForm interactive demo (the personality engine, vendored from mindform_v0).
     path('demo/', mindform_demo.console, name='mindform_demo'),

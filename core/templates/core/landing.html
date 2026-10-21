@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Mindform is building the personality layer for the next generation of intelligent systems — where AI feels like someone, not something." />
-<title>Mindform — The interface layer for AI</title>
+<meta name="description" content="MindForm is building the personality layer for the next generation of intelligent systems — where AI feels like someone, not something." />
+<title>MindForm — The interface layer for AI</title>
 
 <link rel="icon" href="{% static 'core/img/favicon.svg' %}">
 <script>
@@ -277,7 +277,7 @@ p { margin: 0; }
 .footer { background: var(--surface-inverted); color: var(--on-inverted); padding: 120px 0 60px; position: relative; overflow: hidden; }
 .footer-tagline { font-family: var(--serif-display); font-size: clamp(60px, 11vw, 180px); line-height: 0.9; letter-spacing: -0.03em; margin-bottom: 80px; }
 .footer-tagline em { color: var(--belief-soft); font-style: italic; }
-.footer-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 40px; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.12); border-bottom: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px; }
+.footer-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 40px; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.12); border-bottom: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px; }
 .footer-col h5 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(244,236,222,0.5); margin: 0 0 18px; font-weight: 400; }
 .footer-col ul { list-style: none; margin: 0; padding: 0; }
 .footer-col li { font-family: var(--serif-body); font-size: 17px; padding: 6px 0; color: var(--on-inverted); }
@@ -568,16 +568,16 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
 <main id="main">
   <section>
     <div class="container" style="padding-top: 48px; padding-bottom: 48px;">
-      <h1>Mindform — Building the Personality Layer for AI</h1>
+      <h1>MindForm — Building the Personality Layer for AI</h1>
       <p><strong><a href="/demo/" style="color: #F0386B; text-decoration: none; font-weight: 600;">→ Try the Live Interactive Demo ←</a></strong></p>
-      <p>Mindform is building the interface layer for the next generation of intelligent systems — where AI feels like someone, not something.</p>
+      <p>MindForm is building the interface layer for the next generation of intelligent systems — where AI feels like someone, not something.</p>
       <p>We're developing personality infrastructure that enables AI agents to develop behavioral patterns, maintain emotional continuity, and express distinct identities over time. This is the personality layer that defines experience in the AI era.</p>
-      <p>Mindform is a member of the <a href="https://www.nvidia.com/en-us/startups/" target="_blank" rel="noopener noreferrer">NVIDIA Inception Program</a>.</p>
+      <p>MindForm is a member of the <a href="https://www.nvidia.com/en-us/startups/" target="_blank" rel="noopener noreferrer">NVIDIA Inception Program</a>.</p>
       <p style="margin: 12px 0 20px;"><img src="{% static 'core/img/nvidia/nvidia-inception-program-badge-rgb-for-screen.svg' %}" alt="NVIDIA Inception Program" width="111" height="48"></p>
       <h2>The Problem We're Solving</h2>
       <p>Today's AI adapts but still feels off. Modern systems can remember preferences and personalize responses, but they remain interchangeable. Without stable identity, AI never becomes a presence people remember, return to, or relate to.</p>
       <h2>Our Solution</h2>
-      <p>Mindform combines long-term memory with dynamic identity architecture to create AI that behaves consistently across time and context. We enable agents to develop behavioral patterns, maintain emotional continuity, express distinct personalities, evolve through interaction, and build familiarity with users.</p>
+      <p>MindForm combines long-term memory with dynamic identity architecture to create AI that behaves consistently across time and context. We enable agents to develop behavioral patterns, maintain emotional continuity, express distinct personalities, evolve through interaction, and build familiarity with users.</p>
       <h2>Market Opportunity</h2>
       <p>Where interaction matters, personality becomes the product. Our platform serves multiple markets:</p>
       <ul>
@@ -616,7 +616,7 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
       </ul>
       {% endif %}
       <h2>Team</h2>
-      <p>Mindform is founded by builders who understand the complexity of personality and the future of AI interaction.</p>
+      <p>MindForm is founded by builders who understand the complexity of personality and the future of AI interaction.</p>
       <ul>
         {% for member in team %}<li><strong>{{ member.name }}</strong>: {{ member.role }}{% if member.link %} (<a href="{{ member.link }}" target="_blank" rel="noopener noreferrer">profile</a>){% endif %}</li>
         {% endfor %}
@@ -630,8 +630,9 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
       {% endif %}
       <h2>Join Us</h2>
       <p>We're looking for builders, researchers, designers, and thinkers who believe intelligence should feel more human, intentional, and alive. We're hiring across AI &amp; Agent Architecture, Cognitive Systems, Memory &amp; Behavioral Modeling, Product Design, Creative Technology, Interaction Design, Research, Applied Psychology, and Experimental Prototyping.</p>
-      <p>Learn more about us or join Mindform: <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1">Visit our open source repository</a></p>
-      <p>© 2026 Mindform · The interface layer for AI personality · mindform-ai.com</p>
+      <p>Learn more about us or join MindForm: <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1">Visit our open source repository</a></p>
+      <p>Contact: <a href="mailto:{{ site_contact.email }}">{{ site_contact.email }}</a>{% if site_contact.linkedin %} · <a href="{{ site_contact.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% endif %}{% if site_contact.wechat %} · WeChat: {{ site_contact.wechat }}{% endif %}</p>
+      <p>© 2026 MindForm · The interface layer for AI personality · mindform-ai.com</p>
       <p><small>NVIDIA, the NVIDIA logo and NVIDIA Inception are trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries.</small></p>
     </div>
   </section>

@@ -1,14 +1,14 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Research | Mindform{% endblock %}
+{% block title %}Research | MindForm{% endblock %}
 
 {% block content %}
 <div class="page-hero">
   <div class="container">
     <div class="narrow">
       <p class="eyebrow">[ 06 ] — Research</p>
-      <h1 class="display">A peer-reviewed<br /><em>two-timescale</em> architecture.</h1>
-      <p class="lead">Mindform is built on the StableMind framework — validated through a multi-session human evaluation study, model-agnostic by design, open-source at the core.</p>
+      <h1 class="display">A <em>two-timescale</em> architecture,<br />published as a preprint.</h1>
+      <p class="lead">MindForm is built on StableMind, a framework we describe in a preprint on Zenodo: model-agnostic by design and open-source at the core.</p>
     </div>
   </div>
 </div>
@@ -19,7 +19,7 @@
 
       <div class="paper-card">
         <div class="paper-stamp">Preprint · 2026</div>
-        <div class="paper-eyebrow">Mindform Labs · Technical paper</div>
+        <div class="paper-eyebrow">MindForm · Technical paper</div>
         <h2 class="paper-title">StableMind: A Two-Timescale Architecture for Persistent Personality in LLM Agents</h2>
         <p class="paper-authors">Hasan Mavlonov, ECUST · Major in Artificial Intelligence</p>
         <p class="paper-abstract">We propose StableMind, a memory- and reflection-based architecture that decouples short-term belief plasticity from long-term trait evolution. Trait evolution occurs only when drift satisfies tri-fold criteria of magnitude, confidence, and observation count — ensuring updates are bounded and stepwise.</p>
@@ -117,8 +117,9 @@
       {% endif %}
 
       <div class="btn-row">
-        <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" class="btn btn-primary" target="_blank" rel="noreferrer">View on GitHub →</a>
-        <a href="{% url 'landing' %}#research" class="btn">Back to research</a>
+        <a href="https://doi.org/10.5281/zenodo.20827145" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Read the preprint →</a>
+        <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" class="btn" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
+        <a href="{% url 'landing' %}" class="btn">Back to the homepage</a>
       </div>
 
     </div>

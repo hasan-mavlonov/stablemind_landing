@@ -63,7 +63,7 @@ class NvidiaInceptionBadgeTests(TestCase):
     def test_landing_page_hands_badge_to_bundle_and_noscript_fallback(self):
         response = self.get("landing")
         self.assertContains(response, f'nvidiaInceptionBadge: "{static(BADGE)}"')
-        self.assertContains(response, "Mindform is a member of the")
+        self.assertContains(response, "MindForm is a member of the")
         self.assertContains(response, TRADEMARK_NOTICE)
 
     def test_base_template_pages_show_badge_once_with_trademark_notice(self):
@@ -583,3 +583,65 @@ class ContentSectionTests(TestCase):
         self.assertNotContains(response, "Benchmark results coming soon.")
         self.assertContains(response, "Persona drift")
         self.assertContains(response, "0.91")
+
+
+class AccuracyTests(TestCase):
+    def test_research_page_describes_a_preprint_not_peer_review(self):
+        response = self.client.get(reverse("research_paper"), secure=True)
+        html = response.content.decode().lower()
+        for claim in ("peer-reviewed", "peer reviewed", "human evaluation study"):
+            self.assertNotIn(claim, html)
+        self.assertIn("published as a preprint", html)
+        self.assertContains(response, "https://doi.org/10.5281/zenodo.20827145")
+        self.assertContains(response, "Nuo Chen, NUS")                 # endorsement line kept
+
+    def test_body_copy_uses_the_mindform_brand_spelling(self):
+        for name in ("landing", "research_paper", "careers"):
+            with self.subTest(page=name):
+                html = self.client.get(reverse(name), secure=True).content.decode()
+                self.assertNotIn("Mindform Labs", html)
+                self.assertIn("MindForm", html)
+
+
+class FooterContactTests(TestCase):
+    @override_settings(CONTACT_EMAIL="team@example.com", LINKEDIN_URL="", WECHAT_ID="")
+    def test_contact_email_comes_from_settings_and_unset_channels_stay_hidden(self):
+        response = self.client.get(reverse("research_paper"), secure=True)
+        self.assertContains(response, 'href="mailto:team@example.com"')
+        self.assertNotContains(response, "LinkedIn")
+        self.assertNotContains(response, "WeChat")
+
+    @override_settings(LINKEDIN_URL="https://www.linkedin.com/company/example", WECHAT_ID="example-id")
+    def test_linkedin_and_wechat_appear_once_configured(self):
+        response = self.client.get(reverse("careers"), secure=True)
+        self.assertContains(response, 'href="https://www.linkedin.com/company/example"')
+        self.assertContains(response, "WeChat: example-id")
+        landing = self.client.get(reverse("landing"), secure=True).content.decode()
+        match = re.search(r'<script id="site-content" type="application/json">(.*?)</script>', landing, re.S)
+        contact = json.loads(match.group(1))["contact"]
+        self.assertEqual(contact["linkedin"], "https://www.linkedin.com/company/example")
+        self.assertEqual(contact["wechat"], "example-id")
+
+    @override_settings(LINKEDIN_URL="javascript:alert(1)")
+    def test_a_non_https_linkedin_value_is_ignored(self):
+        response = self.client.get(reverse("careers"), secure=True)
+        self.assertNotContains(response, "javascript:")
+
+
+class SitemapAndRobotsTests(TestCase):
+    def test_sitemap_lists_the_public_pages_over_https(self):
+        response = self.client.get("/sitemap.xml", secure=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/xml")
+        for path in ("/", "/research-paper/", "/careers/", "/demo/"):
+            self.assertContains(response, f"<loc>https://testserver{path}</loc>")
+        self.assertNotContains(response, "/admin/")
+
+    def test_robots_txt_points_to_the_sitemap(self):
+        response = self.client.get("/robots.txt", secure=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response["Content-Type"].startswith("text/plain"))
+        body = response.content.decode()
+        self.assertIn("Sitemap: https://testserver/sitemap.xml", body)
+        for path in ("/admin/", "/media/", "/demo/api/"):
+            self.assertIn(f"Disallow: {path}", body)
