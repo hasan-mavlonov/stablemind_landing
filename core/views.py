@@ -1,19 +1,33 @@
+from pathlib import Path
+
 from django.shortcuts import redirect, render
 from django.urls import reverse
-import os
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
+from . import content
+from .context_processors import contact_details
 from .forms import ApplicationForm, AuthForm
 from .models import UserProfile
 
 
 def landing_page(request):
-    return render(request, "core/landing.html")
+    # Everything listed in these sections comes from content/*.json (see core/content.py).
+    site_content = {
+        "recognition": content.load("recognition"),
+        "partners": content.load("partners"),
+        "press": content.load("press"),
+        "team": content.load("team"),
+        "advisors": content.load("advisors"),
+        "partnersEmail": settings.PARTNERS_EMAIL,
+        "contact": contact_details(),
+    }
+    return render(request, "core/landing.html", {"site_content": site_content, **site_content})
 
 
 def careers_page(request):
@@ -36,17 +50,30 @@ def careers_page(request):
         },
     )
 
+@staff_member_required
 def serve_resume(request, filename):
-    file_path = os.path.join(settings.MEDIA_ROOT, "resumes", filename)
+    """Download an applicant's resume. Staff only: these are applicants' personal documents.
 
-    if not os.path.exists(file_path):
+    Always served as an attachment, so an uploaded file can never render as a page on this
+    domain, and only plain filenames inside MEDIA_ROOT/resumes resolve.
+    """
+    resumes_dir = (Path(settings.MEDIA_ROOT) / "resumes").resolve()
+    path = (resumes_dir / filename).resolve()
+    if path.parent != resumes_dir or path.name != filename or not path.is_file():
         raise Http404("File not found")
 
-    return FileResponse(open(file_path, "rb"))
+    return FileResponse(path.open("rb"), as_attachment=True, filename=path.name)
 
 
 def research_paper_page(request):
-    return render(request, "core/research_paper.html")
+    milestones = content.load("milestones")
+    return render(request, "core/research_paper.html", {
+        "benchmarks": content.load("benchmarks"),
+        # Dated milestones in time order; ones still marked TODO are listed apart, so the
+        # page never implies an order we don't know.
+        "milestones": sorted((m for m in milestones if m["date"]), key=lambda m: m["date"]),
+        "undated_milestones": [m for m in milestones if not m["date"]],
+    })
 
 
 def auth_page(request):
@@ -92,3 +119,16 @@ def logout_page(request):
 def profile_page(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     return render(request, "core/profile.html", {"profile": profile})
+
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Disallow: /accounts/",
+        "Disallow: /media/",
+        "Disallow: /demo/api/",
+        "",
+        f"Sitemap: {request.build_absolute_uri(reverse('sitemap'))}",
+    ]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")

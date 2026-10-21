@@ -33,10 +33,11 @@ the reply works fully offline and never hard-depends on the network.
 import logging
 
 from .config import (
-    BASIS, BASIS_NAMES, LLM_MODEL, LLM_BASE_URL, LLM_API_KEY, LLM_LABEL,
+    BASIS, BASIS_NAMES, LLM_MODEL, LLM_API_KEY, LLM_LABEL,
     SELF_INCONGRUENCE_THRESH, strip_reasoning,
 )
 from .expression import voice as expression_voice, plain_reply
+from .llm import call_timeout, make_client
 
 log = logging.getLogger("mindform.web.reply")
 
@@ -130,9 +131,7 @@ def _llm_reply(personality, user_text, memories=None, appraisal=None):
     if not LLM_API_KEY:
         raise RuntimeError("no LLM API key is set (GEMINI_API_KEY)")
 
-    from openai import OpenAI  # lazy: the rule-based fallback works without this
-
-    client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
+    client = make_client()  # lazy openai import inside; the rule-based fallback works without it
     system = _REPLY_SYSTEM.format(
         name=_character_name(personality),
         self_view=_describe_self_view(personality),
@@ -154,8 +153,10 @@ def _llm_reply(personality, user_text, memories=None, appraisal=None):
             # (appraisal, then the three formation pushes, then this); a generous
             # per-call wait here is what let one slow turn stack past the gunicorn
             # worker timeout and get SIGKILLed mid-request. 25s (retried once) is
-            # still ample for a two-sentence reply.
-            timeout=25,
+            # still ample for a two-sentence reply, and the demo's per-turn time budget
+            # (llm.time_budget) cuts it further when earlier calls used up the turn. The
+            # reply is the final call, so it may also use the budget's reserved tail.
+            timeout=call_timeout(25, final=True),
         )
         reply = strip_reasoning(completion.choices[0].message.content)
         if reply:

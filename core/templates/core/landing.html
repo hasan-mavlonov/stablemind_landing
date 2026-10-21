@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Mindform is building the personality layer for the next generation of intelligent systems — where AI feels like someone, not something." />
-<title>Mindform — The interface layer for AI</title>
+<meta name="description" content="MindForm is building the personality layer for the next generation of intelligent systems — where AI feels like someone, not something." />
+<title>MindForm — The interface layer for AI</title>
 
 <link rel="icon" href="{% static 'core/img/favicon.svg' %}">
 <script>
@@ -277,7 +277,7 @@ p { margin: 0; }
 .footer { background: var(--surface-inverted); color: var(--on-inverted); padding: 120px 0 60px; position: relative; overflow: hidden; }
 .footer-tagline { font-family: var(--serif-display); font-size: clamp(60px, 11vw, 180px); line-height: 0.9; letter-spacing: -0.03em; margin-bottom: 80px; }
 .footer-tagline em { color: var(--belief-soft); font-style: italic; }
-.footer-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 40px; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.12); border-bottom: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px; }
+.footer-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 40px; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.12); border-bottom: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px; }
 .footer-col h5 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(244,236,222,0.5); margin: 0 0 18px; font-weight: 400; }
 .footer-col ul { list-style: none; margin: 0; padding: 0; }
 .footer-col li { font-family: var(--serif-body); font-size: 17px; padding: 6px 0; color: var(--on-inverted); }
@@ -419,11 +419,61 @@ p { margin: 0; }
 .footer-tagitem { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(244,236,222,0.55); }
 .footer-tagitem::before { content: "// "; color: var(--belief-soft); }
 
+/* Recognition, Partners & Press. The entries come from content/*.json (core/content.py). */
+.proof-section { background: var(--bone-2); }
+.proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); margin-top: 72px; }
+.proof-card { border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 36px 36px 40px; display: flex; flex-direction: column; gap: 14px; min-height: 300px; transition: background 0.3s; }
+.proof-card:hover { background: rgba(26,14,46,0.025); }
+[data-theme="dark"] .proof-card:hover { background: rgba(242,234,214,0.03); }
+.proof-card-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 16px; min-height: 44px; }
+.proof-label { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); }
+/* Partner and award logos: muted until the card is hovered or focused. Never put the NVIDIA
+   Inception badge here: its license forbids changing its colours, grayscale included. */
+.proof-logo { display: block; height: 40px; width: auto; max-width: 180px; object-fit: contain; filter: grayscale(1); opacity: 0.75; transition: filter 0.3s, opacity 0.3s; }
+.proof-card:hover .proof-logo, .proof-card:focus-within .proof-logo { filter: none; opacity: 1; }
+.status-pill { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; line-height: 1.4; padding: 5px 11px; border-radius: 999px; border: 1px solid currentColor; color: var(--muted-2); white-space: nowrap; }
+.status-pill[data-status="member"] { color: var(--trait); background: var(--trait-tint); }
+.status-pill[data-status="semifinalist"] { color: #8A5A00; background: rgba(245,179,65,0.18); }
+.status-pill[data-status="accepted"] { color: #B3134D; background: var(--belief-tint); }
+[data-theme="dark"] .status-pill[data-status="member"] { color: var(--trait-soft); background: rgba(154,127,255,0.14); }
+[data-theme="dark"] .status-pill[data-status="semifinalist"] { color: var(--honey); background: rgba(245,179,65,0.14); }
+[data-theme="dark"] .status-pill[data-status="accepted"] { color: var(--belief-soft); }
+.proof-title { font-family: var(--serif-display); font-size: 34px; line-height: 1.02; letter-spacing: -0.01em; font-style: italic; margin-top: 14px; }
+.proof-body { font-size: 16px; line-height: 1.5; color: var(--ink-2); }
+.proof-meta { margin-top: auto; padding-top: 18px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-2); }
+.proof-meta a { color: var(--ink); border-bottom: 1px solid var(--hairline); padding-bottom: 2px; transition: color 0.2s, border-color 0.2s; }
+.proof-meta a:hover { color: var(--belief); border-color: var(--belief); }
+.proof-empty { margin-top: 56px; max-width: 900px; padding: 40px 44px 44px; border: 1px dashed var(--hairline); border-radius: 6px; }
+.proof-empty-text { font-family: var(--serif-display); font-size: clamp(26px, 2.8vw, 38px); line-height: 1.15; letter-spacing: -0.01em; font-style: italic; color: var(--ink); }
+.proof-empty-cta { margin-top: 22px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-2); }
+.proof-empty-cta a { color: #B3134D; text-transform: none; letter-spacing: 0.04em; font-size: 14px; margin-left: 6px; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+.proof-empty-cta a:hover { border-color: currentColor; }
+[data-theme="dark"] .proof-empty-cta a { color: var(--belief-soft); }
+.press-list { list-style: none; margin: 64px 0 0; padding: 0; border-top: 1px solid var(--ink); }
+.press-item { display: grid; grid-template-columns: 220px 1fr auto; gap: 24px; align-items: baseline; padding: 26px 0; border-bottom: 1px solid var(--hairline); }
+.press-outlet { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--belief); }
+.press-title { font-family: var(--serif-display); font-size: clamp(22px, 2.4vw, 30px); line-height: 1.15; font-style: italic; letter-spacing: -0.005em; }
+a.press-title:hover { color: var(--belief); }
+.press-date { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-2); white-space: nowrap; }
+
+/* Team & advisors (content/team.json, content/advisors.json). Initials stand in for photos. */
+.team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); }
+.person { border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 32px 30px 36px; display: flex; flex-direction: column; gap: 10px; min-height: 300px; transition: background 0.3s; }
+.person:hover { background: rgba(26,14,46,0.025); }
+[data-theme="dark"] .person:hover { background: rgba(242,234,214,0.03); }
+.person-avatar { width: 64px; height: 64px; flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; font-family: var(--serif-display); font-size: 25px; font-style: italic; letter-spacing: 0.02em; color: var(--ink); background: var(--bone-2); border: 1px solid var(--hairline); }
+.person-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.person-name { font-family: var(--serif-display); font-size: 30px; line-height: 1.04; letter-spacing: -0.01em; font-style: italic; }
+.person-role { font-size: 16px; line-height: 1.45; color: var(--ink-2); }
+.person-link { margin-top: auto; align-self: flex-start; }
+.advisors { margin-top: 72px; }
+.advisors-label { font-family: var(--mono); font-size: 11px; font-weight: 400; line-height: 1.4; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 24px; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-@media (max-width: 1000px) { .hero-grid { grid-template-columns: 1fr; } .hero-visual { min-height: 440px; order: -1; } .hero-mind { min-height: 440px; } .capability-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1000px) { .hero-grid { grid-template-columns: 1fr; } .hero-visual { min-height: 440px; order: -1; } .hero-mind { min-height: 440px; } .capability-grid { grid-template-columns: repeat(2, 1fr); } .proof-grid { grid-template-columns: repeat(2, 1fr); } .proof-card:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 @media (max-width: 900px) {
   .container { padding: 0 24px; } .section { padding: 90px 0; } .hero { padding-top: 110px; }
   .drift-demo { grid-template-columns: 1fr; } .failure-modes { grid-template-columns: 1fr; gap: 36px; }
@@ -439,6 +489,11 @@ p { margin: 0; }
   .architecture-concepts { grid-template-columns: 1fr; }
   .join-areas { grid-template-columns: 1fr 1fr; }
   .join-culture { padding: 32px 28px 36px; }
+  .proof-grid { margin-top: 48px; }
+  .proof-card { padding: 28px 24px 32px; min-height: 0; }
+  .proof-empty { margin-top: 40px; padding: 28px 24px 32px; }
+  .press-item { grid-template-columns: 1fr; gap: 8px; }
+  .person { min-height: 0; padding: 28px 24px 32px; }
   .vision-not { padding: 24px 24px 28px; }
   .nav .nav-links { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: var(--bone); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 8px 24px 16px; display: none; }
   .nav .nav-links.is-open { display: flex; }
@@ -447,7 +502,8 @@ p { margin: 0; }
   .nav-menu-btn { display: inline-flex; }
   .nav .nav-cta-desktop { display: none; }
 }
-@media (max-width: 560px) { .join-areas { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .proof-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .join-areas { grid-template-columns: 1fr; } .team-grid { grid-template-columns: 1fr; } }
 </style>
 
 <!--
@@ -501,6 +557,8 @@ window.SITE_ASSETS = {
 };
 window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
 </script>
+{# Recognition, partners, press, team and advisors, from content/*.json (see core/content.py). #}
+{{ site_content|json_script:"site-content" }}
 
 <noscript>
 {# Deliberately NOT class="hero": that rule is min-height:100vh + flex column   #}
@@ -510,16 +568,16 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
 <main id="main">
   <section>
     <div class="container" style="padding-top: 48px; padding-bottom: 48px;">
-      <h1>Mindform — Building the Personality Layer for AI</h1>
+      <h1>MindForm — Building the Personality Layer for AI</h1>
       <p><strong><a href="/demo/" style="color: #F0386B; text-decoration: none; font-weight: 600;">→ Try the Live Interactive Demo ←</a></strong></p>
-      <p>Mindform is building the interface layer for the next generation of intelligent systems — where AI feels like someone, not something.</p>
+      <p>MindForm is building the interface layer for the next generation of intelligent systems — where AI feels like someone, not something.</p>
       <p>We're developing personality infrastructure that enables AI agents to develop behavioral patterns, maintain emotional continuity, and express distinct identities over time. This is the personality layer that defines experience in the AI era.</p>
-      <p>Mindform is a member of the <a href="https://www.nvidia.com/en-us/startups/" target="_blank" rel="noopener noreferrer">NVIDIA Inception Program</a>.</p>
+      <p>MindForm is a member of the <a href="https://www.nvidia.com/en-us/startups/" target="_blank" rel="noopener noreferrer">NVIDIA Inception Program</a>.</p>
       <p style="margin: 12px 0 20px;"><img src="{% static 'core/img/nvidia/nvidia-inception-program-badge-rgb-for-screen.svg' %}" alt="NVIDIA Inception Program" width="111" height="48"></p>
       <h2>The Problem We're Solving</h2>
       <p>Today's AI adapts but still feels off. Modern systems can remember preferences and personalize responses, but they remain interchangeable. Without stable identity, AI never becomes a presence people remember, return to, or relate to.</p>
       <h2>Our Solution</h2>
-      <p>Mindform combines long-term memory with dynamic identity architecture to create AI that behaves consistently across time and context. We enable agents to develop behavioral patterns, maintain emotional continuity, express distinct personalities, evolve through interaction, and build familiarity with users.</p>
+      <p>MindForm combines long-term memory with dynamic identity architecture to create AI that behaves consistently across time and context. We enable agents to develop behavioral patterns, maintain emotional continuity, express distinct personalities, evolve through interaction, and build familiarity with users.</p>
       <h2>Market Opportunity</h2>
       <p>Where interaction matters, personality becomes the product. Our platform serves multiple markets:</p>
       <ul>
@@ -534,17 +592,47 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
       <p>As models become more powerful and accessible, intelligence will commoditize. The advantage will move into the layer where AI is felt, remembered, and trusted. The next AI race will be won by those who build systems people connect with.</p>
       <h2>Our Architecture</h2>
       <p>We approach personality as a system of interacting cognitive functions rather than a monolithic model. Our architecture includes functional persona nodes that decompose identity into behavioral systems (memory, emotion, motivation, reflection, social behavior, preference, and perspective), shared state and memory for persistent inner life, and emergent identity that becomes recognizable over time.</p>
-      <h2>Team</h2>
-      <p>Mindform is founded by builders who understand the complexity of personality and the future of AI interaction.</p>
+      {% if recognition %}
+      <h2>Recognition</h2>
       <ul>
-        <li><strong>Marc Mechkak</strong> — CEO &amp; Co-founder — <a href="https://www.linkedin.com/in/marc-mechkak-9083492a/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></li>
-        <li><strong>Hasan Mavlonov</strong> — CTO &amp; Co-founder — <a href="https://github.com/hasan-mavlonov" target="_blank" rel="noopener noreferrer">GitHub Profile</a></li>
-        <li><strong>François Mechkak</strong> — Founding AI Engineer — <a href="https://www.linkedin.com/in/fran%C3%A7ois-r%C3%A9gis-mechkak-a360183b/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></li>
+        {% for item in recognition %}<li><strong>{{ item.title }}</strong>: {{ item.status }}{% if item.year %} ({{ item.year }}){% endif %}.{% if item.description %} {{ item.description }}{% endif %}</li>
+        {% endfor %}
       </ul>
+      {% endif %}
+      <h2>Partners &amp; Collaborators</h2>
+      {% if partners %}
+      <ul>
+        {% for item in partners %}<li><strong>{{ item.name }}</strong> ({{ item.type }}){% if item.blurb %}: {{ item.blurb }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>We're onboarding our first design partners in companion AI, robotics and games.{% if partnersEmail %} Interested? <a href="mailto:{{ partnersEmail }}">{{ partnersEmail }}</a>{% endif %}</p>
+      {% endif %}
+      {% if press %}
+      <h2>Press</h2>
+      <ul>
+        {% for item in press %}<li>{{ item.outlet }}: {% if item.link %}<a href="{{ item.link }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>{% else %}{{ item.title }}{% endif %}{% if item.date_label %} ({{ item.date_label }}){% endif %}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      <h2>Team</h2>
+      <p>MindForm is founded by builders who understand the complexity of personality and the future of AI interaction.</p>
+      <ul>
+        {% for member in team %}<li><strong>{{ member.name }}</strong>: {{ member.role }}{% if member.link %} (<a href="{{ member.link }}" target="_blank" rel="noopener noreferrer">profile</a>){% endif %}</li>
+        {% endfor %}
+      </ul>
+      {% if advisors %}
+      <h3>Advisors</h3>
+      <ul>
+        {% for advisor in advisors %}<li><strong>{{ advisor.name }}</strong>{% if advisor.role %}: {{ advisor.role }}{% endif %}{% if advisor.affiliation %}, {{ advisor.affiliation }}{% endif %}{% if advisor.link %} (<a href="{{ advisor.link }}" target="_blank" rel="noopener noreferrer">profile</a>){% endif %}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
       <h2>Join Us</h2>
       <p>We're looking for builders, researchers, designers, and thinkers who believe intelligence should feel more human, intentional, and alive. We're hiring across AI &amp; Agent Architecture, Cognitive Systems, Memory &amp; Behavioral Modeling, Product Design, Creative Technology, Interaction Design, Research, Applied Psychology, and Experimental Prototyping.</p>
-      <p>Learn more about us or join Mindform: <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1">Visit our open source repository</a></p>
-      <p>© 2026 Mindform · The interface layer for AI personality · mindform-ai.com</p>
+      <p>Learn more about us or join MindForm: <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1">Visit our open source repository</a></p>
+      <p>Contact: <a href="mailto:{{ site_contact.email }}">{{ site_contact.email }}</a>{% if site_contact.linkedin %} · <a href="{{ site_contact.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% endif %}{% if site_contact.wechat %} · WeChat: {{ site_contact.wechat }}{% endif %}</p>
+      <p>© 2026 MindForm · The interface layer for AI personality · mindform-ai.com</p>
       <p><small>NVIDIA, the NVIDIA logo and NVIDIA Inception are trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries.</small></p>
     </div>
   </section>

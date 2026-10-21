@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Mindform — persistent personality systems for AI agents.">
-  <title>{% block title %}Mindform{% endblock %}</title>
+  <meta name="description" content="MindForm — persistent personality systems for AI agents.">
+  <title>{% block title %}MindForm{% endblock %}</title>
   <link rel="icon" href="{% static 'core/img/favicon.svg' %}">
   <script>
     (function () {
@@ -79,6 +79,12 @@
           {% endif %}
         </div>
       </div>
+      <div class="footer-contact">
+        <span class="footer-contact-label">Contact</span>
+        <a href="mailto:{{ site_contact.email }}">{{ site_contact.email }}</a>
+        {% if site_contact.linkedin %}<a href="{{ site_contact.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>{% endif %}
+        {% if site_contact.wechat %}<span>WeChat: {{ site_contact.wechat }}</span>{% endif %}
+      </div>
       {# NVIDIA Inception badge: governed by our NVIDIA trademark license (Exhibit B). #}
       {# Official file untouched, at least 30px tall, clear space, once per page, and #}
       {# worded as membership only. See README "NVIDIA Inception badge".              #}
@@ -88,7 +94,7 @@
         <span class="sr-only">(opens in a new tab)</span>
       </a>
       <div class="footer-copy">
-        <span>© 2026 Mindform Labs</span>
+        <span>© 2026 MindForm</span>
         <span>Persistent personality systems for AI agents</span>
       </div>
       <p class="footer-legal">NVIDIA, the NVIDIA logo and NVIDIA Inception are trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries.</p>

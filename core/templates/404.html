@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Page not found | MindForm{% endblock %}
+
+{% block content %}
+<div class="page-hero error-page">
+  <div class="container">
+    <div class="narrow">
+      <p class="eyebrow">[ 404 ] — Not found</p>
+      <h1 class="display">This page doesn't <em>exist.</em></h1>
+      <p class="lead">The link may be broken, or the page may have moved.</p>
+      <div class="btn-row">
+        <a href="{% url 'landing' %}" class="btn btn-primary">Back to the homepage →</a>
+        <a href="{% url 'research_paper' %}" class="btn">Read the research</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

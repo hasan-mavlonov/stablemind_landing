@@ -280,6 +280,13 @@
   </div>
 </div>
 
+<!-- Shown by api.js when the API stops answering (host or Cloudflare 5xx, network down,
+     or the DEMO_ENABLED kill switch), instead of a dead console or a raw 502 page. -->
+<div class="offline-overlay hidden" id="demo-offline" role="alertdialog" aria-modal="true"
+     aria-labelledby="demo-offline-title">
+  {% include "core/partials/demo_offline_card.html" %}
+</div>
+
 <script src="{% static 'mindform/js/api.js' %}"></script>
 <script src="{% static 'mindform/js/orb.js' %}"></script>
 <script src="{% static 'mindform/js/console.js' %}"></script>

@@ -1,14 +1,14 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Research | Mindform{% endblock %}
+{% block title %}Research | MindForm{% endblock %}
 
 {% block content %}
 <div class="page-hero">
   <div class="container">
     <div class="narrow">
       <p class="eyebrow">[ 06 ] — Research</p>
-      <h1 class="display">A peer-reviewed<br /><em>two-timescale</em> architecture.</h1>
-      <p class="lead">Mindform is built on the StableMind framework — validated through a multi-session human evaluation study, model-agnostic by design, open-source at the core.</p>
+      <h1 class="display">A <em>two-timescale</em> architecture,<br />published as a preprint.</h1>
+      <p class="lead">MindForm is built on StableMind, a framework we describe in a preprint on Zenodo: model-agnostic by design and open-source at the core.</p>
     </div>
   </div>
 </div>
@@ -19,7 +19,7 @@
 
       <div class="paper-card">
         <div class="paper-stamp">Preprint · 2026</div>
-        <div class="paper-eyebrow">Mindform Labs · Technical paper</div>
+        <div class="paper-eyebrow">MindForm · Technical paper</div>
         <h2 class="paper-title">StableMind: A Two-Timescale Architecture for Persistent Personality in LLM Agents</h2>
         <p class="paper-authors">Hasan Mavlonov, ECUST · Major in Artificial Intelligence</p>
         <p class="paper-abstract">We propose StableMind, a memory- and reflection-based architecture that decouples short-term belief plasticity from long-term trait evolution. Trait evolution occurs only when drift satisfies tri-fold criteria of magnitude, confidence, and observation count — ensuring updates are bounded and stepwise.</p>
@@ -49,9 +49,77 @@
         </div>
       </div>
 
+      {# Benchmarks and milestones come from content/benchmarks.json and content/milestones.json. #}
+      <div class="research-block" id="benchmarks">
+        <div class="block-label">Benchmarks</div>
+        {% if benchmarks %}
+        <div class="bench-wrap" role="region" aria-label="Benchmark results" tabindex="0">
+          <table class="bench-table">
+            <thead>
+              <tr>
+                <th scope="col">Benchmark</th>
+                <th scope="col">Metric</th>
+                <th scope="col">MindForm</th>
+                <th scope="col">Baseline</th>
+                <th scope="col">Date</th>
+                <th scope="col"><span class="sr-only">Source</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in benchmarks %}
+              <tr>
+                <th scope="row">{{ row.benchmark }}</th>
+                <td>{{ row.metric }}</td>
+                <td class="bench-score">{{ row.mindform_score }}</td>
+                <td>{{ row.baseline }}</td>
+                <td>{{ row.date_label }}</td>
+                <td>{% if row.link %}<a href="{{ row.link }}" target="_blank" rel="noopener noreferrer">Source →<span class="sr-only"> (opens in a new tab)</span></a>{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="block-empty">Benchmark results coming soon.</p>
+        {% endif %}
+      </div>
+
+      {% if milestones or undated_milestones %}
+      <div class="research-block" id="milestones">
+        <div class="block-label">Milestones</div>
+        {% if milestones %}
+        <ol class="timeline">
+          {% for m in milestones %}
+          <li class="timeline-item">
+            <span class="timeline-date">{{ m.date_label }}</span>
+            <div>
+              <p class="timeline-title">{% if m.link %}<a href="{{ m.link }}" target="_blank" rel="noopener noreferrer">{{ m.title }} →<span class="sr-only"> (opens in a new tab)</span></a>{% else %}{{ m.title }}{% endif %}</p>
+              {% if m.detail %}<p class="timeline-detail">{{ m.detail }}</p>{% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+        {% endif %}
+        {% if undated_milestones %}
+        {% if milestones %}<div class="block-label block-label-sub">Also</div>{% endif %}
+        <ul class="timeline timeline-undated">
+          {% for m in undated_milestones %}
+          <li class="timeline-item">
+            <div>
+              <p class="timeline-title">{% if m.link %}<a href="{{ m.link }}" target="_blank" rel="noopener noreferrer">{{ m.title }} →<span class="sr-only"> (opens in a new tab)</span></a>{% else %}{{ m.title }}{% endif %}</p>
+              {% if m.detail %}<p class="timeline-detail">{{ m.detail }}</p>{% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endif %}
+
       <div class="btn-row">
-        <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" class="btn btn-primary" target="_blank" rel="noreferrer">View on GitHub →</a>
-        <a href="{% url 'landing' %}#research" class="btn">Back to research</a>
+        <a href="https://doi.org/10.5281/zenodo.20827145" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Read the preprint →</a>
+        <a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" class="btn" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
+        <a href="{% url 'landing' %}" class="btn">Back to the homepage</a>
       </div>
 
     </div>
