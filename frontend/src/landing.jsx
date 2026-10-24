@@ -793,7 +793,7 @@ const JoinUs = ({ n }) => (
       <div className="join-cta-row">
         <a href="mailto:hasan@mindform-ai.com?subject=Joining%20MindForm" className="btn btn-primary">Join MindForm →</a>
         <SiteLink href={(window.SITE_URLS || {}).careers} className="btn btn-outline">Open roles →</SiteLink>
-        <a href="mailto:hasan@mindform-ai.com" className="btn btn-clear">Contact us →</a>
+        <a href="mailto:hasangit @mindform-ai.com" className="btn btn-clear">Contact us →</a>
       </div>
     </div>
   </section>
