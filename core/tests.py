@@ -76,6 +76,13 @@ class NvidiaInceptionBadgeTests(TestCase):
                 self.assertContains(response, 'alt="NVIDIA Inception Program"', count=1)
                 self.assertContains(response, TRADEMARK_NOTICE, count=1)
 
+    def test_no_css_filter_can_touch_the_badge_or_logos(self):
+        # Exhibit B: "The colors built into the badge must not be changed or adjusted."
+        html = self.get("landing").content.decode()
+        self.assertNotIn("grayscale", html)
+        self.assertIsNone(re.search(
+            r"\.(proof-media|proof-logo|fit-badge|inception-badge)[^{}]*\{[^}]*\bfilter\s*:", html))
+
     def test_membership_is_never_worded_as_endorsement(self):
         # Exhibit B / section 2(c): nothing may imply NVIDIA endorses or provides our
         # product. The bundle is checked too, since the landing copy lives there.
@@ -508,6 +515,29 @@ class ContentLoaderTests(TestCase):
             self.assertEqual(content.known(value), "", value)
         for value in ("Todoist", "TODOS app", "Learn more"):
             self.assertEqual(content.known(value), value.strip(), value)
+
+    def test_the_nvidia_badge_is_referenced_never_copied(self):
+        self.write("recognition", [{"title": "NVIDIA Inception Program", "status": "Member",
+                                    "logo": "nvidia-inception", "logo_fit": "cover"}])
+        [item] = content.load("recognition", strict=True)
+        self.assertEqual(item["logo"], static(BADGE))
+        self.assertEqual(item["logo_fit"], "badge")          # never cropped to fill a frame
+        # Partner cards can't use it: the license forbids presenting NVIDIA as a partner.
+        self.write("partners", [{"name": "NVIDIA", "type": "industry", "logo": "nvidia-inception"}])
+        with self.assertRaises(content.ContentError):
+            content.load("partners", strict=True)
+
+    def test_image_fit_defaults_to_contain_and_rejects_unknown_values(self):
+        self.write("recognition", [{"title": "Award", "status": "Member", "logo": "gemma-4-banner.webp"}])
+        [item] = content.load("recognition", strict=True)
+        self.assertEqual(item["logo_fit"], "contain")
+        self.write("recognition", [{"title": "Award", "status": "Member", "logo": "gemma-4-banner.webp",
+                                    "logo_fit": "stretch"}])
+        with self.assertRaises(content.ContentError):
+            content.load("recognition", strict=True)
+        with self.assertLogs("core.content", "WARNING"):
+            [item] = content.load("recognition")
+        self.assertEqual(item["logo_fit"], "contain")
 
     def test_dates_are_formatted_for_display(self):
         self.assertEqual(content.format_date("2026-06"), "Jun 2026")

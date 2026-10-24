@@ -4,7 +4,7 @@
     "org": "NVIDIA",
     "year": "TODO: year MindForm joined Inception",
     "status": "Member",
-    "logo": "",
+    "logo": "nvidia-inception",
     "link": "https://www.nvidia.com/en-us/startups/",
     "description": "NVIDIA's program for startups building in AI."
   },
@@ -13,7 +13,9 @@
     "org": "Google",
     "year": "2026",
     "status": "Semifinalist",
-    "logo": "TODO: only with written permission from Google or the organizers",
+    "logo": "gemma-4-banner.webp",
+    "logo_fit": "cover",
+    "logo_alt": "Gemma 4",
     "link": "TODO: event page",
     "description": "Semifinalist at the Gemma 4 hackathon in Shanghai."
   },
@@ -22,7 +24,9 @@
     "org": "UzCombinator",
     "year": "TODO",
     "status": "Accepted · offer declined",
-    "logo": "TODO: official logo file from the UzCombinator team",
+    "logo": "uzcombinator-welcome-mindform.webp",
+    "logo_fit": "contain",
+    "logo_alt": "UzCombinator's welcome graphic for MindForm",
     "link": "TODO: confirm the official site",
     "description": "Selected from a highly competitive applicant pool; we chose to stay independent."
   }

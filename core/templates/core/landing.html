@@ -427,10 +427,24 @@ p { margin: 0; }
 [data-theme="dark"] .proof-card:hover { background: rgba(242,234,214,0.03); }
 .proof-card-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 16px; min-height: 44px; }
 .proof-label { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); }
-/* Partner and award logos: muted until the card is hovered or focused. Never put the NVIDIA
-   Inception badge here: its license forbids changing its colours, grayscale included. */
-.proof-logo { display: block; height: 40px; width: auto; max-width: 180px; object-fit: contain; filter: grayscale(1); opacity: 0.75; transition: filter 0.3s, opacity 0.3s; }
-.proof-card:hover .proof-logo, .proof-card:focus-within .proof-logo { filter: none; opacity: 1; }
+/* Partner logos (content/partners.json), shown as supplied: brand rules, NVIDIA's and Google's
+   among them, forbid recolouring their marks, so no filters. */
+.proof-logo { display: block; height: 40px; width: auto; max-width: 180px; object-fit: contain; }
+/* Recognition card image (content/recognition.json "logo"). The frame is dark in both themes, so
+   black event artwork blends into it and the NVIDIA badge reads as NVIDIA designed it. */
+.proof-card.has-media { padding-top: 24px; }
+.proof-card.has-media .proof-card-head { min-height: 0; }
+.proof-media { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 2 / 1; margin-bottom: 12px; overflow: hidden; border-radius: 4px; background: #000; border: 1px solid var(--hairline); }
+.proof-media.frame-badge { background: radial-gradient(circle at 50% 50%, #1d1a26 0%, #07060a 72%); }
+.proof-media-img { display: block; }
+.proof-media-img.fit-cover, .proof-media-img.fit-contain { width: 100%; height: 100%; transition: transform 0.6s ease; }
+.proof-media-img.fit-cover { object-fit: cover; }
+.proof-media-img.fit-contain { object-fit: contain; }
+.proof-card:hover .proof-media-img.fit-cover, .proof-card:hover .proof-media-img.fit-contain { transform: scale(1.03); }
+/* NVIDIA's badge is never animated or filtered. 68px renders a 52px visible badge (the license
+   minimum is 30px) with clear space all round. */
+.proof-media-img.fit-badge { height: 68px; width: calc(68px * 500.4288 / 216); }
+.proof-media:focus-visible { outline: 2px solid var(--belief); outline-offset: 3px; }
 .status-pill { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; line-height: 1.4; padding: 5px 11px; border-radius: 999px; border: 1px solid currentColor; color: var(--muted-2); white-space: nowrap; }
 .status-pill[data-status="member"] { color: var(--trait); background: var(--trait-tint); }
 .status-pill[data-status="semifinalist"] { color: #8A5A00; background: rgba(245,179,65,0.18); }
@@ -461,7 +475,7 @@ a.press-title:hover { color: var(--belief); }
 .person { border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 32px 30px 36px; display: flex; flex-direction: column; gap: 10px; min-height: 300px; transition: background 0.3s; }
 .person:hover { background: rgba(26,14,46,0.025); }
 [data-theme="dark"] .person:hover { background: rgba(242,234,214,0.03); }
-.person-avatar { width: 64px; height: 64px; flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; font-family: var(--serif-display); font-size: 25px; font-style: italic; letter-spacing: 0.02em; color: var(--ink); background: var(--bone-2); border: 1px solid var(--hairline); }
+.person-avatar { width: 80px; height: 80px; flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; font-family: var(--serif-display); font-size: 30px; font-style: italic; letter-spacing: 0.02em; color: var(--ink); background: linear-gradient(135deg, var(--trait-tint), var(--belief-tint)); border: 1px solid var(--hairline); }
 .person-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .person-name { font-family: var(--serif-display); font-size: 30px; line-height: 1.04; letter-spacing: -0.01em; font-style: italic; }
 .person-role { font-size: 16px; line-height: 1.45; color: var(--ink-2); }

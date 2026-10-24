@@ -85,6 +85,26 @@ const StatusPill = ({ status, kind }) => {
   );
 };
 
+// The image at the top of a recognition card (content/recognition.json "logo"):
+//   cover   fills the frame (event banners);
+//   contain shows the whole image and opens it full size (certificates, acceptance letters);
+//   badge   small and centred, for the NVIDIA Inception badge: its license forbids any change
+//           to the artwork, so it is never filtered, cropped or animated.
+const RecognitionMedia = ({ item }) => {
+  if (!item.logo) return null;
+  const fit = item.logo_fit || 'contain';
+  const alt = item.logo_alt || item.title;
+  const img = <img className={'proof-media-img fit-' + fit} src={item.logo} alt={alt} loading="lazy" decoding="async" />;
+  const frame = 'proof-media frame-' + fit;
+  if (fit === 'contain') {
+    return <a className={frame} href={item.logo} target="_blank" rel="noopener noreferrer">{img}<span className="sr-only"> (opens full size in a new tab)</span></a>;
+  }
+  if (fit === 'badge' && item.link) {
+    return <a className={frame} href={item.link} target="_blank" rel="noopener noreferrer">{img}<span className="sr-only"> (opens in a new tab)</span></a>;
+  }
+  return <div className={frame}>{img}</div>;
+};
+
 const OutLink = ({ href, children }) => (
   <a href={href} target="_blank" rel="noopener noreferrer">{children}<span className="sr-only"> (opens in a new tab)</span></a>
 );
@@ -597,17 +617,19 @@ const Recognition = ({ n }) => {
         <h2 className="usecases-title display">Early <em>recognition.</em></h2>
         <div className="proof-grid">
           {items.map(item => (
-            <article className="proof-card" key={item.title}>
+            <article className={'proof-card' + (item.logo ? ' has-media' : '')} key={item.title}>
+              <RecognitionMedia item={item} />
               <div className="proof-card-head">
-                <LogoOrLabel src={item.logo} label={item.org || item.title} title={item.title} />
+                {!item.logo && <LogoOrLabel label={item.org || item.title} title={item.title} />}
                 <StatusPill status={item.status} />
               </div>
               <h3 className="proof-title">{item.title}</h3>
               {item.description && <p className="proof-body">{item.description}</p>}
-              {(item.year || item.link) && (
+              {(item.year || item.link || item.logo_fit === 'contain') && (
                 <div className="proof-meta">
                   {item.year && <span>{item.year}</span>}
                   {item.link && <OutLink href={item.link}>Visit →</OutLink>}
+                  {item.logo && item.logo_fit === 'contain' && <OutLink href={item.logo}>View full size ↗</OutLink>}
                 </div>
               )}
             </article>

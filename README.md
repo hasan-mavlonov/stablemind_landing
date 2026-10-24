@@ -52,8 +52,12 @@ fixed within 15 days, the license ends, so treat these as hard requirements.
   Mindform wordmark it appears with.
 - **Clear space.** Keep other text and graphics at least one NVIDIA-eye height away (about 40% of
   the visible badge height), following the Exhibit B diagram.
-- **One per page.** Exhibit B forbids using several NVIDIA logos without NVIDIA's written
-  permission. We read that as one badge per page.
+- **Only the Inception badge.** Exhibit B: "multiple NVIDIA logos may not be used by licensees
+  unless express permission has been granted by NVIDIA in writing or through current
+  guidelines." We read that as: use the Inception badge, never other NVIDIA marks. The homepage
+  shows the badge twice (hero and the Recognition card); other pages show it once, in the footer.
+  For the strictest reading (one badge per page), delete the NVIDIA card's `"logo"` line in
+  `content/recognition.json`.
 - **Wording.** "Member of NVIDIA Inception" is accurate. Never write "Backed by", "Powered by",
   "Partner" or anything else that implies NVIDIA endorses, provides or supervises our product.
 - **Credit line.** Pages with the badge carry: "NVIDIA, the NVIDIA logo and NVIDIA Inception are
@@ -62,6 +66,7 @@ fixed within 15 days, the license ends, so treat these as hard requirements.
 
 The badge appears in the landing hero's proof row, directly under the call-to-action buttons
 and labelled "Member of", inside the first screen on common laptops (`frontend/src/landing.jsx`;
-rebuild with `npm run build`). It also appears in the shared footer
-(`core/templates/core/base.html`). `python manage.py test core` checks the file hash, one badge
-per page, the credit line and the wording.
+rebuild with `npm run build`), and in the NVIDIA card of the Recognition section. It also appears
+in the shared footer (`core/templates/core/base.html`). `python manage.py test core` checks the
+file hash, one badge on the footer pages, that no CSS filter touches it, the credit line and the
+wording.

@@ -22,15 +22,22 @@ Rules the loader (`core/content.py`) applies:
 - **Links** must start with `https://`, `http://` or `mailto:`.
 - **Status pills** take their colour from the first word of `status` (`Member`, `Semifinalist`,
   `Accepted`). Text after ` · ` stays in the pill, e.g. `Accepted · offer declined`.
-- **Logos and photos** are file names only. Put recognition logos in
+- **Logos and photos** are file names only. Put recognition images in
   `core/static/core/img/recognition/`, partner logos in `core/static/core/img/partners/` and
   photos in `core/static/core/img/team/`. If the file isn't there, the card shows the name as text
-  (logos) or initials (photos). Logos are grayscale until hovered.
-- **Only use a logo you have the right to use**, and check that the brand's rules allow it to be
-  shown in grayscale. Google's Gemma terms grant no right to use its logos, so the Gemma card
-  stays text until Google or the organizers say yes in writing.
-- **Never add the NVIDIA Inception badge here.** Its license forbids changing its colours
-  (grayscale included) and the homepage already shows it once, in the hero.
+  (logos) or initials (photos). Images are shown exactly as supplied, with no filters.
+- **Recognition images** sit in a dark frame at the top of the card. `logo_fit` says how:
+  `cover` fills the frame (event banners), `contain` shows the whole image and opens it full size
+  on click (certificates, acceptance letters, welcome graphics), `badge` is small and centred.
+  `logo_alt` describes the image for screen readers (defaults to the card title).
+- **Team photos**: square, at least 160px, e.g. `marc-mechkak.jpg`, then set `"photo"` to the
+  file name in `team.json`.
+- **NVIDIA badge**: write `"logo": "nvidia-inception"`, which points at NVIDIA's official file.
+  Never copy or edit that file: the license forbids changing its colours or proportions.
+- **Only use a logo you have the right to use.** The Gemma card uses Google's official Gemma 4
+  banner (from Google's google-gemma/docs repository). Google's Gemma terms grant no right to use
+  its logos, so if Google or the organizers object, delete the card's `"logo"` line and it falls
+  back to text.
 - **Check before you deploy.** `python manage.py validate_content` checks every file strictly
   (typos in field names, missing required fields, bad dates or links, logo files that don't
   exist). `build.sh` runs it, so a broken file fails the deploy instead of quietly emptying a

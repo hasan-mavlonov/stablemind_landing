@@ -9,6 +9,8 @@ Edit the JSON to change what the site says; no code change and no `npm run build
   file with ``strict=True``, so a typo fails the tests instead of quietly emptying a section.
 * Logos and photos are file names inside core/static/core/img/<folder>/. One that isn't
   there falls back to a text label or initials: the page never shows an image we don't have.
+  A recognition card can also name the licensed NVIDIA Inception badge as "nvidia-inception",
+  which points at the one official file (never copy it).
 * Links must be http(s) or mailto; anything else is dropped.
 """
 
@@ -25,14 +27,22 @@ log = logging.getLogger(__name__)
 
 CONTENT_DIR = Path(settings.BASE_DIR) / "content"
 IMAGE_ROOT = "core/img"
+# NVIDIA's artwork, used as-is under our trademark license (a test pins its hash).
+NVIDIA_BADGE = "core/img/nvidia/nvidia-inception-program-badge-rgb-for-screen.svg"
+# How a card shows its image: "cover" fills the frame (banners), "contain" shows all of it
+# and opens full size on click (certificates, letters), "badge" is small and centred.
+IMAGE_FITS = ("cover", "contain", "badge")
 
 # One schema per file: which fields are required, which are optional, and where its images
 # live. Field values are strings unless listed in `numbers` (shown as written).
 SCHEMAS = {
     "recognition": {
         "required": ("title", "status"),
-        "optional": ("org", "year", "logo", "link", "description"),
+        "optional": ("org", "year", "logo", "logo_fit", "logo_alt", "link", "description"),
         "images": {"logo": "recognition"},
+        # Names that stand for a shared file instead of one in the folder.
+        "reserved_images": {"logo": {"nvidia-inception": NVIDIA_BADGE}},
+        "fits": {"logo": "logo_fit"},
     },
     "partners": {
         "required": ("name", "type"),
@@ -156,7 +166,17 @@ def _clean_item(name, index, item, schema, strict):
 
     for key, folder in schema.get("images", {}).items():
         filename = clean[key]
+        fit_key = schema.get("fits", {}).get(key)
+        if fit_key and clean[fit_key] and clean[fit_key] not in IMAGE_FITS:
+            _problem(name, index, f"{fit_key!r} must be one of {', '.join(IMAGE_FITS)}", strict)
+            clean[fit_key] = ""
         if not filename:
+            continue
+        reserved = schema.get("reserved_images", {}).get(key, {})
+        if filename in reserved:
+            clean[key] = static(reserved[filename])
+            if fit_key:
+                clean[fit_key] = "badge"
             continue
         path = f"{IMAGE_ROOT}/{folder}/{filename}"
         if "/" in filename or "\\" in filename or not finders.find(path):
@@ -164,6 +184,8 @@ def _clean_item(name, index, item, schema, strict):
             clean[key] = ""
         else:
             clean[key] = static(path)
+            if fit_key and not clean[fit_key]:
+                clean[fit_key] = "contain"
     return clean
 
 
