@@ -6,6 +6,7 @@ from core.views import (
     landing_page,
     careers_page,
     serve_resume,
+    serve_application_resume,
     research_paper_page,
     auth_page,
     logout_page,
@@ -33,8 +34,11 @@ urlpatterns = [
     path('demo/api/turn', mindform_demo.api_turn),
     path('demo/api/create/genesis', mindform_demo.api_create_genesis),
     path('demo/api/create/manual', mindform_demo.api_create_manual),
+    # Staff only: live check of the model, storage and a real turn (sign in at /admin/).
+    path('demo/health/', mindform_demo.health, name='mindform_demo_health'),
 
-    # Applicants' resumes: staff only (see core.views.serve_resume).
+    # Applicants' resumes: staff only (see core.views.serve_application_resume).
+    path('media/resumes/application/<int:pk>/', serve_application_resume, name='serve_application_resume'),
     path('media/resumes/<str:filename>/', serve_resume, name='serve_resume'),
 
     path('accounts/login/', auth_page, name='login'),
