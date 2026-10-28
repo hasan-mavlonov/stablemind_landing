@@ -25,13 +25,14 @@ Rules the loader (`core/content.py`) applies:
 - **Logos and photos** are file names only. Put recognition images in
   `core/static/core/img/recognition/`, partner logos in `core/static/core/img/partners/` and
   photos in `core/static/core/img/team/`. If the file isn't there, the card shows the name as text
-  (logos) or initials (photos). Images are shown exactly as supplied, with no filters.
+  (logos) or no photo. Images are shown exactly as supplied, with no filters.
 - **Recognition images** sit in a dark frame at the top of the card. `logo_fit` says how:
   `cover` fills the frame (event banners), `contain` shows the whole image and opens it full size
   on click (certificates, acceptance letters, welcome graphics), `badge` is small and centred.
   `logo_alt` describes the image for screen readers (defaults to the card title).
 - **Team photos**: square, at least 160px, e.g. `marc-mechkak.jpg`, then set `"photo"` to the
-  file name in `team.json`.
+  file name in `team.json`. Photos appear only once every person in the list has one, so the
+  grid never mixes faces with blanks. Until then the cards show name, role and profile link.
 - **NVIDIA badge**: write `"logo": "nvidia-inception"`, which points at NVIDIA's official file.
   Never copy or edit that file: the license forbids changing its colours or proportions.
 - **Only use a logo you have the right to use.** The Gemma card uses Google's official Gemma 4
