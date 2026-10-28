@@ -1072,7 +1072,7 @@ class TeamTests(TestCase):
         self.assertEqual([(m["name"], m["role"]) for m in team], [
             ("Marc Mechkak", "CEO & Co-founder"),
             ("Hasan Mavlonov", "CTO & Co-founder"),
-            ("Ray", "CFO"),
+            ("Ray Shi", "CFO"),
             ("François Mechkak", "Founding AI Engineer / SWE Lead"),
             ("Yifei", "SWE, Math & Computing"),
         ])
@@ -1080,10 +1080,23 @@ class TeamTests(TestCase):
     def test_landing_lists_the_team_and_former_members_are_gone(self):
         response = self.client.get(reverse("landing"), secure=True)
         names = [m["name"] for m in response.context["site_content"]["team"]]
-        self.assertIn("Ray", names)
+        self.assertIn("Ray Shi", names)
         self.assertNotContains(response, "Umar")
         self.assertNotContains(response, "Qodirberganov")
-        self.assertContains(response, "<strong>Ray</strong>: CFO")             # noscript copy
+        self.assertContains(response, "<strong>Ray Shi</strong>: CFO")         # noscript copy
+
+    def test_everyone_has_a_square_photo_served_from_static(self):
+        for member in content.load("team"):
+            with self.subTest(name=member["name"]):
+                self.assertTrue(member["photo"].startswith("/static/core/img/team/"), member["photo"])
+                path = finders.find(member["photo"].removeprefix("/static/"))
+                header = Path(path).read_bytes()[:30]
+                self.assertEqual((header[:4], header[8:12]), (b"RIFF", b"WEBP"))
+                # VP8 (lossy) frame header: 14-bit width and height after the start code.
+                self.assertEqual(header[12:16], b"VP8 ")
+                width = int.from_bytes(header[26:28], "little") & 0x3FFF
+                height = int.from_bytes(header[28:30], "little") & 0x3FFF
+                self.assertEqual((width, height), (720, 720))
 
     def test_photos_wait_until_everyone_has_one(self):
         # One face next to four blanks looked broken; the bundle shows none until all exist.

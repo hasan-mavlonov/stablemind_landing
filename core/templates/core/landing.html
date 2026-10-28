@@ -475,8 +475,10 @@ a.press-title:hover { color: var(--belief); }
 .person { border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 32px 30px 36px; display: flex; flex-direction: column; gap: 10px; min-height: 220px; transition: background 0.3s; }
 .person:hover { background: rgba(26,14,46,0.025); }
 [data-theme="dark"] .person:hover { background: rgba(242,234,214,0.03); }
-.person-avatar { width: 80px; height: 80px; flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; font-family: var(--serif-display); font-size: 30px; font-style: italic; letter-spacing: 0.02em; color: var(--ink); background: linear-gradient(135deg, var(--trait-tint), var(--belief-tint)); border: 1px solid var(--hairline); }
-.person-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.person-avatar { width: 160px; height: 160px; flex-shrink: 0; border-radius: 50%; overflow: hidden; margin-bottom: 18px; background: linear-gradient(135deg, var(--trait-tint), var(--belief-tint)); box-shadow: 0 0 0 1px var(--hairline); }
+.person-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(.2,.7,.2,1); }
+.person:hover .person-avatar img { transform: scale(1.04); }
+@media (prefers-reduced-motion: reduce) { .person-avatar img { transition: none; } .person:hover .person-avatar img { transform: none; } }
 .person-name { font-family: var(--serif-display); font-size: 30px; line-height: 1.04; letter-spacing: -0.01em; font-style: italic; }
 .person-role { font-size: 16px; line-height: 1.45; color: var(--ink-2); }
 .person-link { margin-top: auto; align-self: flex-start; }
@@ -517,7 +519,7 @@ a.press-title:hover { color: var(--belief); }
   .nav .nav-cta-desktop { display: none; }
 }
 @media (max-width: 700px) { .proof-grid { grid-template-columns: 1fr; } }
-@media (max-width: 560px) { .join-areas { grid-template-columns: 1fr; } .team-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .join-areas { grid-template-columns: 1fr; } .team-grid { grid-template-columns: 1fr; } .person-avatar { width: 136px; height: 136px; } }
 </style>
 
 <!--
