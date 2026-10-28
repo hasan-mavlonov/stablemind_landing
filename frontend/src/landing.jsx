@@ -718,7 +718,7 @@ const PersonCard = ({ person, detail, level = 3, showPhoto = false }) => {
     <div className="person">
       {showPhoto && (
         <span className="person-avatar" aria-hidden="true">
-          <img src={person.photo} alt="" loading="lazy" decoding="async" />
+          <img src={person.photo} alt="" width="720" height="720" loading="lazy" decoding="async" />
         </span>
       )}
       <Name className="person-name">{person.name}</Name>

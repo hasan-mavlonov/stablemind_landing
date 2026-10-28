@@ -30,9 +30,11 @@ Rules the loader (`core/content.py`) applies:
   `cover` fills the frame (event banners), `contain` shows the whole image and opens it full size
   on click (certificates, acceptance letters, welcome graphics), `badge` is small and centred.
   `logo_alt` describes the image for screen readers (defaults to the card title).
-- **Team photos**: square, at least 160px, e.g. `marc-mechkak.jpg`, then set `"photo"` to the
-  file name in `team.json`. Photos appear only once every person in the list has one, so the
-  grid never mixes faces with blanks. Until then the cards show name, role and profile link.
+- **Team photos**: square, 720x720 px, the head centred and filling most of the frame (the
+  page shows them as 160px circles, sharp on 3x phone screens), e.g. `marc-mechkak.webp`, then
+  set `"photo"` to the file name in `team.json`. Photos appear only once every person in the list
+  has one, so the grid never mixes faces with blanks. Use a new file name when a photo changes,
+  so browsers don't keep showing the old one.
 - **NVIDIA badge**: write `"logo": "nvidia-inception"`, which points at NVIDIA's official file.
   Never copy or edit that file: the license forbids changing its colours or proportions.
 - **Only use a logo you have the right to use.** The Gemma card uses Google's official Gemma 4
