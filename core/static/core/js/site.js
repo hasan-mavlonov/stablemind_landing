@@ -71,5 +71,13 @@
         menuBtn.setAttribute('aria-expanded', 'false');
       });
     });
+    // Escape closes the open menu and puts focus back on its button.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && menu.classList.contains('is-open')) {
+        menu.classList.remove('is-open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        menuBtn.focus();
+      }
+    });
   }
 })();

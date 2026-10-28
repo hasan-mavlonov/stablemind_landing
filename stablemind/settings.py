@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
@@ -51,8 +52,15 @@ LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 # DEBUG comes from the environment and is off unless explicitly turned on.
 DEBUG = _env_bool("DEBUG", False)
 
+# `manage.py runserver` only ever runs on a developer's own machine (production runs gunicorn,
+# and Render sets RENDER). It always answers on localhost over plain HTTP, whatever a .env
+# copied from production says about hosts, DEBUG or HTTPS.
+LOCAL_DEV_SERVER = sys.argv[1:2] == ["runserver"] and not os.getenv("RENDER")
+
 _hosts_from_env = _csv_env("ALLOWED_HOSTS")
 ALLOWED_HOSTS = list(_hosts_from_env or LOCAL_HOSTS)
+if LOCAL_DEV_SERVER:
+    ALLOWED_HOSTS += [h for h in LOCAL_HOSTS if h not in ALLOWED_HOSTS]
 # Render publishes the service's own hostname; its health checks and the onrender.com URL use it.
 _render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
 if _render_host and _render_host not in ALLOWED_HOSTS:
@@ -62,7 +70,7 @@ if _render_host and _render_host not in ALLOWED_HOSTS:
 # (admin/, media/resumes/...) and any 500 prints settings and stack frames. A stray
 # DEBUG=True in the production environment is ignored instead of leaking that.
 _public_hosts = [h for h in ALLOWED_HOSTS if h.lstrip(".") not in {"localhost", "127.0.0.1", "[::1]"}]
-if DEBUG and _public_hosts:
+if DEBUG and _public_hosts and not LOCAL_DEV_SERVER:
     log.warning("DEBUG=True ignored because ALLOWED_HOSTS includes public hosts: %s", ", ".join(_public_hosts))
     DEBUG = False
 
@@ -98,6 +106,9 @@ if DATABASE_URL:
         "default": dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
+            # Hosted Postgres (Neon, Supabase) drops idle connections; without a check the
+            # first request after a quiet spell reused a dead one and failed with a 500.
+            conn_health_checks=True,
             ssl_require=True
         )
     }
@@ -190,7 +201,18 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "core/static"]
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+# STORAGES replaced STATICFILES_STORAGE, which Django 5.1 removed: the old setting was being
+# ignored, so WhiteNoise never got its compressed copies. Plain names, no manifest: a missing
+# file can't turn into a 500. CSS/JS links carry a content fingerprint instead (the {% asset %}
+# tag in core/templatetags/assets.py), so a deploy still reaches visitors at once.
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
+if LOCAL_DEV_SERVER:
+    # With DEBUG off, runserver serves no static files and nothing has been collected.
+    WHITENOISE_USE_FINDERS = True
+    WHITENOISE_AUTOREFRESH = True
 
 # -----------------------
 # Media (NOT used for Supabase resumes anymore)
@@ -204,7 +226,7 @@ if not os.path.exists(MEDIA_ROOT):
 # -----------------------
 # Production security
 # -----------------------
-if not DEBUG:
+if not DEBUG and not LOCAL_DEV_SERVER:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT", True)
     SESSION_COOKIE_SECURE = True
@@ -220,13 +242,19 @@ if not DEBUG:
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+# Applicants' CVs are stored in the database (Render's disk doesn't keep files). Past this
+# total, the careers form asks people to email their CV instead of filling the database.
+RESUME_STORAGE_LIMIT_MB = _env_number("RESUME_STORAGE_LIMIT_MB", 200)
+
 # -----------------------
 # Site content and contact details
 # -----------------------
+# Footer contact and every "contact us" / "join" mailto link on the site. LinkedIn and
+# WeChat stay hidden until they are set.
+CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "").strip() or "hasan@mindform-ai.com"
 # Shown in the Partners & Collaborators section until content/partners.json has entries.
-PARTNERS_EMAIL = os.getenv("PARTNERS_EMAIL", "partners@mindform-ai.com").strip()
-# Footer contact path on every page. LinkedIn and WeChat stay hidden until they are set.
-CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "hello@mindform-ai.com").strip()
+# The same inbox unless a separate partners address is set up.
+PARTNERS_EMAIL = os.getenv("PARTNERS_EMAIL", "").strip() or CONTACT_EMAIL
 LINKEDIN_URL = os.getenv("LINKEDIN_URL", "").strip()      # company page, https://...
 WECHAT_ID = os.getenv("WECHAT_ID", "").strip()            # shown as text: "WeChat: <id>"
 
