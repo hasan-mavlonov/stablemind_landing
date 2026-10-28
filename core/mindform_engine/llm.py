@@ -11,10 +11,11 @@ This helper centralizes the fix:
   * ``config.parse_json_object`` to strip the reasoning / code fences before parsing;
   * one retry that nudges the model to emit JSON only, for the rare truncation.
 
-It raises on failure (no key, transport error after the client's own retries, or no
-parseable JSON) so callers fall back to their deterministic heuristic. Transport retries
-on 5xx are left to the OpenAI client; the retry here is specifically for the parse-empty
-case Gemma's ``<thought>`` causes.
+It raises on failure (no key, transport error after the retries, or no parseable JSON) so
+callers fall back to their deterministic heuristic. Outside a time budget, transport retries
+are left to the OpenAI client; inside one, ``create_completion`` retries a transient error
+(overload, rate limit, dropped connection) once itself. The JSON-only retry here is
+specifically for the parse-empty case Gemma's ``<thought>`` causes.
 """
 
 import contextvars
@@ -52,16 +53,23 @@ def time_budget(seconds, reserve=0.0):
         _DEADLINE.reset(token)
 
 
+def _remaining(final):
+    """Seconds this call may still use, or ``None`` outside a budget."""
+    budget = _DEADLINE.get()
+    if budget is None:
+        return None
+    deadline, reserve = budget
+    return deadline - time.monotonic() - (0.0 if final else reserve)
+
+
 def call_timeout(preferred, *, final=False):
     """The timeout for the next call: ``preferred``, cut down to what the budget has left.
 
     Raises ``TimeoutError`` when the budget is used up, so the caller falls back offline.
     """
-    budget = _DEADLINE.get()
-    if budget is None:
+    remaining = _remaining(final)
+    if remaining is None:
         return preferred
-    deadline, reserve = budget
-    remaining = deadline - time.monotonic() - (0.0 if final else reserve)
     if remaining < MIN_CALL_SECONDS:
         raise TimeoutError("the LLM time budget for this request is used up")
     return min(preferred, remaining)
@@ -74,6 +82,45 @@ def make_client():
 
     retries = 0 if _DEADLINE.get() is not None else 2
     return OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL, max_retries=retries)
+
+
+# Gemini regularly answers "model overloaded" (503) or a rate limit (429) that clears within
+# a second or two. Under a budget the client's own retries are off, so ``create_completion``
+# retries those once itself, where the budget sees the wait. Before this, one overload was
+# enough to drop a step (often the reply) to its offline fallback.
+RETRY_PAUSE = 0.75
+
+
+def _transient(exc):
+    """Whether a failed call is worth one quick retry: an overload, a rate limit or a dropped
+    connection. A timeout is not: it has already used up its share of the budget."""
+    try:
+        import openai
+        timeout_error = openai.APITimeoutError
+        transient = (openai.APIConnectionError, openai.RateLimitError, openai.InternalServerError)
+    except (ImportError, AttributeError):
+        return False
+    return isinstance(exc, transient) and not isinstance(exc, timeout_error)
+
+
+def create_completion(client, *, timeout, final=False, **params):
+    """``client.chat.completions.create`` with its timeout cut to the budget (see
+    ``call_timeout``), retried once after a short pause on a transient error when the budget
+    still has room for it. Outside a budget the client's own retries apply instead."""
+    retry_left = _DEADLINE.get() is not None
+    while True:
+        try:
+            return client.chat.completions.create(
+                timeout=call_timeout(timeout, final=final), **params)
+        except Exception as exc:
+            remaining = _remaining(final)
+            if not (retry_left and _transient(exc)
+                    and remaining is not None and remaining - RETRY_PAUSE >= MIN_CALL_SECONDS):
+                raise
+            retry_left = False
+            log.info("LLM call failed (%s: %s); retrying once", type(exc).__name__, exc)
+            time.sleep(RETRY_PAUSE)
+
 
 # Gemma's <thought> can run long; give it room to finish and still reach the JSON.
 # max_tokens is a ceiling, not a target -- short replies stop early and cost nothing extra.
@@ -103,7 +150,9 @@ def complete_json(system_prompt, user_content, *, temperature=0.2,
     last_exc = None
     for attempt in range(retries + 1):
         content = user_content if attempt == 0 else user_content + _JSON_ONLY_NUDGE
-        completion = client.chat.completions.create(
+        completion = create_completion(
+            client,
+            timeout=timeout,
             model=LLM_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -111,7 +160,6 @@ def complete_json(system_prompt, user_content, *, temperature=0.2,
             ],
             temperature=temperature,
             max_tokens=max_tokens,
-            timeout=call_timeout(timeout),
         )
         try:
             return parse_json_object(completion.choices[0].message.content)
@@ -120,3 +168,35 @@ def complete_json(system_prompt, user_content, *, temperature=0.2,
             log.info("JSON parse failed (attempt %d/%d): %s",
                      attempt + 1, retries + 1, exc)
     raise last_exc
+
+
+def health_check(timeout=20):
+    """One tiny live call to the configured model, for the demo's staff-only health page.
+
+    Never raises: on failure the error says what to fix (API key, model name, quota...).
+    """
+    from urllib.parse import urlsplit
+
+    report = {"name": LLM_MODEL, "endpoint": urlsplit(LLM_BASE_URL).netloc or LLM_BASE_URL,
+              "api_key_set": bool(LLM_API_KEY)}
+    if not LLM_API_KEY:
+        report["status"] = "no API key: set GEMINI_API_KEY; until then every step answers offline"
+        return report
+    started = time.monotonic()
+    try:
+        from openai import OpenAI
+
+        client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL, max_retries=0)
+        completion = client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[{"role": "user", "content": "Reply with the single word: ready"}],
+            max_tokens=256,
+            timeout=timeout,
+        )
+        choice = completion.choices[0]
+        report.update(status="ok", reply=(choice.message.content or "")[:80],
+                      finish_reason=choice.finish_reason)
+    except Exception as exc:
+        report.update(status="error", error=f"{type(exc).__name__}: {exc}"[:500])
+    report["seconds"] = round(time.monotonic() - started, 2)
+    return report
