@@ -1,4 +1,4 @@
-{% load static %}
+{% load static assets %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -470,9 +470,9 @@ p { margin: 0; }
 a.press-title:hover { color: var(--belief); }
 .press-date { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-2); white-space: nowrap; }
 
-/* Team & advisors (content/team.json, content/advisors.json). Initials stand in for photos. */
+/* Team & advisors (content/team.json, content/advisors.json). Photos show once everyone has one. */
 .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); }
-.person { border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 32px 30px 36px; display: flex; flex-direction: column; gap: 10px; min-height: 300px; transition: background 0.3s; }
+.person { border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 32px 30px 36px; display: flex; flex-direction: column; gap: 10px; min-height: 220px; transition: background 0.3s; }
 .person:hover { background: rgba(26,14,46,0.025); }
 [data-theme="dark"] .person:hover { background: rgba(242,234,214,0.03); }
 .person-avatar { width: 80px; height: 80px; flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; font-family: var(--serif-display); font-size: 30px; font-style: italic; letter-spacing: 0.02em; color: var(--ink); background: linear-gradient(135deg, var(--trait-tint), var(--belief-tint)); border: 1px solid var(--hairline); }
@@ -656,6 +656,6 @@ window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }}
 <div id="root"></div>
 
 <!-- Deferred to match the CDN scripts above; see the LOAD ORDER CONTRACT in <head>. -->
-<script defer src="{% static 'core/js/landing.bundle.js' %}"></script>
+<script defer src="{% asset 'core/js/landing.bundle.js' %}"></script>
 </body>
 </html>

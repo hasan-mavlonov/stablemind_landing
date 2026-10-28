@@ -4,11 +4,11 @@
 
 1. `git pull` to get the latest code. Merging a PR on GitHub doesn't update the copy on your
    computer.
-2. In `.env`, set `DEBUG=True` and leave `ALLOWED_HOSTS` unset. With DEBUG off, Django redirects
-   to HTTPS, which the local server can't serve, so `http://127.0.0.1:8000` won't load. DEBUG is
-   also ignored whenever `ALLOWED_HOSTS` names a public host such as mindform-ai.com, so a `.env`
-   copied from production won't work locally.
-3. `python manage.py runserver`, then open http://127.0.0.1:8000. Restart it after pulling.
+2. `python manage.py runserver`, then open http://127.0.0.1:8000. Restart it after pulling.
+   The dev server always answers on localhost over plain HTTP, even with a `.env` copied from
+   production. Set `DEBUG=True` in `.env` to see error details while developing.
+3. For the live demo to use Gemini, put `GEMINI_API_KEY` in `.env`. Without it every reply
+   comes from the offline engine.
 
 `npm run build` only rebuilds `core/static/core/js/landing.bundle.js` from
 `frontend/src/landing.jsx`. Run it after editing that file. It doesn't download code or restart
@@ -26,10 +26,39 @@ the server, and the built bundle is committed, so a fresh pull already includes 
 | `DEMO_ENABLED` | on | `false` shows "Demo temporarily offline" on /demo/ instead of running the engine. |
 | `DEMO_RECORDING_URL` | empty | Where "Watch the recording" points on the offline card. Hidden while empty. |
 | `DEMO_TURN_BUDGET_SECONDS` | 25 | Total LLM time per demo request before the engine answers offline. Keep it under half of Cloudflare's 100s timeout. |
-| `CONTACT_EMAIL` | hello@mindform-ai.com | Footer contact on every page, and the site's mailto links. |
-| `PARTNERS_EMAIL` | partners@mindform-ai.com | Shown in Partners & collaborators while the list is empty. |
+| `GEMINI_API_KEY` | empty | The live demo's model key (Google AI Studio). Without it every step answers offline. `LLM_MODEL` picks the model (default `gemini-3.1-flash-lite`). |
+| `RESUME_STORAGE_LIMIT_MB` | 200 | Total size of CVs kept in the database. Past it, the careers form asks people to email their CV. |
+| `CONTACT_EMAIL` | hasan@mindform-ai.com | Footer contact on every page, and every "Contact us", "Join" and waitlist link. |
+| `PARTNERS_EMAIL` | same as `CONTACT_EMAIL` | Shown in Partners & collaborators while the list is empty. |
 | `LINKEDIN_URL` | empty | Company LinkedIn page (https only). Hidden while empty. |
 | `WECHAT_ID` | empty | Shown as "WeChat: <id>" in the footer. Hidden while empty. |
+
+## Is the live demo healthy?
+
+Sign in at `/admin/` with a staff account, then open `/demo/health/`. It checks, live:
+
+- `model`: one small call to the configured model. `status: ok`, or the exact error (wrong
+  key, retired model name, quota used up...).
+- `turn`: a real demo turn with a throwaway character, and where each part came from. `llm`
+  means the model answered; `rule`, `offline` or `heuristic` mean that step fell back to the
+  built-in engine because the model failed or ran out of time.
+
+Visitors get a 404 there. Every fallback is also logged (search the Render logs for
+`unavailable`), and each request is logged with its status and time in milliseconds.
+
+The demo keeps each visitor's characters on the server's disk under a signed cookie and never
+touches the database, so it keeps working if the database is paused or unreachable.
+
+## Careers applications
+
+Applications and their CVs are stored in the database (Render's disk is wiped on every deploy
+and restart). In `/admin/`, open Applications: the CV column downloads each file.
+
+## Running in production
+
+Render runs the start command from its dashboard and ignores the `Procfile`. Gunicorn reads
+`gunicorn.conf.py` (2 workers x 4 threads, one log line per request) whenever it starts from
+this folder, so a plain `gunicorn stablemind.wsgi:application` gets the right settings.
 
 ## Site content
 

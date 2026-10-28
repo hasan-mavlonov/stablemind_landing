@@ -8,10 +8,18 @@
 const API = (() => {
   const BASE = (window.MINDFORM_API_BASE || "/api").replace(/\/+$/, "");
 
-  // Statuses meaning the demo itself is down or overloaded, not that one request was
-  // bad: 503 from the DEMO_ENABLED kill switch, 502/504 from the host's proxy, and
-  // Cloudflare's 520-524 origin errors (its own pages are HTML, not our JSON).
-  const OFFLINE_STATUSES = new Set([502, 503, 504, 520, 521, 522, 523, 524]);
+  // Statuses from the host's proxy or Cloudflare (their pages are HTML, not our JSON)
+  // meaning the request never got a proper answer from the demo: 502/503/504 and
+  // Cloudflare's 520-524 origin errors.
+  const GATEWAY_STATUSES = new Set([502, 503, 504, 520, 521, 522, 523, 524]);
+  const TIMEOUT_STATUSES = new Set([504, 524]);
+  // One such failure is usually a blip (a deploy switching over, a restart), so the
+  // console stays usable and says "try again". Only this many in a row, or the demo's own
+  // kill switch, swap it for the "Demo temporarily offline" card.
+  const FAILURES_BEFORE_OFFLINE = 2;
+  const RETRY_DELAY_MS = 1500;
+
+  let failuresInARow = 0;
 
   // Swap the console for the "Demo temporarily offline" card (markup in the page): the
   // console behind it goes inert (no focus, hidden from screen readers) and focus moves to
@@ -27,30 +35,69 @@ const API = (() => {
     if (first) first.focus();
   }
 
-  async function req(path, opts) {
+  function unreachable(message) {
+    failuresInARow += 1;
+    if (failuresInARow >= FAILURES_BEFORE_OFFLINE) showOffline();
+    return new Error(message);
+  }
+
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  // One attempt. Resolves to the JSON body; rejects with an Error whose message the console
+  // shows, and with .retryable set when the request never got a proper answer.
+  async function attempt(path, opts) {
     let res;
     try {
       res = await fetch(path, opts);
-    } catch (e) {                           // no response at all: server or network down
-      showOffline();
-      throw new Error("the demo is offline");
+    } catch (e) {                           // no response at all: network or server down
+      const err = new Error("Can't reach the demo right now. Check your connection and try again.");
+      err.retryable = true;
+      throw err;
     }
     let data = null;
-    try { data = await res.json(); } catch (e) { /* non-JSON */ }
+    try { data = await res.json(); } catch (e) { /* non-JSON, e.g. a proxy's error page */ }
+    if (data && data.offline) {             // the demo's kill switch (DEMO_ENABLED=false)
+      showOffline();
+      throw new Error(data.error || "The demo is temporarily offline.");
+    }
     if (!res.ok) {
-      if (OFFLINE_STATUSES.has(res.status) || (data && data.offline)) showOffline();
-      const msg = (data && data.error) || `request failed (${res.status})`;
-      throw new Error(msg);
+      if (GATEWAY_STATUSES.has(res.status) && !(data && data.error)) {
+        const err = new Error(TIMEOUT_STATUSES.has(res.status)
+          ? "The demo took too long to answer. Please try again."
+          : "The demo is restarting or busy. Please try again in a moment.");
+        err.retryable = true;
+        throw err;
+      }
+      throw new Error((data && data.error) || `Request failed (${res.status}). Please try again.`);
     }
     return data;
   }
 
-  function post(path, body) {
+  // ``safe`` requests (reads, and opening a character) are retried once after a pause.
+  // A chat turn or a new character is not: if the first try did reach the engine, a second
+  // would apply the experience twice or create a duplicate.
+  async function req(path, opts, { safe = true } = {}) {
+    try {
+      const data = await attempt(path, opts).catch(async (err) => {
+        if (!(safe && err.retryable)) throw err;
+        await wait(RETRY_DELAY_MS);
+        return attempt(path, opts);
+      });
+      failuresInARow = 0;
+      return data;
+    } catch (err) {
+      if (err.retryable) throw unreachable(err.message);
+      failuresInARow = 0;                   // the server answered, so the demo is up
+      throw err;
+    }
+  }
+
+  function post(path, body, options) {
     return req(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body || {}),
-    });
+    }, options);
   }
 
   return {
@@ -58,8 +105,8 @@ const API = (() => {
     characters: () => req(BASE + "/characters"),
     select: (name) => post(BASE + "/select", { name }),
     state: (name) => req(BASE + "/state?name=" + encodeURIComponent(name)),
-    turn: (name, message) => post(BASE + "/turn", { name, message }),
-    createGenesis: (bio) => post(BASE + "/create/genesis", { bio }),
-    createManual: (identity, levels) => post(BASE + "/create/manual", { identity, levels }),
+    turn: (name, message) => post(BASE + "/turn", { name, message }, { safe: false }),
+    createGenesis: (bio) => post(BASE + "/create/genesis", { bio }, { safe: false }),
+    createManual: (identity, levels) => post(BASE + "/create/manual", { identity, levels }, { safe: false }),
   };
 })();

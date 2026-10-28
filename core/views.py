@@ -1,19 +1,24 @@
 from pathlib import Path
 
-from django.shortcuts import redirect, render
+import mimetypes
+
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.http import FileResponse, Http404, HttpResponse
+from django.utils.http import content_disposition_header
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 
 from . import content
 from .context_processors import contact_details
 from .forms import ApplicationForm, AuthForm
-from .models import UserProfile
+from .models import Application, UserProfile
 
 
 def landing_page(request):
@@ -65,6 +70,23 @@ def serve_resume(request, filename):
     return FileResponse(path.open("rb"), as_attachment=True, filename=path.name)
 
 
+@staff_member_required
+def serve_application_resume(request, pk):
+    """Download the CV sent with an application. Staff only, always as an attachment."""
+    application = get_object_or_404(
+        Application.objects.only("resume", "resume_data", "resume_name"), pk=pk)
+    if application.resume_data:
+        name = application.resume_name or "resume"
+        response = HttpResponse(bytes(application.resume_data),
+                                content_type=mimetypes.guess_type(name)[0] or "application/octet-stream")
+        response["Content-Disposition"] = content_disposition_header(True, name)
+        response["Cache-Control"] = "private, no-store"
+        return response
+    if application.resume:                 # an older application whose file is on disk
+        return serve_resume(request, Path(application.resume.name).name)
+    raise Http404("No CV for this application")
+
+
 def research_paper_page(request):
     milestones = content.load("milestones")
     return render(request, "core/research_paper.html", {
@@ -97,9 +119,13 @@ def auth_page(request):
                 messages.success(request, "Logged in.")
                 return redirect("profile")
         else:
+            try:
+                validate_password(password, user=User(username=username))
+            except ValidationError as error:
+                form.add_error("password", error)
             if password != confirm_password:
                 form.add_error("confirm_password", "Passwords do not match.")
-            else:
+            if form.is_valid():
                 user = User.objects.create_user(username=username, password=password)
                 login(request, user)
                 UserProfile.objects.get_or_create(user=user)

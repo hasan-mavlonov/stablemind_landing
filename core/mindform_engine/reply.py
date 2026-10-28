@@ -37,7 +37,7 @@ from .config import (
     SELF_INCONGRUENCE_THRESH, strip_reasoning,
 )
 from .expression import voice as expression_voice, plain_reply
-from .llm import call_timeout, make_client
+from .llm import create_completion, make_client
 
 log = logging.getLogger("mindform.web.reply")
 
@@ -142,7 +142,8 @@ def _llm_reply(personality, user_text, memories=None, appraisal=None):
     base = [{"role": "system", "content": system}] + _REPLY_SHOTS
 
     for attempt, suffix in enumerate(("", _RETRY_SUFFIX)):
-        completion = client.chat.completions.create(
+        completion = create_completion(
+            client,
             model=LLM_MODEL,
             messages=base + [{"role": "user", "content": user_text + suffix}],
             temperature=0.7,
@@ -156,7 +157,8 @@ def _llm_reply(personality, user_text, memories=None, appraisal=None):
             # still ample for a two-sentence reply, and the demo's per-turn time budget
             # (llm.time_budget) cuts it further when earlier calls used up the turn. The
             # reply is the final call, so it may also use the budget's reserved tail.
-            timeout=call_timeout(25, final=True),
+            timeout=25,
+            final=True,
         )
         reply = strip_reasoning(completion.choices[0].message.content)
         if reply:

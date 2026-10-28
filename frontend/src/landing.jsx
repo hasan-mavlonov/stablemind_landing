@@ -62,7 +62,7 @@ const SITE_CONTENT = (() => {
 const contentList = (key) => (Array.isArray(SITE_CONTENT[key]) ? SITE_CONTENT[key] : []);
 // Contact details come from settings (CONTACT_EMAIL, LINKEDIN_URL, WECHAT_ID).
 const CONTACT = SITE_CONTENT.contact || {};
-const CONTACT_EMAIL = CONTACT.email || 'hello@mindform-ai.com';
+const CONTACT_EMAIL = CONTACT.email || 'hasan@mindform-ai.com';
 const mailto = (subject) => 'mailto:' + CONTACT_EMAIL + (subject ? '?subject=' + encodeURIComponent(subject) : '');
 
 // A logo when we have the file, otherwise the name as a text label: never a made-up mark.
@@ -139,6 +139,14 @@ const Nav = ({ theme, onToggleTheme }) => {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+  const menuBtnRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!menuOpen) return;
+    // Escape closes the open menu and puts focus back on its button.
+    const onKey = (e) => { if (e.key === 'Escape') { setMenuOpen(false); if (menuBtnRef.current) menuBtnRef.current.focus(); } };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
   const urls = window.SITE_URLS || {};
   const closeMenu = () => setMenuOpen(false);
   return (
@@ -161,6 +169,7 @@ const Nav = ({ theme, onToggleTheme }) => {
         <a href="#join" className="btn btn-primary nav-cta-desktop" style={{padding: "10px 18px", whiteSpace: "nowrap"}}>Build with us →</a>
         <button
           type="button"
+          ref={menuBtnRef}
           className="nav-menu-btn"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
@@ -485,8 +494,8 @@ const DiagramCanvas=({step,sub,theme})=>{
       </defs>
       <g opacity={Math.max(0.18,r0)}>
         <rect x="40" y="24" width="280" height="56" rx="4" fill="none" stroke={INK} strokeWidth="1.2"/>
-        <text x="56" y="48" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill={MUTED}>INTERACTION · t</text>
-        <text x="56" y="68" fontFamily="Newsreader" fontSize="14" fill={INK} fontStyle="italic">"You're remarkably curious and open-minded."</text>
+        <text x="52" y="48" fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2" fill={MUTED}>INTERACTION · t</text>
+        <text x="52" y="68" fontFamily="Newsreader" fontSize="13" fill={INK} fontStyle="italic">"You're remarkably curious and open-minded."</text>
         <circle cx="180" cy="105" r={3+r0*2} fill="#F0386B" opacity={r0}/>
       </g>
       <g opacity={r1}><path d="M180,110 C180,130 180,140 180,155" stroke={INK} strokeWidth="1.2" fill="none" markerEnd="url(#arrow)"/></g>
@@ -699,21 +708,19 @@ const Press = ({ n }) => {
   );
 };
 
-// Initials stand in until a photo file exists (content/team.json "photo").
-const initials = (name) => {
-  const words = String(name).trim().split(/\s+/).filter(Boolean);
-  if (!words.length) return '';
-  const first = words[0][0], last = words.length > 1 ? words[words.length - 1][0] : '';
-  return (first + last).toUpperCase();
-};
+// Photos show only once everyone in the list has one (content/team.json "photo"), so the
+// grid never mixes faces with blanks.
+const everyoneHasAPhoto = (people) => people.length > 0 && people.every(person => person.photo);
 
-const PersonCard = ({ person, detail, level = 3 }) => {
+const PersonCard = ({ person, detail, level = 3, showPhoto = false }) => {
   const Name = level === 4 ? 'h4' : 'h3';
   return (
     <div className="person">
-      <span className="person-avatar" aria-hidden="true">
-        {person.photo ? <img src={person.photo} alt="" loading="lazy" decoding="async" /> : initials(person.name)}
-      </span>
+      {showPhoto && (
+        <span className="person-avatar" aria-hidden="true">
+          <img src={person.photo} alt="" loading="lazy" decoding="async" />
+        </span>
+      )}
       <Name className="person-name">{person.name}</Name>
       {detail && <p className="person-role">{detail}</p>}
       {person.link && (
@@ -727,20 +734,21 @@ const Team = ({ n }) => {
   const team = contentList('team');
   const advisors = contentList('advisors');
   if (!team.length && !advisors.length) return null;
+  const teamPhotos = everyoneHasAPhoto(team), advisorPhotos = everyoneHasAPhoto(advisors);
   return (
     <section className="section" id="team">
       <div className="container">
         <div className="eyebrow" style={{marginBottom:24}}>{n} — Team</div>
         <h2 className="usecases-title display">Founded by builders who understand<br /><em>the complexity of personality.</em></h2>
         <div className="team-grid">
-          {team.map(member => <PersonCard key={member.name} person={member} detail={member.role} />)}
+          {team.map(member => <PersonCard key={member.name} person={member} detail={member.role} showPhoto={teamPhotos} />)}
         </div>
         {advisors.length > 0 && (
           <div className="advisors">
             <h3 className="advisors-label">Advisors</h3>
             <div className="team-grid">
               {advisors.map(advisor => (
-                <PersonCard key={advisor.name} person={advisor} level={4}
+                <PersonCard key={advisor.name} person={advisor} level={4} showPhoto={advisorPhotos}
                   detail={[advisor.role, advisor.affiliation].filter(Boolean).join(' · ')} />
               ))}
             </div>
@@ -791,9 +799,9 @@ const JoinUs = ({ n }) => (
       <p className="join-closing">If you believe intelligence should feel more human,<br />intentional, and alive — <em>we should talk.</em></p>
 
       <div className="join-cta-row">
-        <a href="mailto:hasan@mindform-ai.com?subject=Joining%20MindForm" className="btn btn-primary">Join MindForm →</a>
+        <a href={mailto('Joining MindForm')} className="btn btn-primary">Join MindForm →</a>
         <SiteLink href={(window.SITE_URLS || {}).careers} className="btn btn-outline">Open roles →</SiteLink>
-        <a href="mailto:hasangit @mindform-ai.com" className="btn btn-clear">Contact us →</a>
+        <a href={mailto()} className="btn btn-clear">Contact us →</a>
       </div>
     </div>
   </section>
@@ -806,7 +814,7 @@ const FinalCTA = () => (
       <p className="final-support">MindForm is building the personality layer for the next generation of intelligent systems.</p>
       <div className="final-cta-row">
         <a href="#join" className="btn btn-primary">Build with us →</a>
-        <a href="mailto:hasan@mindform-ai.com?subject=MindForm%20waitlist" className="btn">Join the waitlist</a>
+        <a href={mailto('MindForm waitlist')} className="btn">Join the waitlist</a>
       </div>
     </div>
   </section>
@@ -829,7 +837,7 @@ const Footer=()=>{
           <div className="footer-col"><h5>Markets</h5><ul><li><a href="#usecases">Where it goes</a></li><li><a href="#whynow">Why now</a></li><li><a href={urls.demo || "/demo/"}>Live demo</a></li><li><a href="#demo">Demo walkthrough</a></li>{urls.researchPaper && <li><a href={urls.researchPaper}>Research paper</a></li>}</ul></div>
           <div className="footer-col"><h5>Company</h5><ul><li><a href="#join">Join us</a></li>{urls.careers && <li><a href={urls.careers}>Careers</a></li>}<li><a href="https://github.com/hasan-mavlonov/stable_mind_v0.1" target="_blank" rel="noreferrer">Open source</a></li></ul></div>
           <div className="footer-col"><h5>Account</h5><ul>{window.IS_AUTHENTICATED?<>{urls.profile && <li><a href={urls.profile}>Profile</a></li>}{urls.logout && <li><a href={urls.logout}>Log out</a></li>}</>:urls.login && <li><a href={urls.login}>Log in / Register</a></li>}</ul></div>
-          <div className="footer-col"><h5>Contact</h5><ul><li><a href="mailto:hasan@mindform-ai.com">hasan@mindform-ai.com</a></li>{CONTACT.linkedin && <li><OutLink href={CONTACT.linkedin}>LinkedIn</OutLink></li>}{CONTACT.wechat && <li>WeChat: {CONTACT.wechat}</li>}</ul></div>
+          <div className="footer-col"><h5>Contact</h5><ul><li><a href={mailto()}>{CONTACT_EMAIL}</a></li>{CONTACT.linkedin && <li><OutLink href={CONTACT.linkedin}>LinkedIn</OutLink></li>}{CONTACT.wechat && <li>WeChat: {CONTACT.wechat}</li>}</ul></div>
         </div>
         <div className="footer-meta"><span>© 2026 MindForm · mindform-ai.com</span><span>The interface layer for AI personality</span></div>
         <p className="footer-legal">{NVIDIA_TRADEMARK_NOTICE}</p>

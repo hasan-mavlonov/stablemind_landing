@@ -20,8 +20,12 @@ class Application(models.Model):
     github_or_experience = models.CharField(max_length=500, blank=True)
     referral_code = models.CharField(max_length=6, blank=True)
 
-    # SIMPLE AND SAFE
+    # Older applications: a file on the server's disk. Render wipes that disk on every deploy,
+    # restart and idle spin-down, so new CVs are kept in the database instead (below).
     resume = models.FileField(upload_to="resumes/", blank=True, null=True)
+    resume_data = models.BinaryField(blank=True, null=True, editable=False)
+    resume_name = models.CharField(max_length=255, blank=True, editable=False)
+    resume_size = models.PositiveIntegerField(default=0, editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -30,6 +34,10 @@ class Application(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.get_role_display()})"
+
+    @property
+    def has_resume(self):
+        return bool(self.resume_size or self.resume)
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
