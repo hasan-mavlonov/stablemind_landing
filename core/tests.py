@@ -1066,6 +1066,61 @@ class AccuracyTests(TestCase):
                 self.assertIn("MindForm", html)
 
 
+class BrandMarkTests(TestCase):
+    """The brain mark from the one-pager replaces the old dot logo and favicons everywhere."""
+
+    PAGES = ("landing", "careers", "research_paper", "login", "mindform_demo")
+    ICONS = ("core/img/favicon.ico", "core/img/favicon.svg", "core/img/apple-touch-icon.png")
+
+    def test_every_page_links_the_new_icon_set_with_a_cache_busting_url(self):
+        for name in self.PAGES:
+            with self.subTest(page=name):
+                html = self.client.get(reverse(name), secure=True).content.decode()
+                for icon in self.ICONS:
+                    self.assertRegex(html, re.escape(static(icon)) + r"\?v=[0-9a-f]{10}")
+                self.assertNotIn("data:image/svg+xml", html)        # the old inline dot icons
+                self.assertNotIn("wordmark-dot", html)
+                self.assertNotIn("brand-dot", html)
+
+    def test_the_mark_sits_beside_the_name_in_nav_footer_and_console(self):
+        careers = self.client.get(reverse("careers"), secure=True).content.decode()
+        self.assertIn('<span class="wordmark-mark" aria-hidden="true"></span>Mindform', careers)
+        self.assertIn('class="footer-brand-mark"', careers)
+        demo = self.client.get(reverse("mindform_demo"), secure=True).content.decode()
+        self.assertEqual(demo.count('<span class="brand-mark" aria-hidden="true"></span>MindForm'), 2)
+        bundle = Path(finders.find("core/js/landing.bundle.js")).read_text()
+        self.assertIn('className:"wordmark-mark"', bundle)              # rebuilt after landing.jsx
+        self.assertNotIn("wordmark-dot", bundle)
+
+    def test_favicon_ico_at_the_root_redirects_to_the_static_icon(self):
+        response = self.client.get("/favicon.ico", secure=True)
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], static("core/img/favicon.ico"))
+
+    def test_icon_files_are_well_formed(self):
+        from xml.etree import ElementTree
+        for path, box in (("core/img/brand/mindform-mark.svg", "0 0 1000 942"),
+                          ("core/img/brand/mindform-mark-ui.svg", "-5 -5 1010 952"),
+                          ("core/img/favicon.svg", "0 0 64 64")):
+            with self.subTest(path=path):
+                root = ElementTree.parse(finders.find(path)).getroot()
+                self.assertEqual(root.tag, "{http://www.w3.org/2000/svg}svg")
+                self.assertEqual(root.get("viewBox"), box)
+        ico = Path(finders.find("core/img/favicon.ico")).read_bytes()
+        self.assertEqual(ico[:4], b"\x00\x00\x01\x00")                  # ICO header
+        self.assertEqual(int.from_bytes(ico[4:6], "little"), 3)          # 16, 32 and 48 px
+        png = Path(finders.find("core/img/apple-touch-icon.png")).read_bytes()
+        self.assertEqual(png[:8], b"\x89PNG\r\n\x1a\n")
+        self.assertEqual((int.from_bytes(png[16:20], "big"), int.from_bytes(png[20:24], "big")), (180, 180))
+
+    def test_error_page_draws_the_mark_inline(self):
+        # 500.html must keep working while the rest of the site is broken: no tags, no static.
+        source = Path(settings.BASE_DIR, "core/templates/500.html").read_text()
+        self.assertNotIn("{%", source)
+        html = render_to_string("500.html")
+        self.assertIn('<a class="wordmark" href="/"><svg viewBox="-5 -5 1010 952" aria-hidden="true"', html)
+
+
 class TeamTests(TestCase):
     def test_team_is_leadership_first_then_engineering(self):
         team = content.load("team")

@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
+from django.templatetags.static import static
 from django.urls import path
+from django.views.generic.base import RedirectView
 
 from core.views import (
     landing_page,
@@ -24,6 +26,8 @@ urlpatterns = [
     path('research-paper/', research_paper_page, name='research_paper'),
     path('sitemap.xml', sitemap, {'sitemaps': {'pages': StaticPagesSitemap}}, name='sitemap'),
     path('robots.txt', robots_txt, name='robots_txt'),
+    # Browsers and crawlers ask for /favicon.ico directly; pages link the full icon set.
+    path('favicon.ico', RedirectView.as_view(url=static('core/img/favicon.ico'), permanent=True)),
 
     # MindForm interactive demo (the personality engine, vendored from mindform_v0).
     path('demo/', mindform_demo.console, name='mindform_demo'),

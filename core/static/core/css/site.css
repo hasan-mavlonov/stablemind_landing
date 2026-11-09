@@ -144,13 +144,20 @@ code {
   gap: 9px;
   color: var(--ink);
 }
-.wordmark-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--belief);
+/* The Mindform brain mark, painted in the text colour so it follows the theme. The "-ui"
+   file has slightly heavier lines, drawn for 20-48px. */
+.wordmark-mark,
+.footer-brand-mark {
   display: inline-block;
   flex-shrink: 0;
+  background-color: currentColor;
+  -webkit-mask: url("../img/brand/mindform-mark-ui.svg") center / contain no-repeat;
+  mask: url("../img/brand/mindform-mark-ui.svg") center / contain no-repeat;
+}
+.wordmark-mark { width: 30px; height: 28px; }
+@media (forced-colors: active) {
+  .wordmark-mark,
+  .footer-brand-mark { background-color: CanvasText; forced-color-adjust: none; }
 }
 .nav-links {
   display: flex;
@@ -443,11 +450,15 @@ code {
   gap: 24px;
 }
 .footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   font-family: var(--serif-display);
   font-size: 36px;
   line-height: 1;
   letter-spacing: -0.01em;
 }
+.footer-brand-mark { width: 42px; height: 40px; }
 .footer-brand em { color: var(--belief-soft); font-style: italic; }
 .footer-links {
   display: flex;

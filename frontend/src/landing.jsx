@@ -152,7 +152,7 @@ const Nav = ({ theme, onToggleTheme }) => {
   return (
     <nav className={"nav " + (scrolled ? "is-scrolled" : "")}>
       <div className="nav-bg"></div>
-      <a href={urls.home || "/"} className="wordmark"><span className="wordmark-dot"></span>Mindform</a>
+      <a href={urls.home || "/"} className="wordmark"><span className="wordmark-mark" aria-hidden="true"></span>Mindform</a>
       <div className={"nav-links " + (menuOpen ? "is-open" : "")}>
         <a href="#vision" onClick={closeMenu}>Vision</a>
         <a href="#solution" onClick={closeMenu}>Solution</a>
