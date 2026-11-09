@@ -7,7 +7,7 @@
 <meta name="description" content="MindForm is building the personality layer for the next generation of intelligent systems — where AI feels like someone, not something." />
 <title>MindForm — The interface layer for AI</title>
 
-<link rel="icon" href="{% static 'core/img/favicon.svg' %}">
+{% include "core/partials/favicons.html" %}
 <script>
   (function () {
     try {
@@ -86,7 +86,9 @@ p { margin: 0; }
 .nav-bg { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--bone) 30%, var(--nav-fade)); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: -1; }
 .nav.is-scrolled .nav-bg { opacity: 1; }
 .wordmark { font-family: var(--serif-display); font-size: 26px; letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 10px; }
-.wordmark-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--belief); display: inline-block; margin-bottom: 2px; }
+/* Mindform brain mark in the text colour, so it follows the theme (see site.css). */
+.wordmark-mark { width: 32px; height: 30px; display: inline-block; flex-shrink: 0; background-color: currentColor; -webkit-mask: url("{% static 'core/img/brand/mindform-mark-ui.svg' %}") center / contain no-repeat; mask: url("{% static 'core/img/brand/mindform-mark-ui.svg' %}") center / contain no-repeat; }
+@media (forced-colors: active) { .wordmark-mark { background-color: CanvasText; forced-color-adjust: none; } }
 .nav-links { display: flex; gap: 36px; align-items: center; font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
 .nav-links a { color: var(--ink); opacity: 0.7; transition: opacity 0.2s; }
 .nav-links a:hover { opacity: 1; }

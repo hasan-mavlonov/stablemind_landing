@@ -66,6 +66,23 @@ Recognition, partners, press, team, advisors, milestones and benchmarks are JSON
 `content/`. Editing them needs no rebuild. See [content/README.md](content/README.md) for the
 fields and rules (unknown values stay as `TODO` and are never shown).
 
+## Logo and icons
+
+The Mindform brain mark (from the one-pager, redrawn as vector) is in `core/static/core/img/brand/`:
+
+- `mindform-mark.svg`: the master mark on a 1000-unit artboard.
+- `mindform-mark-ui.svg`: the same mark with slightly heavier lines for 20-48px. The nav, the
+  footer and the demo console use it.
+
+Pages paint the mark in the current text colour through a CSS mask (`.wordmark-mark`,
+`.footer-brand-mark`, `.brand-mark`), so it follows light and dark mode without a second file.
+The icons (`core/img/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`) are linked from
+`core/templates/core/partials/favicons.html`, and `/favicon.ico` redirects to the static file.
+`500.html` draws the mark inline because that page must not depend on anything else.
+
+Lockups with the MINDFORM wordmark, print files (PDF, EPS) and PNGs are in the logo pack
+(`mindform-logo-pack.zip`), not in this repo.
+
 ## NVIDIA Inception badge
 
 Mindform is a member of the NVIDIA Inception Program. We display the badge under a signed NVIDIA

@@ -72,8 +72,11 @@ p { margin: 0; }
   padding: 14px 26px; border-bottom: 1px solid var(--hairline);
   background: color-mix(in srgb, var(--bone) 88%, transparent); backdrop-filter: blur(12px); }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 24px; cursor: pointer; }
-.brand-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--belief);
-  box-shadow: 0 0 12px var(--belief); animation: pulse 2.4s ease-in-out infinite; }
+/* Mindform brain mark in the text colour, so it follows the theme. */
+.brand-mark { width: 30px; height: 28px; flex: none; background-color: currentColor;
+  -webkit-mask: url("../../core/img/brand/mindform-mark-ui.svg") center / contain no-repeat;
+  mask: url("../../core/img/brand/mindform-mark-ui.svg") center / contain no-repeat; }
+@media (forced-colors: active) { .brand-mark { background-color: CanvasText; forced-color-adjust: none; } }
 .brand-chip { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--muted); border: 1px solid var(--hairline-2); border-radius: 999px; padding: 3px 9px; margin-left: 2px; }
 @keyframes pulse { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.25); } }

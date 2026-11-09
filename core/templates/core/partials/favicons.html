@@ -1,0 +1,7 @@
+{% load assets %}
+{# Mindform brain mark. ICO for older browsers and crawlers, SVG for modern tabs, and the #}
+{# 180px PNG for iOS home screens. {% asset %} adds a content hash so a new icon shows   #}
+{# up straight after a deploy instead of waiting out browser and Cloudflare caches.       #}
+<link rel="icon" href="{% asset 'core/img/favicon.ico' %}" sizes="32x32">
+<link rel="icon" href="{% asset 'core/img/favicon.svg' %}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{% asset 'core/img/apple-touch-icon.png' %}">
